@@ -1,0 +1,232 @@
+\documentclass[11pt, a4paper]{article}
+\usepackage[a4paper, margin=2cm]{geometry}
+\usepackage{fontspec}
+\usepackage[vietnamese, bidi=basic, provide=*]{babel}
+\babelprovide[import, onchar=ids fonts]{vietnamese}
+\babelfont{rm}{Noto Sans}
+
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage[table,xcolor]{xcolor}
+\usepackage{enumitem}
+\usepackage{hyperref}
+
+% Color definitions
+\definecolor{primary}{RGB}{30, 58, 138}    % Deep Blue
+\definecolor{secondary}{RGB}{15, 118, 110} % Teal
+\definecolor{warning}{RGB}{180, 83, 9}     % Amber
+\definecolor{danger}{RGB}{185, 28, 28}     % Red
+\definecolor{lightbg}{RGB}{248, 250, 252}  % Soft Slate Gray
+\definecolor{tableheader}{RGB}{224, 231, 255} % Light Lavender/Blue
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=primary,
+    urlcolor=primary
+}
+
+\setlist[itemize]{leftmargin=1.5em, itemsep=2pt, topsep=2pt}
+
+\title{\textbf{\Large\color{primary} BÁO CÁO THỐNG KÊ VÀ QUẢN LÝ CHI TIÊU CÁ NHÂN}\\[0.5em]
+\large\color{secondary} Phân Tích & Cảnh Báo Ngân Sách Thông Minh cho Sinh Viên}
+\author{\textbf{Hệ Thống Trợ Lý Áo Smart Money Bot}}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Tổng hợp và trực quan hóa chi tiêu}
+Dưới đây là bảng thống kê tiêu dùng chi tiết trong 01 tháng của sinh viên:
+
+\small
+\begin{longtable}{>{\bfseries}l p{2.8cm} p{3.2cm} r p{2.5cm} p{3cm}}
+\caption{Bảng thống kê tiêu dùng trong 1 tháng} \label{tab:chitieu} \\
+\toprule
+\rowcolor{tableheader}
+\textbf{Mã} & \textbf{Cửa hàng} & \textbf{Nội dung chi tiêu} & \textbf{Số tiền (VNĐ)} & \textbf{Danh mục} & \textbf{Căn cứ phân loại} \\
+\midrule
+\endhead
+
+\bottomrule
+\endfoot
+
+Ou1  & Highlands Coffee & Cà phê phin sữa đá & 39.000 đ & Ăn uống & Đồ uống, cà phê sinh hoạt \\
+Ou2  & Cây xăng Petrolimex & Đổ xăng xe máy RON 95 & 250.000 đ & Đi lại & Chi phí nhiên liệu di chuyển \\
+Ou3  & Siêu thị Co.opmart & Nhu yếu phẩm (kem đánh răng, nước giặt, dầu gội) & 215.000 đ & Tiêu dùng / Mua sắm & Nhu yếu phẩm sinh hoạt cá nhân \\
+Ou4  & Cơm tấm Phúc Lộc Thọ & Suất cơm sườn bì chả ăn trưa & 55.000 đ & Ăn uống & Bữa ăn chính hàng ngày \\
+Ou5  & CGV Cinemas & 01 Vé xem phim cuối tuần & 110.000 đ & Giải trí & Vé xem phim, hoạt động văn hóa \\
+Ou6  & EVNHCMC & Tiền điện sinh hoạt phòng trọ tháng 09 & 450.000 đ & Hóa đơn tiện ích & Chi phí điện sinh hoạt định kỳ \\
+Ou7  & Grab / Xanh SM & Chuyến xe công nghệ từ nhà ra metro & 42.000 đ & Đi lại & Dịch vụ gọi xe công nghệ \\
+Ou8  & Viettel Telecom & Gia hạn gói cước 4G data tháng & 90.000 đ & Hóa đơn tiện ích & Cước viễn thông di động \\
+Ou9  & Shop quần áo / Shopee & Áo phông cơ bản phục vụ học tập & 199.000 đ & Tiêu dùng / Mua sắm & Trang phục, quần áo thường ngày \\
+Ou10 & Nhà thuốc Long Châu & Thuốc cảm cúm và vitamin C & 85.000 đ & Khác & Chi phí y tế, thuốc men đột xuất \\
+Ou11 & Chủ nhà trọ & Tiền thuê phòng trọ tháng 10 & 1.000.000 đ & Hóa đơn tiện ích & Chi phí tiền phòng trọ định kỳ \\
+Ou12 & Shopee / Phụ kiện & Balo chống sốc đựng laptop đi học & 366.000 đ & Tiêu dùng / Mua sắm & Đồ dùng sinh hoạt, thiết bị \\
+Ou13 & Quán cơm sinh viên & Tiền cơm trưa cả tháng & 1.200.000 đ & Ăn uống & Bữa ăn chính phục vụ học tập \\
+Ou14 & Bách Hóa Xanh & Mua thịt, trứng, rau tươi tự nấu ăn & 450.000 đ & Ăn uống & Thực phẩm tự nấu ăn tại phòng \\
+Ou15 & ShopeeFood & Đặt gà rán liên hoan nhóm đồ án & 146.000 đ & Ăn uống & Đặt đồ ăn trực tuyến (liên hoan) \\
+Ou16 & Honda / Bus stop & Vé xe buýt tháng \& bảo dưỡng xe máy & 118.000 đ & Đi lại & Phí bảo dưỡng \& vé xe buýt \\
+Ou17 & The Coffee House & Cà phê học nhóm thảo luận bài tập & 150.000 đ & Giải trí & Gặp gỡ bạn bè, học nhóm \\
+Ou18 & Tiệm photocopy KHTN & In ấn tài liệu, đồ án và giáo trình & 120.000 đ & Khác & Đồ dùng học tập, in ấn tài liệu \\
+\end{longtable}
+\normalsize
+
+\section{Đề xuất hạn mức tự động dựa trên dữ liệu}
+Hệ thống đề xuất hạn mức phân bổ chi tiêu tối ưu cho mức thu nhập mẫu của sinh viên là \textbf{7.000.000 VNĐ}:
+
+\begin{table}[htbp]
+\centering
+\caption{Bảng phân bổ tỷ lệ chi tiêu theo thu nhập hàng tháng}
+\vspace{0.5em}
+\small
+\begin{tabularx}{\textwidth}{c X c r X}
+\toprule
+\rowcolor{tableheader}
+\textbf{STT} & \textbf{Danh mục chi tiêu} & \textbf{Tỷ lệ (\%)} & \textbf{Dự kiến (VNĐ)} & \textbf{Diễn giải chi tiết cho sinh viên} \\
+\midrule
+1 & Ăn uống & 32,14\% & 2.250.000 đ & Bữa ăn hàng ngày ($\approx$ 75.000 đ/ngày: ăn sáng, trưa, tối, đồ uống) \\
+2 & Hóa đơn tiện ích & 28,57\% & 2.000.000 đ & Tiền phòng trọ/KTX, điện nước, internet cáp quang, gói 4G \\
+3 & Tiêu dùng / Mua sắm & 10,00\% & 700.000 đ & Nhu yếu phẩm cá nhân, đồ dùng sinh hoạt gia đình/cá nhân \\
+4 & Khác (Dự phòng \& Y tế) & 11,43\% & 800.000 đ & Quỹ dự phòng rủi ro, thuốc men y tế, in ấn đồ án/giáo trình \\
+5 & Giải trí & 8,57\% & 600.000 đ & Vé xem phim cuối tuần, cà phê học nhóm/gặp gỡ bạn bè \\
+6 & Đi lại & 8,57\% & 600.000 đ & Xăng xe máy, vé xe buýt, phí gửi xe, gọi xe công nghệ \\
+\midrule
+\rowcolor{lightbg}
+\textbf{--} & \textbf{Tổng cộng ngân sách} & \textbf{100\%} & \textbf{7.000.000 đ} & \textbf{Cân đối toàn bộ thu nhập hàng tháng} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Giám sát thời gian thực \& Cảnh báo ngưỡng chủ động}
+
+\begin{table}[htbp]
+\centering
+\caption{Bảng giám sát ngân sách thời gian thực \& Cảnh báo chủ động từ Smart Money Bot}
+\vspace{0.5em}
+\scriptsize
+\begin{tabularx}{\textwidth}{c p{2cm} r r c X}
+\toprule
+\rowcolor{tableheader}
+\textbf{STT} & \textbf{Danh mục} & \textbf{Đã dùng} & \textbf{Còn lại} & \textbf{Mã CT} & \textbf{Thông báo \& Khuyến nghị từ BOT} \\
+\midrule
+1 & Ăn uống & 1.890.000 đ & 360.000 đ & Ou1, 4, 13, 14, 15 & 
+\textbf{• Hạn mức:} 2.250.000 đ | \textbf{Đã chi:} 1.890.000 đ\newline
+\textbf{• Ngưỡng:} 84,00\% -- \textcolor{warning}{\textbf{CẢNH BÁO: VƯỢT NGƯỠNG AN TOÀN 80\%!}}\newline
+\textbf{• Lời khuyên:} Chi phí ăn uống đã chạm ngưỡng báo động vàng; cần giảm ăn ngoài/trà sữa, ưu tiên tự nấu ăn để giữ an toàn cho 360.000 đ còn lại. \\
+\hline
+
+2 & Hóa đơn tiện ích & 1.540.000 đ & 460.000 đ & Ou6, 8, 11 & 
+\textbf{• Hạn mức:} 2.000.000 đ | \textbf{Đã chi:} 1.540.000 đ\newline
+\textbf{• Ngưỡng:} 77,00\% -- \textbf{An toàn} ($< 80\%$)\newline
+\textbf{• Lời khuyên:} Đã thanh toán các khoản tiền trọ, điện và mạng bắt buộc. Cần giữ 460.000 đ cho tiền nước và phụ phí cuối kỳ. \\
+\hline
+
+3 & Tiêu dùng / Mua sắm & 780.000 đ & -80.000 đ & Ou3, 9, 12 & 
+\textbf{• Hạn mức:} 700.000 đ | \textbf{Đã chi:} 780.000 đ\newline
+\textbf{• Ngưỡng:} 111,43\% -- \textcolor{danger}{\textbf{BÁO ĐỘNG ĐỎ: BỘI CHI (VƯỢT 100\%)}}\newline
+\textbf{• Lời khuyên:} Dừng ngay việc mua sắm đồ dùng cá nhân, không săn sale online; khoản thâm hụt 80.000 đ sẽ tự động bù từ quỹ dự phòng. \\
+\hline
+
+4 & Khác (Dự phòng \& Y tế) & 205.000 đ & 595.000 đ & Ou10, 18 & 
+\textbf{• Hạn mức:} 800.000 đ | \textbf{Đã chi:} 205.000 đ\newline
+\textbf{• Ngưỡng:} 25,63\% -- \textbf{An toàn}\newline
+\textbf{• Lời khuyên:} Quỹ dự phòng dồi dào, có thể trích 80.000 đ bù đắp cho phần bội chi mua sắm và giữ phần còn lại đề phòng ốm đau. \\
+\hline
+
+5 & Giải trí & 260.000 đ & 340.000 đ & Ou5, 17 & 
+\textbf{• Hạn mức:} 600.000 đ | \textbf{Đã chi:} 260.000 đ\newline
+\textbf{• Ngưỡng:} 43,33\% -- \textbf{An toàn}\newline
+\textbf{• Lời khuyên:} Kiểm soát rất tốt; nên duy trì, hạn chế tiệc tùng thêm để san sẻ áp lực cho mục Ăn uống đang báo động. \\
+\hline
+
+6 & Đi lại & 410.000 đ & 190.000 đ & Ou2, 7, 16 & 
+\textbf{• Hạn mức:} 600.000 đ | \textbf{Đã chi:} 410.000 đ\newline
+\textbf{• Ngưỡng:} 68,33\% -- \textbf{An toàn}\newline
+\textbf{• Lời khuyên:} Chi phí đi lại gần 70\%; nên tận dụng tối đa vé xe buýt sinh viên hoặc đi bộ/metro chặng ngắn để tránh chạm mốc 80\%. \\
+\midrule
+\rowcolor{lightbg}
+\textbf{--} & \textbf{Tổng ngân sách} & \textbf{5.085.000 đ} & \textbf{1.915.000 đ} & \textbf{Ou1 -- 18} & 
+\textbf{• Đánh giá chung:} Tổng chi đạt 72,64\% (còn trong tầm kiểm soát). Tuy nhiên đã có 01 mục vượt 100\% (Tiêu dùng) và 01 mục vượt 80\% (Ăn uống). Cần điều chỉnh hành vi tiêu dùng kịp thời. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\newpage
+\section{So sánh Basic Virtual Assistant và Smart Virtual Assistant}
+
+\subsection*{Mô tả khái quát}
+\begin{itemize}
+    \item \textbf{Basic Virtual Assistant (BVA):} Hoạt động thụ động dựa trên các quy tắc tĩnh (Rule-based), yêu cầu người dùng phải tự nhập liệu hoặc thao tác thủ công; chỉ thực hiện các phép tính số học đơn giản và đưa ra thông báo cố định khi được yêu cầu.
+    \item \textbf{Smart Virtual Assistant (SVA):} Tận dụng AI, xử lý ngôn ngữ tự nhiên (NLP) và phân tích dữ liệu lịch sử để tự động hóa; có khả năng học hỏi thói quen, chủ động đề xuất hạn mức thông minh, giám sát thời gian thực và đưa ra các khuyến nghị hành động ngữ cảnh cá nhân hóa.
+\end{itemize}
+
+\subsection*{Bảng so sánh chi tiết giữa BVA và SVA}
+
+\small
+\begin{longtable}{p{7.5cm} p{8.5cm}}
+\caption{So sánh phân chia công việc trong 3 chức năng} \\
+\toprule
+\rowcolor{tableheader}
+\textbf{Basic Virtual Assistant (Trợ lý ảo cơ bản)} & \textbf{Smart Virtual Assistant (Trợ lý ảo thông minh)} \\
+\midrule
+\endhead
+
+\bottomrule
+\endfoot
+
+\textbf{Thuộc Mục 1: Tổng hợp \& Trực quan hóa}
+\begin{itemize}
+    \item Chỉ hỗ trợ người dùng nhập liệu thủ công bằng tay từng trường dữ liệu (số tiền, nội dung chi tiêu).
+    \item Hoàn toàn không có khả năng quét hóa đơn bằng thuật toán OCR hay nhận diện giọng nói.
+    \item Người dùng phải tự chọn danh mục chi tiêu cho từng giao dịch từ danh sách thả xuống.
+    \item Cộng tổng số tiền theo từng danh mục bằng các công thức số học cố định.
+    \item Vẽ biểu đồ hoặc hiển thị bảng thống kê một cách thụ động (chỉ hiển thị khi bấm nút yêu cầu).
+\end{itemize}
+& 
+\textbf{Thuộc Mục 1: Tổng hợp \& Trực quan hóa}
+\begin{itemize}
+    \item Tiếp nhận dữ liệu đa phương thức thông minh: nhập văn bản tự nhiên, sử dụng OCR quét ảnh/PDF hóa đơn và nhận diện giọng nói (Speech-to-Text).
+    \item AI tự động trích xuất các thực thể chính (Số tiền, Ngày, Đơn vị/Cửa hàng, Nội dung chi tiết).
+    \item Tự động phân loại giao dịch vào 6 danh mục chuẩn dựa trên ngữ cảnh kèm chỉ số tin cậy (Yêu cầu xác nhận nếu độ tin cậy $< 70\%$).
+    \item Tự động tổng hợp và trực quan hóa cơ cấu chi tiêu đa chiều ngay khi có giao dịch mới.
+    \item Nhận diện mẫu hành vi tiêu dùng và phát hiện các biến động bất thường so với tháng trước.
+\end{itemize} \\
+\hline
+
+\textbf{Thuộc Mục 2: Đề xuất hạn mức tự động}
+\begin{itemize}
+    \item Người dùng phải tự tính toán và nhập hạn mức cứng cho từng danh mục bằng tay.
+    \item Hoặc áp dụng công thức chia tỷ lệ cố định, cứng nhắc (chia đều các mục) không xét hoàn cảnh thực tế.
+    \item Hạn mức giữ nguyên qua các tháng trừ khi người dùng chủ động điều chỉnh thủ công.
+\end{itemize}
+& 
+\textbf{Thuộc Mục 2: Đề xuất hạn mức tự động}
+\begin{itemize}
+    \item Tự động phân tích lịch sử chi tiêu ít nhất 3 tháng kết hợp thu nhập đầu vào (7.000.000 đ) để nhận diện xu hướng.
+    \item Tự động tính toán và gợi ý hạn mức (\textit{budget ceiling}) tối ưu cho từng danh mục sát với thực tế sinh hoạt sinh viên.
+    \item Linh hoạt gợi ý điều chỉnh hạn mức theo mùa vụ (ví dụ: tháng thi cử tăng tiền in ấn, đầu kỳ tăng tiền sách vở).
+\end{itemize} \\
+\hline
+
+\textbf{Thuộc Mục 3: Giám sát real-time \& Cảnh báo}
+\begin{itemize}
+    \item Chỉ kiểm tra ngân sách khi người dùng chủ động mở ứng dụng xem số dư còn lại.
+    \item Không có cơ chế cảnh báo đa tầng; chỉ thông báo khi số tiền chạm mốc 0 đ hoặc âm tiền.
+    \item Thông báo dạng hệ thống khô khan: \textit{"Bạn đã tiêu X đồng, còn lại Y đồng"}.
+    \item Không thể đưa ra lời khuyên hay phương án khắc phục bội chi.
+\end{itemize}
+& 
+\textbf{Thuộc Mục 3: Giám sát real-time \& Cảnh báo}
+\begin{itemize}
+    \item Giám sát liên tục theo thời gian thực (real-time) ngay khi giao dịch mới phát sinh.
+    \item Tự động kích hoạt cảnh báo đa tầng: Cảnh báo nhắc nhở ở mốc 80\% và Báo động đỏ khi vượt 100\% (bội chi).
+    \item Đưa ra thông báo ngữ cảnh tự nhiên chỉ rõ: tiêu vào việc gì, tại sao chạm ngưỡng.
+    \item Lời khuyên hành động thông minh: khuyên giảm chi tiêu cụ thể, chi thêm hợp lý và gợi ý tự động trích quỹ dự phòng bù trừ thâm hụt.
+\end{itemize} \\
+
+\end{longtable}
+\normalsize
+
+\end{document}
