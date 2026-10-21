@@ -1,0 +1,868 @@
+\documentclass[a4paper,14pt]{extarticle}
+
+% ==================== KHAI BÁO GÓI ====================
+\usepackage{fontspec}
+\setmainfont{TeX Gyre Termes}
+
+\usepackage[vietnamese]{babel}
+\usepackage[
+    a4paper,
+    left=1.5cm,
+    right=1.5cm,
+    top=1.8cm,
+    bottom=1.7cm,
+    headheight=14pt,
+    headsep=0.35cm,
+    footskip=0.7cm
+]{geometry}
+
+\usepackage{fancyhdr}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{ragged2e}
+\usepackage{setspace}
+
+% ==================== ĐỊNH DẠNG CHUNG ====================
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{3pt}
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.08}
+
+\newcolumntype{Y}{>{\RaggedRight\arraybackslash}X}
+\newcolumntype{P}[1]{>{\RaggedRight\arraybackslash}p{#1}}
+
+\setlist[itemize]{
+    leftmargin=1.1cm,
+    itemsep=2pt,
+    topsep=2pt
+}
+
+% ==================== ĐẦU TRANG / CHÂN TRANG ====================
+\pagestyle{fancy}
+\fancyhf{}
+
+\fancyhead[L]{\small Problem Analysis -- Smart Money Bot (bản hoàn chỉnh)}
+\fancyfoot[R]{\small Page \thepage\ of 10}
+
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% ==================== LỆNH ĐỊNH DẠNG BẢNG ====================
+\newcommand{\TableText}{\footnotesize}
+\newcommand{\TableStart}{%
+    \begingroup
+    \TableText
+    \renewcommand{\arraystretch}{1.05}
+}
+\newcommand{\TableEnd}{\endgroup}
+
+\begin{document}
+
+% ============================================================
+% TRANG 1
+% ============================================================
+
+\begin{center}
+    {\Large\bfseries BÀI TẬP: XÁC ĐỊNH VÀ ĐỊNH NGHĨA VẤN ĐỀ}
+
+    \vspace{0.3cm}
+
+    {\normalsize
+    Đề tài: SMART MONEY BOT -- Trợ lý ảo thông minh quản lý chi tiêu cá nhân
+    }
+
+    \vspace{0.25cm}
+
+    {\small
+    CSC10014 -- Computational Thinking
+    $\cdot$ Project: Smart Virtual Assistant System
+    $\cdot$ Nhóm 6
+    }
+
+    \vspace{0.1cm}
+
+    {\small
+    Đại diện nộp bài: Nguyễn Phạm Trung Dũng -- 25127306
+    }
+\end{center}
+
+\vspace{0.3cm}
+
+\TableStart
+\begingroup
+\normalsize
+\begin{tabularx}{\textwidth}{
+    |P{0.9cm}|P{5.6cm}|P{2.1cm}|Y|
+}
+\hline
+\textbf{STT}
+& \textbf{Họ và tên}
+& \textbf{MSSV}
+& \textbf{Vai trò chính}
+\\
+\hline
+1 & Nguyễn Phạm Trung Dũng & 25127306
+  & Trưởng nhóm - Làm slides
+\\
+\hline
+2 & Đỗ Nhật Minh & 21127355
+  & Phó nhóm - Viết báo cáo ý tưởng, vấn đề
+\\
+\hline
+3 & Nguyễn Mạnh Cường & 25127024
+  & Viết báo cáo ý tưởng, vấn đề
+\\
+\hline
+4 & Hồ Thái Nguyên & 25127105
+  & Viết báo cáo ý tưởng, vấn đề
+\\
+\hline
+5 & Phan Xuân Phúc & 25127229
+  & Viết báo cáo ý tưởng, vấn đề
+\\
+\hline
+6 & Vũ Đức Duy & 25127314
+  & Làm slides
+\\
+\hline
+\end{tabularx}
+\endgroup
+\TableEnd
+
+\vspace{0.3cm}
+
+{\large\bfseries 1. Bối cảnh và phát biểu vấn đề}
+
+\vspace{0.15cm}
+
+{\normalsize\bfseries 1.1. Bối cảnh}
+
+Sinh viên và người đi làm trẻ chi tiêu hằng ngày cho ăn uống,
+mua sắm, đi lại và các hóa đơn định kỳ (điện, nước, internet,
+điện thoại). Thông tin chi tiêu nằm rải rác ở nhiều nơi: hóa đơn
+giấy, ảnh chụp, tin nhắn ngân hàng, ghi chú. Ghi chép thủ công
+tốn công nên dễ bị bỏ dở.
+
+Các ứng dụng hiện có (Sổ Thu Chi MISA, Money Lover, Spendee)
+đã giải quyết một phần bài toán, nhưng qua khảo sát của nhóm,
+nhiều tiện ích tự động nằm ở gói trả phí, gói miễn phí bị giới hạn
+số ví/ngân sách, và việc nhập liệu tự động vẫn có thể sai số tiền,
+ngày hoặc danh mục nên người dùng vẫn phải kiểm tra lại.
+
+\vspace{0.5cm}
+
+{\normalsize\bfseries 1.2. Phát biểu vấn đề}
+
+Sinh viên và người đi làm trẻ khó kiểm soát chi tiêu cá nhân vì:
+(1) ghi chép chi tiêu tốn công nên bỏ dở, dẫn đến không biết mình
+đã tiêu bao nhiêu cho từng loại; (2) đặt ngân sách theo cảm tính
+và chỉ nhận ra mình vượt mức khi đã muộn; (3) quên hạn các hóa
+đơn định kỳ, dễ bị phạt hoặc gián đoạn dịch vụ.
+
+\textbf{Câu hỏi cốt lõi:} người dùng cần gì để nắm được chi tiêu
+của mình, đặt và giữ được hạn mức, không trễ hóa đơn, mà tốn ít
+công sức nhất?
+
+\newpage
+
+\vspace{0.5cm}
+
+{\normalsize\bfseries 1.3. Chia nhỏ thành các vấn đề con}
+\vspace{0.5cm}
+
+\TableStart
+\begingroup
+\normalsize
+\begin{tabularx}{\textwidth}{
+    |P{0.8cm}|P{4.7cm}|P{5.9cm}|Y|
+}
+\hline
+\textbf{Mã}
+& \textbf{Vấn đề con}
+& \textbf{Biểu hiện}
+& \textbf{Hệ quả}
+\\
+\hline
+P1
+& Ghi chép chi tiêu tốn công, dữ liệu rải rác và không đồng nhất
+& Hóa đơn giấy, ảnh, tin nhắn, ghi chú; ghi tay dễ quên
+& Không biết tiêu bao nhiêu cho từng loại
+\\
+\hline
+P2
+& Đặt hạn mức theo cảm tính, không có cảnh báo sớm
+& Hạn mức không dựa trên chi tiêu thực tế; chỉ biết khi hết tháng
+& Vượt ngân sách mà không nhận ra kịp
+\\
+\hline
+P3
+& Quên hạn hóa đơn định kỳ
+& Nhiều hóa đơn, nhiều ngày đến hạn khác nhau
+& Phí phạt, gián đoạn điện, nước, internet
+\\
+\hline
+P4
+& Không thể tin tuyệt đối kết quả nhập tự động
+& Có thể sai số tiền, ngày, danh mục; hóa đơn mờ hoặc câu nhập thiếu thông tin
+& Số liệu sai dẫn đến quyết định sai
+\\
+\hline
+\end{tabularx}
+\endgroup
+\TableEnd
+
+\vspace{0.5cm}
+
+{\normalsize\bfseries 1.4. Phạm vi}
+
+\textbf{Trong phạm vi:} ghi nhận chi tiêu từ hóa đơn (ảnh/PDF) và
+câu tiếng Việt ngắn; phân loại vào 6 danh mục; thống kê; hạn mức
+và cảnh báo; quản lý và nhắc hóa đơn định kỳ. Một người dùng,
+một loại tiền (VNĐ), chủ yếu tiếng Việt.
+
+\textbf{Ngoài phạm vi (phiên bản hiện tại):} kết nối trực tiếp tài
+khoản ngân hàng/ví điện tử, thanh toán thật, chia sẻ ví nhiều
+người, đa tiền tệ, tư vấn mua sắm ``đáng tiền''. Ghi nhận là
+hướng mở rộng.
+
+\vspace{0.5cm}
+
+{\normalsize\bfseries 1.5. ``Smart'' khác gì trợ lý ảo thông thường?}
+
+Nhóm phân biệt theo hành vi mà người dùng cảm nhận được, không
+theo công nghệ:
+
+\TableStart
+\begingroup
+\normalsize
+\begin{tabularx}{\textwidth}{
+    |P{2.6cm}|P{6.4cm}|Y|
+}
+\hline
+\textbf{Tiêu chí}
+& \textbf{Trợ lý ảo thông thường (sổ thu chi)}
+& \textbf{Smart Money Bot}
+\\
+\hline
+Nhập liệu
+& Người dùng tự điền từng ô
+& Hiểu câu tự nhiên và hóa đơn, điền sẵn, người dùng chỉ xác nhận
+\\
+\hline
+Hạn mức
+& Người dùng tự đặt
+& Gợi ý dựa trên lịch sử chi tiêu thực tế
+\\
+\hline
+Nhắc nhở
+& Chỉ phản hồi khi được yêu cầu
+& Chủ động báo trước khi sắp vượt hạn mức hoặc sắp đến hạn
+\\
+\hline
+Khi thiếu thông tin
+& Báo lỗi hoặc bỏ qua
+& Nhận ra chỗ chưa chắc và hỏi lại người dùng
+\\
+\hline
+\end{tabularx}
+\endgroup
+\TableEnd
+
+Các ứng dụng hiện có đã làm được một phần các điểm trên. Điểm
+nhóm hướng tới là gom cả bốn hành vi vào một luồng chủ động, và
+luôn để người dùng kiểm tra trước khi lưu.
+
+\newpage
+
+\vspace{0.5cm}
+
+{\large\bfseries 2. Xác định các bên liên quan (Stakeholders)}
+
+\TableStart
+\begingroup
+\normalsize
+\begin{tabularx}{\textwidth}{
+    |P{2.8cm}|P{2.0cm}|P{3.4cm}|P{4.0cm}|Y|
+}
+\hline
+\textbf{Bên liên quan}
+& \textbf{Vai trò}
+& \textbf{Nhu cầu / kỳ vọng}
+& \textbf{Mối quan tâm / rủi ro}
+& \textbf{Mức ảnh hưởng}
+\\
+\hline
+Sinh viên, người đi làm trẻ (người dùng chính)
+& Nhập hóa đơn, xem thống kê, đặt hạn mức, nhận nhắc nhở
+& Ghi chép nhanh, ít thao tác; biết tiêu bao nhiêu cho từng loại; không trễ hạn, không vượt ngân sách
+& Phân loại sai, sai số tiền; quá nhiều thông báo gây phiền; lộ dữ liệu tài chính
+& Cao
+\\
+\hline
+Người thân, bạn cùng phòng (người dùng thứ cấp)
+& Cùng chia sẻ chi phí sinh hoạt chung
+& Hóa đơn chung được trả đúng hạn, thông tin chi phí rõ ràng
+& Bản hiện tại là đơn người dùng nên phụ thuộc người dùng chính cập nhật
+& Trung bình
+\\
+\hline
+Nhóm phát triển
+& Phân tích, thiết kế, xây dựng, kiểm thử
+& Sản phẩm chạy được, đúng phạm vi, đúng tiến độ 11 tuần
+& Giới hạn thời gian, dữ liệu mẫu, chi phí API
+& Cao
+\\
+\hline
+Giảng viên đánh giá
+& Đánh giá theo rubric
+& Vận dụng đúng các bước tư duy tính toán, có thành phần thông minh, nhóm hiểu rõ sản phẩm
+& Đạo văn, nội dung do AI sinh ra mà nhóm không hiểu
+& Cao
+\\
+\hline
+Nhà cung cấp dịch vụ AI/OCR/API
+& Cung cấp dịch vụ đọc hóa đơn, phân loại văn bản
+& Sử dụng đúng điều khoản, trong hạn mức miễn phí
+& Giới hạn lượt gọi, đổi chính sách gói
+& Thấp
+\\
+\hline
+Đơn vị phát hành hóa đơn
+& Nguồn tạo dữ liệu đầu vào
+& Hóa đơn được đọc đúng
+& Định dạng hóa đơn đa dạng làm giảm độ chính xác
+& Thấp
+\\
+\hline
+\end{tabularx}
+\endgroup
+\TableEnd
+
+\vspace{0.15cm}
+
+\textbf{Lưu ý xuyên suốt:} dữ liệu chi tiêu là dữ liệu nhạy cảm,
+nên chỉ lưu tối thiểu và luôn để người dùng kiểm tra, xác nhận
+trước khi lưu.
+
+\vspace{0.5cm}
+\newpage
+{\large\bfseries 3. Làm rõ mục tiêu (Objectives)}
+
+Mỗi mục tiêu là một danh sách việc con cụ thể. Mỗi việc con có
+chỉ số đo, ngưỡng đạt và cách kiểm chứng (tiêu chí SMART).
+Mục tiêu hoàn thành khi tất cả việc con đạt ngưỡng; có 15 việc
+con, hoàn thành hết là 100\%.
+
+\vspace{0.1cm}
+
+\textbf{Quy ước 6 danh mục chi tiêu:}
+
+\begin{itemize}
+    \item \textbf{Ăn uống:} bữa ăn, ăn vặt, cà phê, đồ uống,
+    đặt đồ ăn online.
+
+    \item \textbf{Tiêu dùng/Mua sắm:} nhu yếu phẩm, quần áo,
+    mỹ phẩm, đồ gia dụng nhỏ, thiết bị cá nhân.
+
+    \item \textbf{Đi lại:} xăng xe, vé xe buýt, ứng dụng đặt xe,
+    phí gửi xe, bảo dưỡng xe.
+
+    \item \textbf{Hóa đơn tiện ích:} điện, nước, internet,
+    cước di động định kỳ.
+
+    \item \textbf{Giải trí:} vé xem phim, thuê bao trực tuyến,
+    sự kiện, sách truyện giải trí.
+
+    \item \textbf{Khác:} y tế, thuốc men, đồ dùng học tập đặc thù,
+    các khoản phát sinh không định kỳ.
+\end{itemize}
+
+\textbf{Mục tiêu G1: Người dùng biết mình tiêu bao nhiêu cho từng
+loại (giải quyết P1, P4)}
+
+\TableStart
+\begingroup
+\normalsize
+\begin{tabularx}{\textwidth}{
+    |P{0.8cm}|P{4.0cm}|P{2.4cm}|P{4.5cm}|Y|
+}
+\hline
+\textbf{Mã}
+& \textbf{Việc con}
+& \textbf{Chỉ số đo}
+& \textbf{Ngưỡng đạt}
+& \textbf{Cách kiểm chứng}
+\\
+\hline
+1.1
+& Ghi nhận đủ thông tin khoản chi từ hóa đơn và câu nhập tiếng Việt
+& Tỷ lệ trường đúng
+& Số tiền và ngày đúng $\geq 90\%$; tên cửa hàng đúng $\geq 80\%$ ($\geq 50$ hóa đơn mẫu, $\geq 20$ câu nhập mẫu)
+& Đối chiếu với giá trị gán tay
+\\
+\hline
+1.2
+& Gán đúng một trong 6 danh mục
+& Độ chính xác phân loại
+& $\geq 85\%$ trên $\geq 50$ hóa đơn mẫu, mỗi danh mục có $\geq 5$ mẫu
+& So với nhãn gán tay, lập ma trận nhầm lẫn
+\\
+\hline
+1.3
+& Khoản chi thiếu hoặc chưa chắc được đánh dấu, người dùng kiểm tra và sửa trước khi lưu
+& Tỷ lệ khoản thiếu số tiền hoặc ngày bị chặn lưu
+& 100\% trên $\geq 5$ test case
+& Bảng test case
+\\
+\hline
+1.4
+& Thống kê chi theo danh mục, theo tháng, lịch sử $\geq 3$ tháng
+& Độ khớp với tính tay
+& 100\% trên 5 bộ dữ liệu mô phỏng
+& Tính tay song song
+\\
+\hline
+1.5
+& Xử lý mỗi khoản chi đủ nhanh
+& Thời gian xử lý
+& $\leq 10$ giây mỗi hóa đơn
+& Đo thời gian chạy
+\\
+\hline
+\end{tabularx}
+\TableEnd
+
+\newpage
+
+\normalsize\textbf{Mục tiêu G2: Đặt hạn mức dựa trên thực tế và được báo khi
+sắp vượt (giải quyết P2)}
+
+\TableStart
+\begingroup
+\normalsize
+\begin{tabularx}{\textwidth}{
+    |P{0.8cm}|P{4.0cm}|P{2.7cm}|P{4.4cm}|Y|
+}
+\hline
+\textbf{Mã}
+& \textbf{Việc con}
+& \textbf{Chỉ số đo}
+& \textbf{Ngưỡng đạt}
+& \textbf{Cách kiểm chứng}
+\\
+\hline
+2.1
+& Gợi ý hạn mức cho từng danh mục từ $\geq 3$ tháng dữ liệu
+& Độ khớp với công thức tham chiếu của nhóm; thời gian phản hồi
+& Khớp 100\% trên 5 bộ dữ liệu; $\leq 5$ giây
+& Tính tay song song, đo thời gian
+\\
+\hline
+\textbf{Mã}
+& \textbf{Việc con}
+& \textbf{Chỉ số đo}
+& \textbf{Ngưỡng đạt}
+& \textbf{Cách kiểm chứng}
+\\
+\hline
+2.2
+& Người dùng nhập ngân sách tổng và chỉnh hạn mức; được báo nếu tổng hạn mức vượt ngân sách tổng
+& Số test case đúng
+& 100\% trên $\geq 5$ test case
+& Bảng test case
+\\
+\hline
+2.3
+& Báo khi chi tiêu đạt 80\% và khi đạt hoặc vượt 100\% hạn mức của một danh mục
+& Tỷ lệ cảnh báo đúng (không bỏ sót, không báo nhầm)
+& 100\% trên $\geq 10$ test case, gồm trường hợp một khoản chi nhảy qua cả hai mốc
+& Bảng kịch bản: đầu vào, cảnh báo mong đợi, kết quả thực tế
+\\
+\hline
+2.4
+& Người dùng đổi được mốc cảnh báo
+& Số test case đúng
+& 100\% trên $\geq 3$ test case
+& Bảng test case
+\\
+\hline
+\end{tabularx}
+\endgroup
+\TableEnd
+
+\vspace{0.25cm}
+
+\textbf{Mục tiêu G3: Người dùng không trễ hóa đơn định kỳ
+(giải quyết P3)}
+
+\TableStart
+\begin{tabularx}{\textwidth}{
+    |P{0.8cm}|P{4.0cm}|P{2.5cm}|P{4.5cm}|Y|
+}
+\hline
+\textbf{Mã}
+& \textbf{Việc con}
+& \textbf{Chỉ số đo}
+& \textbf{Ngưỡng đạt}
+& \textbf{Cách kiểm chứng}
+\\
+\hline
+3.1
+& Lưu hóa đơn định kỳ: tên dịch vụ, số tiền dự kiến, ngày đến hạn, chu kỳ lặp
+& Số hóa đơn nhập đủ trường
+& 100\% trên $\geq 5$ hóa đơn mẫu
+& Kiểm tra dữ liệu lưu
+\\
+\hline
+3.2
+& Nhắc trước 3 ngày và trước 1 ngày
+& Tỷ lệ nhắc đúng thời điểm
+& 100\% trên $\geq 10$ test case, gồm ngày giáp ranh tháng và hạn ngày 31 ở tháng ít ngày
+& Mô phỏng đổi ngày hệ thống, kiểm tra thông báo
+\\
+\hline
+3.3
+& Hiển thị đúng trạng thái Đã thanh toán / Sắp đến hạn / Quá hạn; hóa đơn đã thanh toán không bị nhắc nữa
+& Số test case đúng
+& 100\% trên $\geq 6$ test case
+& Bảng test case
+\\
+\hline
+\end{tabularx}
+\TableEnd
+
+\newpage
+
+% ============================================================
+% TRANG 7
+% ============================================================
+
+\textbf{Mục tiêu G4: Giảm công sức ghi chép và có sản phẩm kiểm
+chứng được (giải quyết vấn đề cốt lõi)}
+
+\TableStart
+\begin{tabularx}{\textwidth}{
+    |P{0.8cm}|P{4.0cm}|P{2.7cm}|P{4.5cm}|Y|
+}
+\hline
+\textbf{Mã}
+& \textbf{Việc con}
+& \textbf{Chỉ số đo}
+& \textbf{Ngưỡng đạt}
+& \textbf{Cách kiểm chứng}
+\\
+\hline
+4.1
+& Ghi một khoản chi với ít thao tác
+& Số thao tác từ lúc đưa hóa đơn/câu nhập đến lúc lưu
+& $\leq 3$ thao tác khi dữ liệu được đọc đúng
+& Thử trực tiếp, đếm thao tác
+\\
+\hline
+4.2
+& Tiết kiệm thời gian so với ghi tay
+& Thời gian ghi một khoản chi
+& Giảm $\geq 50\%$ so với ghi tay ($\geq 10$ khoản, do các thành viên nhóm thử)
+& Bấm giờ hai cách
+\\
+\hline
+4.3
+& Có bản chạy được cả 3 nhóm chức năng và đã kiểm thử
+& Số chức năng chạy được; số test case
+& 3/3 chức năng trước cuối tuần 7; $\geq 8$ test case, trong đó $\geq 5$ trường hợp biên
+& Demo trực tiếp, bảng test case trong báo cáo
+\\
+\hline
+\end{tabularx}
+\TableEnd
+
+\vspace{0.15cm}
+
+\textbf{Ghi chú:} các ngưỡng là mục tiêu của nhóm cho phiên bản
+mô phỏng, dùng dữ liệu do nhóm chuẩn bị; có thể điều chỉnh sau
+khảo sát dữ liệu và được ghi lại trong phần Testing \& Reflection.
+
+\vspace{0.25cm}
+
+{\large\bfseries 4. Xác định đầu vào và đầu ra
+(Inputs / Expected Outputs)}
+
+\vspace{0.15cm}
+
+{\normalsize\bfseries 4.1. Đầu vào}
+
+\TableStart
+\begin{tabularx}{\textwidth}{
+    |P{0.8cm}|P{3.0cm}|P{6.1cm}|Y|
+}
+\hline
+\textbf{Mã}
+& \textbf{Đầu vào}
+& \textbf{Mô tả / định dạng}
+& \textbf{Ví dụ}
+\\
+\hline
+I1
+& Hóa đơn dạng ảnh/PDF
+& File .jpg, .png, .pdf của hóa đơn bán lẻ hoặc hóa đơn dịch vụ
+& Hóa đơn quán cà phê, siêu thị
+\\
+\hline
+I2
+& Giao dịch nhập bằng văn bản tiếng Việt
+& Câu ngắn tự nhiên có số tiền và nội dung chi
+& ``ăn trưa 45k'', ``mua sạc điện thoại 150k''
+\\
+\hline
+I3
+& Lịch sử chi tiêu
+& Bảng gồm ngày, số tiền, danh mục, ghi chú; tối thiểu 3 tháng (dữ liệu mô phỏng)
+& Bảng CSV 90 ngày
+\\
+\hline
+\end{tabularx}
+\TableEnd
+
+\newpage
+
+% ============================================================
+% TRANG 8
+% ============================================================
+
+\TableStart
+\begin{tabularx}{\textwidth}{
+    |P{0.8cm}|P{3.0cm}|P{6.1cm}|Y|
+}
+\hline
+\textbf{Mã}
+& \textbf{Đầu vào}
+& \textbf{Mô tả / định dạng}
+& \textbf{Ví dụ}
+\\
+\hline
+I4
+& Ngân sách tổng mỗi tháng
+& Một số tiền (VNĐ) do người dùng nhập
+& 6.000.000 đ/tháng
+\\
+\hline
+I5
+& Hóa đơn định kỳ
+& Tên hóa đơn, số tiền, ngày đến hạn, chu kỳ lặp
+& Tiền điện, 850.000 đ, hạn ngày 20 hằng tháng
+\\
+\hline
+I6
+& Thiết lập của người dùng
+& Mốc cảnh báo (mặc định 80\%, 100\%), số ngày nhắc trước (mặc định 3 và 1), hạn mức chỉnh tay
+& Đổi mốc cảnh báo thành 70\%
+\\
+\hline
+I7
+& Xác nhận của người dùng
+& Xác nhận hoặc sửa khoản chi trước khi lưu; đánh dấu hóa đơn đã thanh toán
+& Sửa số tiền, bấm ``Đã thanh toán''
+\\
+\hline
+\end{tabularx}
+\TableEnd
+
+\vspace{0.5cm}
+
+{\normalsize\bfseries 4.2. Đầu ra mong đợi}
+
+\TableStart
+\begin{tabularx}{\textwidth}{
+    |P{0.8cm}|P{2.4cm}|P{5.3cm}|P{4.2cm}|Y|
+}
+\hline
+\textbf{Mã}
+& \textbf{Đầu ra}
+& \textbf{Mô tả}
+& \textbf{Ví dụ}
+& \textbf{Phục vụ}
+\\
+\hline
+Ou1
+& Bản ghi giao dịch
+& Cửa hàng, ngày, số tiền, danh mục; trường chưa chắc được đánh dấu để người dùng xác nhận hoặc sửa trước khi lưu
+& Highlands Coffee, 13/10/2026, 65.000 đ, Ăn uống
+& G1
+\\
+\hline
+Ou2
+& Thống kê chi tiêu
+& Bảng và biểu đồ tổng chi theo danh mục, theo tháng
+& Cơ cấu chi tiêu tháng 10
+& G1
+\\
+\hline
+Ou3
+& Hạn mức đề xuất
+& Hạn mức từng danh mục, người dùng chỉnh được; báo nếu tổng vượt ngân sách tổng
+& Ăn uống: 2.000.000 đ/tháng
+& G2
+\\
+\hline
+Ou4
+& Cảnh báo ngân sách
+& Thông báo khi đạt 80\% hoặc đạt/vượt 100\% hạn mức
+& ``Ăn uống đã dùng 80\% hạn mức tháng này''
+& G2
+\\
+\hline
+Ou5
+& Nhắc hạn hóa đơn
+& Danh sách hóa đơn sắp đến hạn và quá hạn, kèm số ngày còn lại
+& ``Hóa đơn điện 850.000 đ đến hạn sau 3 ngày''
+& G3
+\\
+\hline
+\end{tabularx}
+\TableEnd
+
+\newpage
+
+% ============================================================
+% TRANG 9
+% ============================================================
+
+\TableStart
+\begin{tabularx}{\textwidth}{
+    |P{0.8cm}|P{2.4cm}|P{5.3cm}|P{4.2cm}|Y|
+}
+\hline
+\textbf{Mã}
+& \textbf{Đầu ra}
+& \textbf{Mô tả}
+& \textbf{Ví dụ}
+& \textbf{Phục vụ}
+\\
+\hline
+Ou6
+& Trạng thái hóa đơn
+& Đã thanh toán / Sắp đến hạn / Quá hạn, quá hạn được cảnh báo nổi bật
+& Hóa đơn nước: Quá hạn 2 ngày
+& G3
+\\
+\hline
+\end{tabularx}
+\TableEnd
+
+\vspace{0.5cm}
+
+{\normalsize\bfseries 4.3. Ví dụ minh họa}
+
+\textbf{Trường hợp chuẩn.} Người dùng đưa hóa đơn
+``Highlands Coffee -- 65.000 đ -- 13/10/2026''. Hạn mức Ăn uống
+tháng 10 là 2.000.000 đ, đã chi 1.540.000 đ. Sau khi người dùng
+xác nhận và lưu, tổng Ăn uống là 1.605.000 đ, tương đương
+80,25\% hạn mức, nên người dùng nhận cảnh báo
+``Ăn uống đã đạt 80\% hạn mức''. Hóa đơn điện 850.000 đ hạn
+20/10 được nhắc vào 17/10 và 19/10.
+
+\textbf{Trường hợp ngoại lệ.} Hóa đơn bị rách hoặc mờ chữ số
+tiền, hoặc câu nhập thiếu như ``mua đồ bách hóa xanh''. Thông
+tin đã rõ (cửa hàng Bách Hóa Xanh, danh mục Tiêu dùng/Mua sắm)
+được giữ lại; số tiền chưa chắc được đánh dấu và người dùng
+phải điền trước khi lưu.
+
+\vspace{0.5cm}
+
+{\normalsize\bfseries 5. Nêu các ràng buộc (Constraints)}
+
+\TableStart
+\begin{tabularx}{\textwidth}{
+    |P{2.0cm}|P{7.4cm}|Y|
+}
+\hline
+\textbf{Loại}
+& \textbf{Nội dung ràng buộc}
+& \textbf{Ảnh hưởng đến bài toán}
+\\
+\hline
+Thời gian
+& Dự án 11 tuần; làm bản chạy thử tuần 6--7; kiểm thử tuần 8--9; báo cáo và bảo vệ tuần 10--11
+& Chỉ chọn 3 nhóm chức năng cốt lõi
+\\
+\hline
+Nhân lực
+& Nhóm 6 sinh viên; mọi thành viên tham gia các giai đoạn (phân tích, thiết kế, lập trình, báo cáo) và ghi logbook hằng tuần; mỗi người có vai trò chính nhưng đều phải hiểu toàn bộ nội dung
+& Phân công đồng đều, mỗi người phụ trách một phần
+\\
+\hline
+Kỹ thuật
+& Mô phỏng ở mức prototype bằng Python, Streamlit, Pandas và API AI/OCR; chạy cục bộ; không kết nối ngân hàng hoặc ví điện tử thật
+& Giao dịch đến từ hóa đơn và nhập tay, không đồng bộ tự động
+\\
+\hline
+\end{tabularx}
+\TableEnd
+
+\newpage
+
+% ============================================================
+% TRANG 10
+% ============================================================
+
+\TableStart
+\begin{tabularx}{\textwidth}{
+    |P{2.0cm}|P{7.4cm}|Y|
+}
+\hline
+\textbf{Loại}
+& \textbf{Nội dung ràng buộc}
+& \textbf{Ảnh hưởng đến bài toán}
+\\
+\hline
+Độ chính xác
+& Kết quả đọc hóa đơn và phân loại phụ thuộc chất lượng ảnh và kiểu hóa đơn; có thể sai số tiền, ngày, danh mục
+& Bắt buộc để người dùng kiểm tra và xác nhận trước khi lưu
+\\
+\hline
+Dữ liệu
+& Dùng dữ liệu mô phỏng và hóa đơn mẫu do nhóm chuẩn bị ($\geq 50$ hóa đơn, $\geq 3$ tháng lịch sử); không dùng dữ liệu tài chính thật của người khác
+& Kết quả đánh giá phản ánh trên bộ dữ liệu mẫu có kiểm soát
+\\
+\hline
+Chi phí
+& Chỉ dùng gói miễn phí hoặc credit giới hạn của API
+& Giới hạn số lần gọi API
+\\
+\hline
+Phạm vi
+& Hóa đơn chủ yếu tiếng Việt; một loại tiền (VNĐ); một người dùng; 6 danh mục
+& Không xử lý đa ngôn ngữ, đa tiền tệ, chia sẻ ví
+\\
+\hline
+Quyền riêng tư
+& Không lưu số thẻ, số tài khoản hoặc thông tin định danh nhạy cảm; chỉ dùng hóa đơn mẫu không chứa thông tin cá nhân thật khi gọi dịch vụ AI bên ngoài
+& Lưu tối thiểu: ngày, số tiền, danh mục, ghi chú
+\\
+\hline
+Học thuật
+& Được dùng ChatGPT, Claude, Gemini để lên ý tưởng và tham khảo, nhưng nội dung và mã phải được nhóm hiểu, chỉnh sửa và viết lại; đạo văn bị 0 điểm
+& Mọi thành viên phải giải thích được khi bảo vệ
+\\
+\hline
+\end{tabularx}
+\TableEnd
+
+\vspace{0.25cm}
+
+{\normalsize\bfseries 6. Tóm tắt}
+
+Vấn đề: người dùng trẻ khó kiểm soát chi tiêu vì ghi chép tốn
+công, đặt hạn mức cảm tính và quên hạn hóa đơn. Vấn đề được
+chia thành 4 vấn đề con (P1--P4), đối ứng với 4 mục tiêu
+(G1--G4) gồm 15 việc con đo được; hoàn thành hết là đạt 100\%.
+Hệ thống được phân biệt với trợ lý ảo thông thường qua 4 hành
+vi thông minh (mục 1.5), có 7 nhóm đầu vào (I1--I7), 6 nhóm
+đầu ra (Ou1--Ou6) và chịu các ràng buộc về thời gian, nhân lực,
+kỹ thuật, độ chính xác, dữ liệu, chi phí, phạm vi, quyền riêng tư
+và học thuật.
+
+\end{document}
