@@ -1,0 +1,248 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{fontspec}
+\IfFontExistsTF{TeX Gyre Termes}{\setmainfont{TeX Gyre Termes}}{\setmainfont{Latin Modern Roman}}
+\usepackage[margin=2.2cm,headheight=15pt]{geometry}
+\usepackage{array,longtable,booktabs,tabularx}
+\usepackage[table]{xcolor}
+\usepackage{enumitem,amsmath,fancyhdr,titlesec}
+\usepackage[unicode,hidelinks]{hyperref}
+\definecolor{tablehead}{HTML}{E8EDF2}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\renewcommand{\arraystretch}{1.22}
+\setlength{\tabcolsep}{5pt}
+\setlength{\emergencystretch}{2em}
+\setlist[itemize]{leftmargin=1.4em,itemsep=2pt,topsep=3pt}
+\newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
+\titleformat{\section}{\large\bfseries}{\thesection.}{.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection.}{.5em}{}
+\titlespacing*{\section}{0pt}{12pt}{6pt}
+\titlespacing*{\subsection}{0pt}{8pt}{4pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small Smart Money Bot}
+\fancyhead[R]{\small Problem Analysis}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{.3pt}
+\newcommand{\thead}[1]{\rowcolor{tablehead}#1\\\midrule}
+\begin{document}
+\begin{center}
+{\large\bfseries BÀI TẬP: XÁC ĐỊNH VÀ ĐỊNH NGHĨA VẤN ĐỀ}\\[7pt]
+{\Large\bfseries SMART MONEY BOT}\\[4pt]
+{\large Trợ lý ảo thông minh quản lý chi tiêu cá nhân}\\[9pt]
+CSC10014 -- Computational Thinking\\
+Project: Smart Virtual Assistant System -- Nhóm 6\\[4pt]
+Đại diện nộp bài: Nguyễn Phạm Trung Dũng -- 25127306
+\end{center}
+\begin{tabularx}{\textwidth}{@{}c l l X@{}}
+\toprule
+\thead{\textbf{STT}&\textbf{Họ và tên}&\textbf{MSSV}&\textbf{Vai trò chính ở giai đoạn phân tích}}
+1&Nguyễn Phạm Trung Dũng&25127306&Trưởng nhóm; làm slides\\
+2&Đỗ Nhật Minh&21127355&Phó nhóm; viết báo cáo ý tưởng, vấn đề\\
+3&Nguyễn Mạnh Cường&25127024&Viết báo cáo ý tưởng, vấn đề\\
+4&Hồ Thái Nguyên&25127105&Viết báo cáo ý tưởng, vấn đề\\
+5&Phan Xuân Phúc&25127229&Viết báo cáo ý tưởng, vấn đề\\
+6&Vũ Đức Duy&25127314&Làm slides\\\bottomrule
+\end{tabularx}
+
+\section{Bối cảnh và phát biểu vấn đề}
+\subsection{Bối cảnh}
+Sinh viên và người đi làm trẻ chi tiêu hằng ngày cho ăn uống, mua sắm, đi lại và các hóa đơn định kỳ như điện, nước, Internet, điện thoại, tiền phòng. Thông tin chi tiêu nằm rải rác ở hóa đơn giấy, ảnh chụp, tin nhắn và ghi chú. Ghi chép thủ công đòi hỏi nhiều thao tác và có thể bị bỏ dở, khiến người dùng thiếu dữ liệu để theo dõi chi tiêu.
+
+Nhóm tham khảo các ứng dụng quản lý chi tiêu như Sổ Thu Chi MISA, Money Lover và Spendee để xác định các nhu cầu phổ biến: ghi nhận giao dịch, thống kê, đặt ngân sách và nhắc thanh toán. Smart Money Bot tập trung vào một luồng ghi nhận có xác nhận, theo dõi hạn mức và nhắc hóa đơn phù hợp với phạm vi prototype.
+
+\subsection{Phát biểu vấn đề}
+Người dùng khó kiểm soát chi tiêu khi: (1) việc ghi chép tốn công, khiến dữ liệu thiếu hoặc không đồng nhất; (2) hạn mức chưa có căn cứ và thiếu cảnh báo trong tháng; (3) nhiều hóa đơn có ngày đến hạn khác nhau; (4) dữ liệu được nhập tự động có thể sai và cần kiểm tra trước khi sử dụng.
+
+\textbf{Câu hỏi cốt lõi:} Làm thế nào để người dùng ghi nhận chi tiêu với ít công sức hơn, biết số đã chi và hạn mức còn lại, đồng thời theo dõi các khoản đến hạn và ngân sách cần chuẩn bị từ dữ liệu đã ghi nhận?
+
+\subsection{Các vấn đề con}
+\begin{longtable}{@{}P{.7cm}P{5.1cm}P{5.1cm}P{4.2cm}@{}}
+\toprule\thead{\textbf{Mã}&\textbf{Vấn đề}&\textbf{Biểu hiện}&\textbf{Hệ quả}}
+\endhead
+P1&Ghi chép tốn công, dữ liệu rải rác.&Phải nhập lại từ hóa đơn, ảnh và ghi chú.&Không biết đã tiêu bao nhiêu cho từng loại.\\\midrule
+P2&Đặt hạn mức thiếu căn cứ, thiếu cảnh báo trong tháng.&Hạn mức không gắn với lịch sử và ngân sách tổng.&Khó nhận biết mức chi đang tiến gần hoặc vượt giới hạn.\\\midrule
+P3&Khó theo dõi nghĩa vụ thanh toán định kỳ.&Nhiều ngày hạn; chưa tổng hợp tiền cần chuẩn bị.&Có nguy cơ trễ hạn hoặc thiếu ngân sách cho các khoản sắp đến hạn.\\\midrule
+P4&Dữ liệu nhập tự động có thể sai hoặc thiếu.&Sai số tiền, ngày, danh mục; ảnh mờ hoặc câu thiếu thông tin.&Thống kê và cảnh báo dựa trên dữ liệu sai.\\\bottomrule
+\end{longtable}
+
+\subsection{Phạm vi}
+\begin{itemize}
+\item \textbf{Trong phạm vi:} ghi nhận khoản chi từ ảnh/PDF hóa đơn và câu tiếng Việt ngắn; phân loại vào sáu danh mục; thống kê; gợi ý, điều chỉnh hạn mức và cảnh báo ngưỡng; quản lý hóa đơn lặp hằng tháng và đối chiếu tổng nghĩa vụ thanh toán với ngân sách đã ghi nhận. Một người dùng, một loại tiền VNĐ.
+\item \textbf{Ngoài phạm vi:} kết nối trực tiếp ngân hàng/ví điện tử, thanh toán thật, chia sẻ ví, đa tiền tệ và tư vấn mua sắm. Prototype không xác nhận số dư ngân hàng và không bảo đảm người dùng sẽ thanh toán đúng hạn.
+\item \textbf{Điều kiện vận hành:} thông báo hiển thị khi ứng dụng đang mở hoặc được làm mới. Không cam kết gửi thông báo khi ứng dụng đã đóng.
+\end{itemize}
+
+\subsection{Khả năng thông minh của Smart Money Bot}
+Nhóm đối chiếu với một phiên bản cơ bản dùng biểu mẫu nhập liệu và quy tắc cố định. Sự khác biệt được xác định bằng đầu ra và hành vi có thể kiểm thử; đây không phải phân loại tuyệt đối cho mọi trợ lý ảo hoặc ứng dụng thu chi.
+\begin{longtable}{@{}P{2.2cm}P{5.3cm}P{7.95cm}@{}}
+\toprule\thead{\textbf{Tiêu chí}&\textbf{Phiên bản cơ bản}&\textbf{Smart Money Bot}}
+\endhead
+Nhập liệu&Người dùng điền từng trường hoặc nhập theo mẫu.&Tiếp nhận nhiều cách diễn đạt trong phạm vi hỗ trợ, đề xuất số tiền, ngày và danh mục để xác nhận.\\\midrule
+Hạn mức&Người dùng tự đặt hạn mức.&Đề xuất từ lịch sử chi tiêu và ngân sách tổng, hiển thị căn cứ và cho điều chỉnh.\\\midrule
+Nhắc hóa đơn&Có thể tự động nhắc theo ngày đã cài.&Ngoài lịch nhắc, tổng hợp các khoản chưa trả và đối chiếu với ngân sách còn lại.\\\midrule
+Thiếu thông tin&Kiểm tra trường bắt buộc theo biểu mẫu.&Chỉ rõ trường thiếu hoặc không xác định được; giữ thông tin đã đọc và yêu cầu bổ sung.\\\bottomrule
+\end{longtable}
+
+Tự động nhắc lịch, tính tổng và dừng nhắc hóa đơn đã trả là các chức năng nền tảng. Giá trị bổ sung nằm ở khả năng diễn giải đầu vào và hỗ trợ có căn cứ từ nhiều dữ liệu liên quan. AI được sử dụng cho nhận diện thông tin và phân loại; tính tiền, kiểm tra ngưỡng, xử lý lịch và đối chiếu ngân sách dùng thuật toán xác định. Việc dùng AI không thay thế yêu cầu kiểm chứng đầu ra.
+
+\clearpage
+\section{Các bên liên quan}
+\begin{longtable}{@{}P{3cm}P{5.2cm}P{5.5cm}P{1.4cm}@{}}
+\toprule\thead{\textbf{Bên liên quan}&\textbf{Vai trò và nhu cầu}&\textbf{Mối quan tâm}&\textbf{Ảnh hưởng}}
+\endhead
+Sinh viên, người đi làm trẻ&Nhập giao dịch, xem thống kê, điều chỉnh hạn mức, theo dõi hóa đơn; cần thao tác nhanh và thông tin rõ.&Sai dữ liệu, nhiều thông báo, quyền riêng tư.&Cao\\\midrule
+Người thân, bạn cùng phòng&Thụ hưởng gián tiếp khi các khoản sinh hoạt chung được theo dõi.&Bản đơn người dùng phụ thuộc người dùng chính cập nhật.&Trung bình\\\midrule
+Nhóm phát triển&Phân tích, thiết kế, lập trình, kiểm thử và bàn giao trong 11 tuần.&Thời gian, dữ liệu mẫu, chi phí và khả năng tích hợp.&Cao\\\midrule
+Giảng viên&Đánh giá cách xác định vấn đề, vận dụng tư duy tính toán và khả năng giải thích sản phẩm.&Bằng chứng kiểm thử, tính trung thực và hiểu biết của từng thành viên.&Cao\\\midrule
+Nhà cung cấp AI/OCR/API&Cung cấp dịch vụ đọc và phân loại dữ liệu.&Điều khoản sử dụng, giới hạn lượt gọi và chi phí.&Thấp\\\midrule
+Đơn vị phát hành hóa đơn&Nguồn dữ liệu đầu vào.&Thông tin được đọc đúng; định dạng hóa đơn đa dạng.&Thấp\\\bottomrule
+\end{longtable}
+
+\section{Mục tiêu và tiêu chí hoàn thành}
+\textbf{Mục tiêu tổng:} xây dựng prototype giúp người dùng ghi nhận khoản chi có xác nhận, theo dõi chi tiêu theo danh mục, thiết lập hạn mức có căn cứ và nhận thông tin về hóa đơn đến hạn cùng ngân sách cần chuẩn bị.
+
+Bản tích hợp ba nhóm chức năng được hoàn thành trước cuối tuần 7; đánh giá các mục tiêu G1--G4 trong tuần 8--9. Bốn mục tiêu gồm \textbf{16 việc con}. Mỗi việc con chỉ được ghi nhận hoàn thành khi đạt toàn bộ ngưỡng và có bằng chứng kiểm thử. Hoàn thành 16/16 việc con tương ứng hoàn thành 100\% phạm vi mục tiêu.
+
+\subsection{Quy ước danh mục và dữ liệu giao dịch}
+\begin{itemize}
+\item \textbf{Ăn uống:} bữa ăn, ăn vặt, cà phê, đồ uống, đặt đồ ăn.
+\item \textbf{Tiêu dùng/Mua sắm:} nhu yếu phẩm, quần áo, mỹ phẩm, đồ gia dụng nhỏ, thiết bị cá nhân.
+\item \textbf{Đi lại:} xăng xe, vé xe, đặt xe, phí gửi xe, bảo dưỡng xe.
+\item \textbf{Hóa đơn tiện ích:} điện, nước, Internet, cước di động định kỳ và tiền phòng.
+\item \textbf{Giải trí:} vé xem phim, thuê bao giải trí, sự kiện, sách truyện giải trí.
+\item \textbf{Khác:} y tế, thuốc men, đồ dùng học tập và khoản không thuộc các nhóm trên.
+\end{itemize}
+Một giao dịch có một danh mục chính. Hóa đơn chứa nhiều nhóm hàng được gợi ý theo nhóm có tổng tiền lớn nhất khi đủ chi tiết; nếu không đủ căn cứ hoặc có giá trị bằng nhau, người dùng chọn danh mục trước khi lưu. Không mặc định danh mục chỉ từ tên cửa hàng. Ngày, số tiền dương, nội dung và danh mục là các trường bắt buộc. Tên cửa hàng chỉ bắt buộc khi nguồn có thông tin đó. Câu nhập không nêu ngày được đề xuất ngày hiện tại và hiển thị để xác nhận; ngày trên hóa đơn không đọc được phải được bổ sung.
+
+\subsection{G1 -- Ghi nhận và thống kê chi tiêu theo danh mục}
+Giải quyết P1 và P4.
+\begin{longtable}{@{}P{.65cm}P{5cm}P{5.65cm}P{3.8cm}@{}}
+\toprule\thead{\textbf{Mã}&\textbf{Kết quả cần đạt}&\textbf{Chỉ số và ngưỡng}&\textbf{Kiểm chứng}}
+\endhead
+1.1&Đề xuất các trường giao dịch từ hóa đơn và câu tiếng Việt.&Số tiền và ngày đúng $\geq90\%$ cho từng trường; tên cửa hàng đúng $\geq80\%$ trên mẫu có trường đó. Đánh giá riêng $\geq50$ hóa đơn và $\geq20$ câu nhập.&Đối chiếu đáp án chuẩn trước khi người dùng sửa; áp dụng quy ước ngày ở mục 3.1.\\\midrule
+1.2&Đề xuất một trong sáu danh mục chi tiêu.&Độ chính xác $\geq85\%$ trên mỗi tập hóa đơn và câu nhập; mỗi danh mục có $\geq5$ hóa đơn và $\geq2$ câu.&So sánh nhãn chuẩn; lập ma trận nhầm lẫn.\\\midrule
+1.3&Yêu cầu bổ sung trường thiếu, cho sửa và xác nhận trước khi lưu.&Đạt 100\% trên $\geq5$ tình huống thiếu/sai trường bắt buộc; không lưu khi chưa xác nhận.&Kiểm tra trường thiếu, số tiền không hợp lệ, ngày không đọc được và sửa dữ liệu.\\\midrule
+1.4&Hiển thị tổng chi theo danh mục, theo tháng và lịch sử giao dịch.&Khớp 100\% với tính tay trên năm bộ dữ liệu, mỗi bộ có ít nhất ba tháng.&So sánh tổng, kể cả sau sửa hoặc xóa giao dịch.\\\midrule
+1.5&Trả bản ghi đề xuất trong thời gian phù hợp.&Mỗi hóa đơn hợp lệ trong tập thử được xử lý $\leq10$ giây.&Đo từ lúc gửi xử lý đến lúc hiển thị đề xuất, gồm thời gian API; không gồm thời gian người dùng sửa.\\\bottomrule
+\end{longtable}
+
+\subsection{G2 -- Thiết lập hạn mức có căn cứ và theo dõi ngưỡng chi}
+Giải quyết P2.
+\begin{longtable}{@{}P{.65cm}P{5cm}P{5.65cm}P{3.8cm}@{}}
+\toprule\thead{\textbf{Mã}&\textbf{Kết quả cần đạt}&\textbf{Chỉ số và ngưỡng}&\textbf{Kiểm chứng}}
+\endhead
+2.1&Gợi ý hạn mức từng danh mục từ ít nhất ba tháng lịch sử và ngân sách tổng; nêu căn cứ.&Khớp 100\% công thức mục 3.7 trên năm bộ dữ liệu; tổng đề xuất không vượt ngân sách; phản hồi $\leq5$ giây.&Tính tay, đo thời gian; kiểm tra cả trường hợp thiếu lịch sử.\\\midrule
+2.2&Nhập ngân sách tổng, sửa hạn mức và phát hiện tổng hạn mức vượt ngân sách.&Đạt 100\% trên $\geq5$ tình huống gồm dưới, bằng, vượt ngân sách và giá trị không hợp lệ.&Đối chiếu thông báo và giá trị lưu.\\\midrule
+2.3&Cảnh báo khi đạt 80\% và khi đạt/vượt 100\% hạn mức danh mục.&Đạt 100\% trên $\geq10$ tình huống, gồm một khoản chi vượt cả hai mốc và sửa/xóa giao dịch.&Bảng đầu vào, cảnh báo mong đợi, kết quả thực tế.\\\midrule
+2.4&Thay đổi mốc nhắc sớm và cập nhật cảnh báo.&Đạt 100\% trên $\geq3$ tình huống; mốc nhắc sớm nằm trong $(0\%,100\%)$, mốc vượt hạn mức giữ 100\%.&Kiểm tra thay đổi hợp lệ, không hợp lệ và kết quả tính lại.\\\bottomrule
+\end{longtable}
+
+\subsection{G3 -- Theo dõi hóa đơn và chuẩn bị ngân sách thanh toán}
+Giải quyết P3; hỗ trợ giảm nguy cơ trễ hạn bằng lời nhắc và thông tin có căn cứ.
+\begin{longtable}{@{}P{.65cm}P{5cm}P{5.65cm}P{3.8cm}@{}}
+\toprule\thead{\textbf{Mã}&\textbf{Kết quả cần đạt}&\textbf{Chỉ số và ngưỡng}&\textbf{Kiểm chứng}}
+\endhead
+3.1&Lưu tên hóa đơn, số tiền dự kiến, ngày hạn, chu kỳ tháng và trạng thái từng kỳ.&Đúng 100\% trên $\geq5$ hóa đơn mẫu; từ chối tên trống, số tiền không dương, ngày lặp ngoài 1--31.&Kiểm tra dữ liệu và thông báo lỗi.\\\midrule
+3.2&Nhắc trước 3 ngày, trước 1 ngày và khi đến hạn hôm nay.&Đạt 100\% trên $\geq10$ tình huống gồm giáp ranh tháng, ngày 31 và làm mới nhiều lần.&Mô phỏng ngày đánh giá, kiểm tra thông báo và chống trùng.\\\midrule
+3.3&Hiển thị đúng trạng thái; dừng nhắc kỳ đã trả, giữ lịch sử và tạo kỳ tiếp theo.&Đạt 100\% trên $\geq6$ tình huống gồm trả sớm, quá hạn, xác nhận hai lần và giao dịch đã tồn tại.&Kiểm tra trạng thái, liên kết giao dịch và không ghi chi trùng.\\\midrule
+3.4&Trả bảng tổng nghĩa vụ chưa thanh toán, ngân sách còn lại và chênh lệch có giải thích.&Đúng 100\% trên $\geq6$ tình huống: thiếu, đủ, vừa đủ, thiếu dữ liệu, nhiều hóa đơn cộng lại vượt ngân sách, khoản ngoài kỳ.&Tính tay theo mục 3.7; kiểm tra danh sách khoản được cộng và phần loại trừ.\\\bottomrule
+\end{longtable}
+
+\subsection{G4 -- Giảm công sức ghi chép và kiểm chứng sản phẩm}
+\begin{longtable}{@{}P{.65cm}P{5cm}P{5.65cm}P{3.8cm}@{}}
+\toprule\thead{\textbf{Mã}&\textbf{Kết quả cần đạt}&\textbf{Chỉ số và ngưỡng}&\textbf{Kiểm chứng}}
+\endhead
+4.1&Lưu khoản chi với ít bước khi dữ liệu đề xuất đúng.&Không quá ba thao tác điều khiển: gửi, xác nhận, lưu; có thể gộp xác nhận và lưu.&Đếm thao tác từ khi nguồn nhập đã sẵn sàng trên giao diện đến lúc lưu.\\\midrule
+4.2&Rút ngắn thời gian ghi nhận đúng so với nhập thủ công.&Thời gian trung vị giảm $\geq50\%$; cả sáu thành viên thử, mỗi người ít nhất 10 khoản cho mỗi cách.&Đo từ khi bắt đầu nhập/chọn nguồn đến khi lưu đúng, gồm thời gian kiểm tra và sửa.\\\midrule
+4.3&Tích hợp đủ ba nhóm chức năng và có kết quả kiểm thử.&3/3 nhóm chức năng chạy trước cuối tuần 7; kiểm thử tích hợp $\geq8$ tình huống, gồm $\geq5$ trường hợp biên.&Demo luồng đầu cuối và bảng kết quả trong tuần 8--9.\\\bottomrule
+\end{longtable}
+
+\subsection{Phương pháp đo và nghiệm thu}
+Độ chính xác được tính bằng số mẫu đúng chia tổng mẫu đủ điều kiện đánh giá. Tiền được so sánh theo giá trị VNĐ, ngày theo ngày lịch; tên cửa hàng được chuẩn hóa khoảng trắng và chữ hoa/thường. Mẫu không có tên cửa hàng không tham gia phép đo tên cửa hàng; trường bị bỏ trống dù đáp án có thông tin được tính là sai.
+
+Bộ đánh giá cuối tách khỏi dữ liệu dùng để chỉnh quy tắc hoặc prompt; đáp án chuẩn được xác định trước khi chạy. Mỗi kết quả ghi mã tình huống, đầu vào, đầu ra mong đợi, đầu ra thực tế, trạng thái đạt/chưa đạt và bằng chứng. Các phép đo thời gian dùng cùng môi trường chạy và ghi nhận điều kiện mạng; lỗi hoặc hết thời gian không được loại khỏi kết quả một cách tùy ý.
+
+Với mục 4.2, hai cách nhập dùng hai bộ dữ liệu tương đương về độ dài và độ khó; đổi thứ tự thử giữa các thành viên. Cách thủ công là tự điền cùng các trường trên biểu mẫu, không dùng đề xuất tự động. Tỷ lệ giảm thời gian là $(T_{\mathrm{thủ\ công}}-T_{\mathrm{bot}})/T_{\mathrm{thủ\ công}}\times100\%$, trong đó $T$ là trung vị thời gian ghi đúng một khoản. Kết quả chỉ phản ánh nhóm người thử và dữ liệu thử.
+
+Các ngưỡng là mục tiêu nghiệm thu, không phải kết quả thực nghiệm đã đạt. Chốt tiêu chí trước đợt đánh giá cuối; thay đổi phạm vi hoặc ngưỡng phải được ghi trong Testing \& Reflection. Kiểm thử tích hợp không thay thế bộ kiểm thử của từng mục tiêu.
+
+\subsection{Quy tắc xác định kết quả}
+\textbf{Gợi ý hạn mức.} Với danh mục $i$, đặt $\bar{x}_i$ là trung bình chi theo tháng trên ba tháng lịch sử đầy đủ gần nhất; tháng không chi ở danh mục đó được tính là 0. Đặt $A=\sum_{i=1}^{6}\bar{x}_i$ và $B>0$ là ngân sách tổng tháng do người dùng nhập. Hạn mức đề xuất là
+\[
+L_i=\begin{cases}
+\left\lfloor\bar{x}_i\min\left(1,\dfrac{B}{A}\right)\right\rfloor,& A>0,\\
+\text{chưa đề xuất},& A=0.
+\end{cases}
+\]
+Làm tròn xuống đơn vị đồng; phần ngân sách chưa phân bổ được hiển thị riêng. Nếu thiếu ba tháng lịch sử hoặc thiếu ngân sách tổng, yêu cầu bổ sung hoặc đặt hạn mức thủ công. Đề xuất phản ánh lịch sử và giới hạn ngân sách, không khẳng định mức chi quá khứ là tối ưu.
+
+\textbf{Cảnh báo hạn mức.} Với $L_i>0$, tỷ lệ sử dụng bằng chi lũy kế chia $L_i$. Khi vượt đồng thời hai mốc, chỉ hiển thị mức nghiêm trọng hơn. Cảnh báo được cập nhật theo tháng và danh mục, không tạo bản ghi trùng khi làm mới. Sau sửa/xóa giao dịch hoặc đổi hạn mức, tính lại trạng thái. Hạn mức bằng 0 kèm chi dương tạo cảnh báo vượt hạn mức, không thực hiện phép chia cho 0. Mốc 80\% là cảnh báo sử dụng ngân sách, không phải dự báo chắc chắn sẽ vượt ngân sách vào cuối tháng.
+
+\textbf{Lịch hóa đơn.} Dùng ngày địa phương Asia/Ho\_Chi\_Minh. Nếu ngày lặp không tồn tại, lấy ngày cuối tháng và giữ ngày lặp gốc cho tháng sau. Kỳ đã trả được ưu tiên trạng thái Đã thanh toán; các kỳ chưa trả gồm Chưa đến hạn (còn hơn ba ngày), Sắp đến hạn (còn một đến ba ngày), Đến hạn hôm nay và Quá hạn. Mỗi kỳ và mốc nhắc chỉ có một bản ghi thông báo; sửa ngày hạn cập nhật lịch tương ứng.
+
+\textbf{Đối chiếu nghĩa vụ thanh toán.} Đặt $R=B-C$, trong đó $C$ là tổng chi thực tế đã xác nhận của tháng. Cửa sổ đánh giá từ ngày hiện tại $t$ đến ngày nhỏ hơn giữa $t+6$ ngày và ngày cuối tháng. $S$ là tổng hóa đơn chưa trả trong cửa sổ cộng các hóa đơn quá hạn thuộc tháng hiện tại. Hiển thị danh sách khoản được cộng, $R$, $S$ và chênh lệch. Nếu $S>R$, mức thiếu dự kiến là $S-R$; nếu $S\leq R$, chỉ kết luận đủ theo dữ liệu hiện có cho các hóa đơn đang xét. Thiếu $B$ hoặc chưa xác định được $C$ thì chưa kết luận đủ/thiếu. Hóa đơn tháng kế tiếp và nợ tháng trước được hiển thị riêng, nêu rõ chưa được gộp vào phép đối chiếu này.
+
+\textbf{Xác nhận thanh toán.} Người dùng liên kết giao dịch đã ghi hoặc tạo một khoản chi mới bằng số tiền thực trả. Mỗi khoản chỉ được ghi chi một lần. Hóa đơn đã trả bị loại khỏi $S$ nhưng khoản chi tương ứng vẫn thuộc $C$; không trừ tiền hóa đơn chưa trả khỏi $R$ trước rồi trừ lại lần nữa. Mỗi kỳ được lưu riêng để giữ lịch sử.
+
+\clearpage
+\section{Đầu vào và đầu ra mong đợi}
+\subsection{Đầu vào}
+\begin{longtable}{@{}P{.7cm}P{3.3cm}P{7.1cm}P{4cm}@{}}
+\toprule\thead{\textbf{Mã}&\textbf{Đầu vào}&\textbf{Mô tả}&\textbf{Ví dụ}}
+\endhead
+I1&Hóa đơn ảnh/PDF&File JPG, PNG, PDF hóa đơn bán lẻ hoặc dịch vụ; một hóa đơn cho mỗi lần xử lý.&Hóa đơn quán cà phê.\\\midrule
+I2&Câu tiếng Việt&Câu ngắn mô tả một khoản chi; thông tin thiếu được bổ sung trước khi lưu.&``Ăn trưa 45k''.\\\midrule
+I3&Lịch sử chi tiêu&Ngày, số tiền, nội dung, cửa hàng nếu có và danh mục; ba tháng đầy đủ để gợi ý hạn mức.&CSV chi tiêu theo tháng.\\\midrule
+I4&Ngân sách tổng&Giới hạn chi của từng tháng bằng VNĐ; không đồng nhất với số dư tài khoản.&6.000.000đ/tháng.\\\midrule
+I5&Hóa đơn định kỳ&Mã hóa đơn, tên, tiền dự kiến, ngày hạn, chu kỳ hằng tháng và kỳ thanh toán.&Điện 850.000đ, ngày 20.\\\midrule
+I6&Thiết lập người dùng&Mốc cảnh báo sớm mặc định 80\%; mốc vượt 100\%; hạn mức chỉnh tay. Lịch nhắc mặc định trước 3 ngày, 1 ngày và ngày đến hạn.&Đổi mốc sớm thành 70\%.\\\midrule
+I7&Xác nhận và chỉnh sửa&Xác nhận/sửa giao dịch; số tiền thực trả và liên kết giao dịch khi đánh dấu đã thanh toán.&Sửa tiền; chọn Đã thanh toán.\\\bottomrule
+\end{longtable}
+Ngày hiện tại và ngày cập nhật dữ liệu được dùng để tính thời gian còn lại và thể hiện căn cứ đánh giá.
+
+\subsection{Đầu ra mong đợi}
+\begin{longtable}{@{}P{.85cm}P{3.1cm}P{8.3cm}P{2.85cm}@{}}
+\toprule\thead{\textbf{Mã}&\textbf{Đầu ra}&\textbf{Nội dung bắt buộc}&\textbf{Mục tiêu}}
+\endhead
+Ou1&Bản ghi giao dịch&Ngày, tiền, nội dung, danh mục, cửa hàng nếu có; trường cần bổ sung; trạng thái chờ xác nhận hoặc đã lưu.&G1: 1.1--1.3\\\midrule
+Ou2&Thống kê chi tiêu&Bảng và biểu đồ tổng chi theo danh mục/tháng; lịch sử giao dịch; cập nhật sau sửa/xóa.&G1: 1.4\\\midrule
+Ou3&Hạn mức đề xuất&Hạn mức từng danh mục, lịch sử dùng làm căn cứ, ngân sách tổng, phần chưa phân bổ; cảnh báo tổng hạn mức vượt ngân sách sau chỉnh sửa.&G2: 2.1--2.2\\\midrule
+Ou4&Cảnh báo ngân sách&Danh mục, kỳ tháng, đã chi, hạn mức, tỷ lệ sử dụng và mốc cảnh báo; hiển thị trạng thái hiện tại.&G2: 2.3--2.4\\\midrule
+Ou5&Nhắc hóa đơn&Tên hóa đơn, kỳ, số tiền dự kiến, ngày hạn, số ngày còn lại hoặc quá hạn, loại thông báo.&G3: 3.1--3.2\\\midrule
+Ou6&Trạng thái thanh toán&Chưa đến hạn, Sắp đến hạn, Đến hạn hôm nay, Quá hạn, Đã thanh toán; giao dịch liên kết và kỳ tiếp theo.&G3: 3.3\\\midrule
+Ou7&Đối chiếu nghĩa vụ&Danh sách và tổng tiền $S$; cửa sổ đánh giá; ngân sách còn lại $R$; mức thiếu/dư; dữ liệu thiếu hoặc khoản loại trừ; hành động cập nhật/xác nhận.&G3: 3.4\\\midrule
+Ou8&Báo cáo kiểm thử&Bảng kết quả 16 việc con, số tình huống đạt/tổng số, độ chính xác, thời gian, thao tác, lỗi còn tồn tại và bằng chứng demo.&G1--G4\\\bottomrule
+\end{longtable}
+
+\subsection{Ví dụ minh họa}
+\textbf{Ghi nhận và cảnh báo hạn mức.} Đầu vào là hóa đơn Highlands Coffee, 65.000đ, ngày 13/10/2026. Hạn mức Ăn uống là 2.000.000đ, đã chi 1.540.000đ. Sau xác nhận, hệ thống lưu Ou1 và cập nhật Ou2 thành 1.605.000đ. Ou4 hiển thị: ``Ăn uống đã dùng 1.605.000/2.000.000đ (80,25\%), còn 395.000đ trong hạn mức tháng 10.''
+
+\textbf{Thiếu dữ liệu.} Người dùng nhập ``mua đồ Bách Hóa Xanh''. Ou1 giữ tên cửa hàng, đề xuất ngày hiện tại để xác nhận và yêu cầu nhập số tiền, nội dung hoặc chọn danh mục. Không khẳng định danh mục chỉ từ tên cửa hàng; chưa lưu khi trường bắt buộc chưa đầy đủ.
+
+\textbf{Gợi ý hạn mức.} Trung bình chi ba tháng theo sáu danh mục lần lượt là 2.000.000; 1.000.000; 500.000; 1.000.000; 300.000; 200.000đ. Tổng $A=5.000.000$đ, ngân sách $B=4.000.000$đ. Ou3 đề xuất lần lượt 1.600.000; 800.000; 400.000; 800.000; 240.000; 160.000đ và nêu căn cứ điều chỉnh theo hệ số 0,8.
+
+\textbf{Nhắc hạn và đối chiếu ngân sách.} Ngày 02/11/2026, ngân sách tháng là 4.000.000đ, đã chi 1.700.000đ nên $R=2.300.000$đ. Tiền phòng 2.000.000đ hạn 05/11 và Internet 400.000đ hạn 06/11 đều chưa trả. Ou5 nhắc tiền phòng còn ba ngày. Ou7 tổng hợp cửa sổ 02--08/11, $S=2.400.000$đ và thông báo: ``Theo dữ liệu đã ghi, ngân sách còn lại thấp hơn tổng hóa đơn đang xét 100.000đ. Hãy kiểm tra các khoản chi và kế hoạch thanh toán.''
+
+\textbf{Sau thanh toán.} Nếu tiền phòng được trả và chưa ghi chi, xác nhận thanh toán tạo một giao dịch 2.000.000đ: $C=3.700.000$đ, $R=300.000$đ, $S=400.000$đ. Ou6 chuyển tiền phòng kỳ tháng 11 sang Đã thanh toán; Ou7 vẫn chỉ ra thiếu dự kiến 100.000đ. Nếu giao dịch đã tồn tại, chỉ liên kết và không tăng chi lần nữa. Nếu chưa nhập ngân sách, Ou7 chỉ hiển thị tổng hóa đơn và yêu cầu bổ sung dữ liệu, không kết luận thiếu tiền.
+
+\section{Các ràng buộc}
+\begin{longtable}{@{}P{2cm}P{8cm}P{5.45cm}@{}}
+\toprule\thead{\textbf{Loại}&\textbf{Ràng buộc}&\textbf{Ảnh hưởng}}
+\endhead
+Thời gian&Dự án 11 tuần; prototype tuần 6--7, kiểm thử tuần 8--9, báo cáo và bảo vệ tuần 10--11.&Giữ ba nhóm chức năng cốt lõi.\\\midrule
+Nhân lực&Sáu sinh viên tham gia phân tích, thiết kế, lập trình, kiểm thử và báo cáo; ghi logbook hằng tuần.&Có phần phụ trách chính và kiểm tra chéo; mọi người hiểu luồng chung.\\\midrule
+Kỹ thuật&Prototype Python, Streamlit, Pandas và dịch vụ AI/OCR; chạy cục bộ, không kết nối ngân hàng.&Thông báo trong phiên ứng dụng; phụ thuộc dữ liệu đã nhập.\\\midrule
+Độ chính xác&Đọc và phân loại có thể sai do chất lượng ảnh, diễn đạt hoặc danh mục chưa rõ.&Bắt buộc kiểm tra và xác nhận; lỗi dịch vụ cho phép thử lại hoặc nhập tay, không tự tạo dữ liệu.\\\midrule
+Dữ liệu&Ít nhất 50 hóa đơn, 20 câu và ba tháng lịch sử mô phỏng; bộ đánh giá cuối tách dữ liệu tinh chỉnh.&Kết quả được báo theo từng tập và phạm vi thử.\\\midrule
+Chi phí&Dùng gói miễn phí hoặc credit giới hạn.&Kiểm soát số lượt gọi; không phụ thuộc dịch vụ ngoài cho phép tính và lịch nhắc.\\\midrule
+Phạm vi&Một người dùng, VNĐ, tiếng Việt, sáu danh mục; hóa đơn định kỳ hằng tháng.&Không chia sẻ ví, đa tiền tệ hoặc thanh toán thật.\\\midrule
+Quyền riêng tư&Chỉ dùng mẫu không có dữ liệu định danh thật khi gọi dịch vụ ngoài; không lưu số thẻ/tài khoản.&Chỉ lưu trường phục vụ giao dịch, ngân sách, lịch và trạng thái thanh toán.\\\midrule
+Học thuật&Công cụ AI hỗ trợ ý tưởng và mã tham khảo; nhóm chịu trách nhiệm kiểm tra, chỉnh sửa và giải thích nội dung.&Tuân thủ quy định học phần và ghi nhận nguồn sử dụng; không trình bày kết quả chưa đo như kết quả đã đạt.\\\bottomrule
+\end{longtable}
+
+\section{Tóm tắt}
+Smart Money Bot giải quyết bốn vấn đề P1--P4 bằng ba nhóm chức năng: ghi nhận và phân loại chi tiêu; thiết lập, theo dõi hạn mức; quản lý và nhắc hóa đơn định kỳ. Bốn mục tiêu G1--G4 được phân rã thành 16 việc con, gắn với bảy nhóm đầu vào và tám nhóm đầu ra. Mức hoàn thành được xác định bằng ngưỡng đo và bằng chứng kiểm thử.
+
+Giá trị thông minh được thể hiện qua việc diễn giải đầu vào, đề xuất hạn mức từ dữ liệu cá nhân và đối chiếu tổng nghĩa vụ với ngân sách có giải thích. Các phép tính, lịch nhắc và cập nhật trạng thái phải chính xác, nhất quán; người dùng kiểm tra và xác nhận trước khi dữ liệu được lưu hoặc trạng thái thanh toán thay đổi.
+\end{document}
