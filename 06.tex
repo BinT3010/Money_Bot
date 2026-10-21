@@ -498,7 +498,11 @@ sắp vượt (giải quyết P2)}
 \textbf{Mục tiêu G3: Người dùng không trễ hóa đơn định kỳ
 (giải quyết P3)}
 
+\vspace{0.2cm}
+
 \TableStart
+\begingroup
+\normalsize
 \begin{tabularx}{\textwidth}{
     |P{0.8cm}|P{4.0cm}|P{2.5cm}|P{4.5cm}|Y|
 }
@@ -532,18 +536,17 @@ sắp vượt (giải quyết P2)}
 \\
 \hline
 \end{tabularx}
+\endgroup
 \TableEnd
 
 \newpage
-
-% ============================================================
-% TRANG 7
-% ============================================================
 
 \textbf{Mục tiêu G4: Giảm công sức ghi chép và có sản phẩm kiểm
 chứng được (giải quyết vấn đề cốt lõi)}
 
 \TableStart
+\begingroup
+\normalsize
 \begin{tabularx}{\textwidth}{
     |P{0.8cm}|P{4.0cm}|P{2.7cm}|P{4.5cm}|Y|
 }
@@ -577,6 +580,7 @@ chứng được (giải quyết vấn đề cốt lõi)}
 \\
 \hline
 \end{tabularx}
+\endgroup
 \TableEnd
 
 \vspace{0.15cm}
@@ -585,7 +589,7 @@ chứng được (giải quyết vấn đề cốt lõi)}
 mô phỏng, dùng dữ liệu do nhóm chuẩn bị; có thể điều chỉnh sau
 khảo sát dữ liệu và được ghi lại trong phần Testing \& Reflection.
 
-\vspace{0.25cm}
+\vspace{0.3cm}
 
 {\large\bfseries 4. Xác định đầu vào và đầu ra
 (Inputs / Expected Outputs)}
@@ -594,7 +598,11 @@ khảo sát dữ liệu và được ghi lại trong phần Testing \& Reflectio
 
 {\normalsize\bfseries 4.1. Đầu vào}
 
+\vspace{0.5cm}
+
 \TableStart
+\begingroup
+\normalsize
 \begin{tabularx}{\textwidth}{
     |P{0.8cm}|P{3.0cm}|P{6.1cm}|Y|
 }
@@ -624,15 +632,12 @@ I3
 \\
 \hline
 \end{tabularx}
+\endgroup
 \TableEnd
 
-\newpage
-
-% ============================================================
-% TRANG 8
-% ============================================================
-
 \TableStart
+\begingroup
+\normalsize
 \begin{tabularx}{\textwidth}{
     |P{0.8cm}|P{3.0cm}|P{6.1cm}|Y|
 }
@@ -668,6 +673,7 @@ I7
 \\
 \hline
 \end{tabularx}
+\endgroup
 \TableEnd
 
 \vspace{0.5cm}
@@ -675,8 +681,10 @@ I7
 {\normalsize\bfseries 4.2. Đầu ra mong đợi}
 
 \TableStart
+\begingroup
+\normalsize
 \begin{tabularx}{\textwidth}{
-    |P{0.8cm}|P{2.4cm}|P{5.3cm}|P{4.2cm}|Y|
+    |P{1cm}|P{2.5cm}|P{7cm}|P{4.5cm}|Y|
 }
 \hline
 \textbf{Mã}
@@ -721,27 +729,6 @@ Ou5
 & G3
 \\
 \hline
-\end{tabularx}
-\TableEnd
-
-\newpage
-
-% ============================================================
-% TRANG 9
-% ============================================================
-
-\TableStart
-\begin{tabularx}{\textwidth}{
-    |P{0.8cm}|P{2.4cm}|P{5.3cm}|P{4.2cm}|Y|
-}
-\hline
-\textbf{Mã}
-& \textbf{Đầu ra}
-& \textbf{Mô tả}
-& \textbf{Ví dụ}
-& \textbf{Phục vụ}
-\\
-\hline
 Ou6
 & Trạng thái hóa đơn
 & Đã thanh toán / Sắp đến hạn / Quá hạn, quá hạn được cảnh báo nổi bật
@@ -750,7 +737,10 @@ Ou6
 \\
 \hline
 \end{tabularx}
+\endgroup
 \TableEnd
+
+\newpage
 
 \vspace{0.5cm}
 
@@ -775,8 +765,10 @@ phải điền trước khi lưu.
 {\normalsize\bfseries 5. Nêu các ràng buộc (Constraints)}
 
 \TableStart
+\begingroup
+\normalsize
 \begin{tabularx}{\textwidth}{
-    |P{2.0cm}|P{7.4cm}|Y|
+    |P{3.5cm}|P{9cm}|Y|
 }
 \hline
 \textbf{Loại}
@@ -799,25 +791,6 @@ Kỹ thuật
 & Giao dịch đến từ hóa đơn và nhập tay, không đồng bộ tự động
 \\
 \hline
-\end{tabularx}
-\TableEnd
-
-\newpage
-
-% ============================================================
-% TRANG 10
-% ============================================================
-
-\TableStart
-\begin{tabularx}{\textwidth}{
-    |P{2.0cm}|P{7.4cm}|Y|
-}
-\hline
-\textbf{Loại}
-& \textbf{Nội dung ràng buộc}
-& \textbf{Ảnh hưởng đến bài toán}
-\\
-\hline
 Độ chính xác
 & Kết quả đọc hóa đơn và phân loại phụ thuộc chất lượng ảnh và kiểu hóa đơn; có thể sai số tiền, ngày, danh mục
 & Bắt buộc để người dùng kiểm tra và xác nhận trước khi lưu
@@ -831,6 +804,28 @@ Dữ liệu
 Chi phí
 & Chỉ dùng gói miễn phí hoặc credit giới hạn của API
 & Giới hạn số lần gọi API
+\\
+\hline
+\end{tabularx}
+\endgroup
+\TableEnd
+
+\newpage
+
+% ============================================================
+% TRANG 10
+% ============================================================
+
+\TableStart
+\begingroup
+\normalsize
+\begin{tabularx}{\textwidth}{
+    |P{3.2cm}|P{9cm}|Y|
+}
+\hline
+\textbf{Loại}
+& \textbf{Nội dung ràng buộc}
+& \textbf{Ảnh hưởng đến bài toán}
 \\
 \hline
 Phạm vi
@@ -849,9 +844,10 @@ Học thuật
 \\
 \hline
 \end{tabularx}
+\endgroup
 \TableEnd
 
-\vspace{0.25cm}
+\vspace{0.5cm}
 
 {\normalsize\bfseries 6. Tóm tắt}
 
