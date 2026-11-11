@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Linh vật tạm thời. Thay bằng ảnh thật: xóa file này và đặt res/drawable/mascot.png (cùng tên). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+    <!-- tóc sau -->
+    <path android:fillColor="#8B7CF6" android:pathData="M20,95 a80,80 0 1,0 160,0 a80,80 0 1,0 -160,0" />
+    <!-- áo hoodie -->
+    <path android:fillColor="#FFFFFF" android:strokeColor="#34D399" android:strokeWidth="4"
+        android:pathData="M46,200 Q52,160 100,160 Q148,160 154,200 Z" />
+    <!-- mặt -->
+    <path android:fillColor="#FFE4D6" android:pathData="M42,110 a58,58 0 1,0 116,0 a58,58 0 1,0 -116,0" />
+    <!-- tóc mái -->
+    <path android:fillColor="#9F8CFA"
+        android:pathData="M42,104 Q46,44 100,40 Q154,44 158,104 Q142,80 122,82 Q112,62 100,80 Q88,62 76,84 Q58,78 42,104 Z" />
+    <!-- tai nghe -->
+    <path android:strokeColor="#34D399" android:strokeWidth="9" android:strokeLineCap="round"
+        android:pathData="M30,112 Q28,26 100,26 Q172,26 170,112" />
+    <path android:fillColor="#10B981" android:pathData="M18,118 a16,16 0 1,0 32,0 a16,16 0 1,0 -32,0" />
+    <path android:fillColor="#10B981" android:pathData="M150,118 a16,16 0 1,0 32,0 a16,16 0 1,0 -32,0" />
+    <!-- mắt -->
+    <path android:fillColor="#4C3A9E" android:pathData="M69,120 a9,12 0 1,0 18,0 a9,12 0 1,0 -18,0" />
+    <path android:fillColor="#4C3A9E" android:pathData="M113,120 a9,12 0 1,0 18,0 a9,12 0 1,0 -18,0" />
+    <path android:fillColor="#FFFFFF" android:pathData="M72,115 a3,3 0 1,0 6,0 a3,3 0 1,0 -6,0" />
+    <path android:fillColor="#FFFFFF" android:pathData="M116,115 a3,3 0 1,0 6,0 a3,3 0 1,0 -6,0" />
+    <!-- má hồng -->
+    <path android:fillColor="#FFB4C6" android:fillAlpha="0.8" android:pathData="M54,140 a8,6 0 1,0 16,0 a8,6 0 1,0 -16,0" />
+    <path android:fillColor="#FFB4C6" android:fillAlpha="0.8" android:pathData="M130,140 a8,6 0 1,0 16,0 a8,6 0 1,0 -16,0" />
+    <!-- miệng -->
+    <path android:strokeColor="#C2410C" android:strokeWidth="3" android:strokeLineCap="round"
+        android:pathData="M90,144 Q100,154 110,144" />
+</vector>
