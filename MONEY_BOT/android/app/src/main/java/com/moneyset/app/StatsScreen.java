@@ -98,7 +98,6 @@ final class StatsScreen {
 
     private static void transactions(MainActivity host) {
         host.text(host.content,"Giao dịch tháng "+host.month,16);
-        host.button(host.content,"Thêm khoản chi thủ công",()->host.transactionForm(null));
         host.api.call("GET","/transactions?month="+host.month,null,list->{
             JSONArray rows=(JSONArray)list;
             if(rows.length()==0)host.text(host.content,"Chưa có giao dịch trong tháng này.",14);
