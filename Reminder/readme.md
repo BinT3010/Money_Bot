@@ -1,3 +1,5 @@
+> **Bản tham khảo:** ứng dụng được hỗ trợ nằm trong `MONEY_BOT/` (Java Android + Python). Không dùng tài liệu này làm hợp đồng tích hợp hiện tại.
+
 # Phần Nhắc Hạn Hóa Đơn Định Kỳ Smart Money Bot của Xuân Phúc
 
 Bản Python và giao diện HTML/JavaScript phục vụ học, chạy thử và ghép nhóm với phần Chat/Phân loại (`classifier.py`, `app.py`). Toàn bộ chạy bằng quy tắc thời gian xác định (Rule-based), không cần tài khoản AI hoặc kết nối Internet.

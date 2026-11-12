@@ -1,3 +1,5 @@
+> **Bản tham khảo:** ứng dụng được hỗ trợ nằm trong `MONEY_BOT/` (Java Android + Python). Không dùng tài liệu này làm hợp đồng tích hợp hiện tại.
+
 # Phần Chat Smart Money Bot của Đức Duy
 
 Bản Python phục vụ học, chạy thử và ghép nhóm. Có giao diện Streamlit và terminal; mặc định chạy bằng quy tắc, không cần tài khoản AI hoặc Internet sau khi cài thư viện.
