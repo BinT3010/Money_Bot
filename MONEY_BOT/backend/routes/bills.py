@@ -1,4 +1,6 @@
 """Lịch hóa đơn: xem kỳ/nhắc/đối chiếu, tạo, sửa, ngừng lịch, xác nhận thanh toán."""
+from typing import Literal
+
 from fastapi import Depends
 from pydantic import Field, StrictInt
 
@@ -32,11 +34,13 @@ class Payment(StrictModel):
 
 def register(app, d):
     @app.get("/api/bills")
-    def bills(s: FinanceStore = Depends(d.store)):
+    def bills(limit: int = 100, offset: int = 0, history: Literal["recent", "all"] = "recent",
+              s: FinanceStore = Depends(d.store)):
         today = d.today()
         with s.atomic() as db:
             schedules = [dict(r) for r in db.execute("SELECT * FROM bills ORDER BY name")]
-            return {"schedules": schedules, "periods": s.periods(today), "reminders": s.reminders(today), "obligations": s.obligations(today)}
+            return {"schedules": schedules, **s.period_page(today, limit, offset, history),
+                    "reminders": s.reminders(today), "obligations": s.obligations(today)}
 
     @app.post("/api/bills")
     def create_bill(body: Bill, k: str = Depends(d.key), s: FinanceStore = Depends(d.store)):

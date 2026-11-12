@@ -37,6 +37,22 @@ class BillsMixin:
                 m = shift_month(m, 1)
         return sorted(result, key=lambda r: (r["due_date"], r["id"]))
 
+    # Lịch bắt đầu từ năm 2000 sinh hơn 300 kỳ; danh sách trả về được giới hạn.
+    PAID_HISTORY_MONTHS = 12
+    MAX_PAGE = 500
+
+    def period_page(self, today, limit=100, offset=0, history="recent"):
+        """Một trang danh sách kỳ (thứ tự theo hạn như periods()). Kỳ chưa trả luôn có mặt; kỳ đã trả chỉ lấy
+        12 tháng gần nhất trừ khi history='all'. periods_total/has_more cho phép tải tiếp."""
+        integer(limit, 1, self.MAX_PAGE)
+        integer(offset, 0, 10**6)
+        if history not in ("recent", "all"):
+            raise ValueError("history phải là recent hoặc all.")
+        cutoff = shift_month(today.strftime("%Y-%m"), 1 - self.PAID_HISTORY_MONTHS)
+        visible = [p for p in self.periods(today) if p["status"] != "PAID" or history == "all" or p["month"] >= cutoff]
+        return {"periods": visible[offset:offset + limit], "periods_total": len(visible),
+                "offset": offset, "limit": limit, "has_more": offset + limit < len(visible)}
+
     @staticmethod
     def _paid_months(db, bill_id):
         return sorted(r[0].rsplit(":", 1)[1] for r in db.execute(
@@ -166,7 +182,9 @@ class BillsMixin:
             excluded.append(f"{len(upcoming)} hóa đơn tháng {next_month} ({money(sum(r['amount_vnd'] for r in upcoming))})")
         if older:
             excluded.append(f"{len(older)} kỳ nợ tháng trước ({money(sum(r['amount_vnd'] for r in older))})")
-        return {"start": today.isoformat(), "end": end.isoformat(), "items": included, "older_unpaid": older,
+        # Nợ cũ có thể rất dài: trả 50 kỳ gần nhất, kèm tổng số kỳ và tổng tiền của tất cả.
+        return {"start": today.isoformat(), "end": end.isoformat(), "items": included, "older_unpaid": older[-50:],
+                "older_unpaid_count": len(older), "older_unpaid_total": sum(r["amount_vnd"] for r in older),
                 "next_month": upcoming, "budget_total": budget_total, "spent": spent,
                 "obligations": s, "remaining_budget": remaining, "difference": remaining - s if remaining is not None else None,
                 "status": status, "shortfall": shortfall, "surplus": surplus, "message": message,
