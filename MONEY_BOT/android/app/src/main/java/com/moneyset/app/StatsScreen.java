@@ -75,7 +75,7 @@ final class StatsScreen {
         final Paint legend=new Paint(Paint.ANTI_ALIAS_FLAG); final Paint label=new Paint(Paint.ANTI_ALIAS_FLAG);
         CategoryChart(android.content.Context context,String[] names,long[] amounts,long total){
             super(context);this.names=names;this.amounts=amounts;this.total=total;
-            legend.setTextSize(android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_SP,12,context.getResources().getDisplayMetrics()));
+            legend.setTextSize(android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_SP,10,context.getResources().getDisplayMetrics()));
             legend.setColor(UiHelpers.INK);label.setColor(UiHelpers.NEUTRAL);label.setTextAlign(Paint.Align.CENTER);
             label.setTextSize(android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_SP,11,context.getResources().getDisplayMetrics()));
         }
@@ -173,12 +173,7 @@ final class StatsScreen {
 
         /** Short axis label only (e.g. 1,2tr); exact values are in the table and content description. */
         static String compact(long value) {
-            if(value>=1_000_000)return trim(value/1_000_000.0)+"tr";
-            if(value>=1_000)return trim(value/1_000.0)+"k";
-            return String.valueOf(value);
-        }
-        private static String trim(double v) {
-            return String.format(java.util.Locale.ROOT,"%.1f",v).replaceAll("\\.0$","").replace('.',',');
+            return String.format(java.util.Locale.US,"%,d",value);
         }
     }
 }

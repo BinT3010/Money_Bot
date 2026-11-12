@@ -157,7 +157,7 @@ final class BillsScreen {
         try { return Integer.parseInt(e.getText().toString().trim()); } catch(NumberFormatException x) { throw new Exception("Ngày lặp phải là số từ 1 đến 31."); }
     }
     static long vnd(EditText e) throws Exception {
-        try { return Long.parseLong(e.getText().toString().trim().replaceAll("[.,\\s]","")); } catch(NumberFormatException x) { throw new Exception("Số tiền phải là số nguyên VND."); }
+        try { return Long.parseLong(e.getText().toString().trim().replace(",","")); } catch(NumberFormatException x) { throw new Exception("Số tiền phải là số nguyên VND."); }
     }
 
     static void billForm(MainActivity host) {

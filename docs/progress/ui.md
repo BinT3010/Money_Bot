@@ -30,6 +30,9 @@ the Java Android app under `MONEY_BOT/android`.
   sliders bounded by the current total budget. Edits stay local until the existing
   save action; warning levels and usage bars continue to come from the server.
   Tapping a category usage row focuses its limit field.
+- Numeric inputs group thousands with commas while editing, and money displays
+  use comma grouping with decimal points for fractional averages. Grouping commas
+  are stripped before integer VND values are sent to the backend.
 - The Bills tab now shows only the create-schedule action and one list of bill
   periods. Each card shows the name and amount only, green when paid and red when
   unpaid; dates, payment details, and payment/link actions appear after tapping.

@@ -100,11 +100,24 @@ final class UiHelpers {
     }
     static EditText input(MainActivity host, LinearLayout parent, String label, String value, boolean numeric) {
         host.text(parent, label, 14);
-        EditText edit = new EditText(host); edit.setText(value); edit.setHint(label); edit.setContentDescription(label);
+        EditText edit = new EditText(host); edit.setText(numeric?groupThousands(value):value); edit.setHint(label); edit.setContentDescription(label);
         edit.setSingleLine(true); edit.setTextColor(INK); edit.setHintTextColor(Color.rgb(148,163,184));
         edit.setPadding(host.dp(12),host.dp(8),host.dp(12),host.dp(8));
         edit.setBackground(shape(host,SURFACE,Color.rgb(203,213,225),11));
         edit.setInputType(numeric ? InputType.TYPE_CLASS_NUMBER : InputType.TYPE_CLASS_TEXT);
+        if(numeric){
+            boolean[] formatting={false};
+            edit.addTextChangedListener(new android.text.TextWatcher(){
+                @Override public void beforeTextChanged(CharSequence s,int start,int count,int after){}
+                @Override public void onTextChanged(CharSequence s,int start,int before,int count){
+                    if(formatting[0])return;
+                    String source=s.toString(),formatted=groupThousands(source);if(source.equals(formatted))return;
+                    int cursor=Math.max(0,edit.getSelectionStart());int digitCount=countDigits(source.substring(0,Math.min(cursor,source.length())));
+                    formatting[0]=true;edit.setText(formatted);edit.setSelection(positionAfterDigits(formatted,digitCount));formatting[0]=false;
+                }
+                @Override public void afterTextChanged(android.text.Editable s){}
+            });
+        }
         LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-2); p.bottomMargin=host.dp(7); parent.addView(edit,p); return edit;
     }
     static GradientDrawable shape(MainActivity host, int fill, int stroke, int radius) {
@@ -132,8 +145,17 @@ final class UiHelpers {
         host.root.addView(sc, new LinearLayout.LayoutParams(-1, 0, 1));
     }
     static String value(MainActivity host, EditText e) { return e.getText().toString().trim(); }
-    static long amount(MainActivity host, EditText e) { return Long.parseLong(host.value(e)); }
-    static String money(MainActivity host, long n) { return String.format(Locale.forLanguageTag("vi-VN"), "%,d đ", n); }
+    static long amount(MainActivity host, EditText e) { return Long.parseLong(host.value(e).replace(",","")); }
+    static String money(MainActivity host, long n) { return String.format(Locale.US, "%,d đ", n); }
+    private static String groupThousands(String input){
+        if(input==null||input.isEmpty())return input;
+        String digits=input.replace(",","");if(!digits.matches("[0-9]+"))return input;
+        StringBuilder out=new StringBuilder(digits.length()+digits.length()/3);
+        for(int i=0;i<digits.length();i++){if(i>0&&(digits.length()-i)%3==0)out.append(',');out.append(digits.charAt(i));}
+        return out.toString();
+    }
+    private static int countDigits(String text){int count=0;for(int i=0;i<text.length();i++)if(Character.isDigit(text.charAt(i)))count++;return count;}
+    private static int positionAfterDigits(String text,int digits){if(digits<=0)return 0;int count=0;for(int i=0;i<text.length();i++)if(Character.isDigit(text.charAt(i))&&++count==digits)return i+1;return text.length();}
     static String label(MainActivity host, String cid) { for (int i=0;i<host.categories.length;i++) if (host.categories[i].equals(cid)) return host.labels[i]; return "Chưa chọn"; }
     static String alert(MainActivity host, String code) {
         switch (code) { case "WARNING": return "Sắp đạt hạn mức"; case "REACHED": return "Đã đạt 100% hạn mức";

@@ -121,7 +121,7 @@ final class BudgetScreen {
 
     static boolean warns(String level) { return level.equals("WARNING")||level.equals("REACHED")||level.equals("OVER"); }
 
-    private static long amountOrZero(String value){try{return Long.parseLong(value);}catch(NumberFormatException ignored){return 0;}}
+    private static long amountOrZero(String value){try{return Long.parseLong(value.replace(",",""));}catch(NumberFormatException ignored){return 0;}}
 
     private static TextView row(MainActivity host, CharSequence value) {
         TextView v=new TextView(host); v.setText(value); v.setTextSize(14); return v;
@@ -186,10 +186,10 @@ final class BudgetScreen {
         if(cents==100){whole++;cents=0;}
         if(cents==0)return host.money(whole);
         String frac=String.format(Locale.ROOT,"%02d",cents).replaceAll("0+$","");
-        return host.money(whole).replace(" đ",","+frac+" đ");
+        return host.money(whole).replace(" đ","."+frac+" đ");
     }
 
     static String factor(double value) {
-        return String.format(Locale.ROOT,"%.4f",value).replaceAll("0+$","").replaceAll("\\.$","").replace('.',',');
+        return String.format(Locale.US,"%.4f",value).replaceAll("0+$","").replaceAll("\\.$","");
     }
 }
