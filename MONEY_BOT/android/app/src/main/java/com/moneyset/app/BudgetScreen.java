@@ -10,6 +10,7 @@ final class BudgetScreen {
         host.api.call("GET","/budgets/"+host.month,null,r->{
             JSONObject b=(JSONObject)r, limits=b.getJSONObject("limits");
             EditText total=host.input(host.content,"Ngân sách tổng VND",b.isNull("total")?"":b.getString("total"),true);
+            total.setTextColor(UiHelpers.FUNDS_GREEN);
             EditText threshold=host.input(host.content,"Cảnh báo sớm (%)",b.getString("threshold"),true);
             EditText[] edits=new EditText[6];
             host.text(host.content,"Để trống: chưa đặt hạn mức. Nhập 0: không dành ngân sách cho danh mục.",14);
@@ -20,7 +21,8 @@ final class BudgetScreen {
             });
             host.button(host.content,"Gợi ý từ 3 tháng trước",()->host.api.call("GET","/budgets/"+host.month+"/suggestions",null,v->{
                 JSONObject result=(JSONObject)v;
-                host.status.setText(result.getString("reason")+"\nChưa lưu; kiểm tra rồi bấm Xác nhận lưu ngân sách.");
+                String note=result.getString("reason")+"\nChưa lưu; kiểm tra rồi bấm Xác nhận lưu ngân sách.";
+                if(result.optBoolean("available"))UiHelpers.status(host,note);else UiHelpers.warningStatus(host,note);
                 if(result.optBoolean("available"))for(int i=0;i<6;i++)edits[i].setText(result.getJSONObject("limits").getString(host.categories[i]));
             },host::error));
         },host::error);

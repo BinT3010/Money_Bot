@@ -1,6 +1,9 @@
 package com.moneyset.app;
 
 import android.widget.*;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.time.LocalDate;
@@ -11,6 +14,24 @@ import java.time.ZoneId;
  * Every amount, status, window and reconciliation figure comes from GET /api/bills; this class only
  * renders it and collects input. Reminders exist only when the tab is opened or refreshed. */
 final class BillsScreen {
+    // Format known expense fields without changing any bills calculations.
+    static CharSequence expenseLabel(MainActivity host, String line, long... amounts) {
+        SpannableString styled=new SpannableString(line);
+        for(long amount:amounts){
+            String value=host.money(amount);int from=0,at;
+            while((at=line.indexOf(value,from))>=0){
+                styled.setSpan(new ForegroundColorSpan(UiHelpers.EXPENSE_RED),at,at+value.length(),Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                from=at+value.length();
+            }
+        }
+        return styled;
+    }
+    static TextView expenseLine(MainActivity host, LinearLayout parent, String line, int size, long... amounts) {
+        TextView view=host.text(parent,line,size);view.setText(expenseLabel(host,line,amounts));return view;
+    }
+    static void periodItem(MainActivity host, JSONObject row) throws Exception {
+        expenseLine(host,host.content,"• "+periodLine(host,row),15,row.getLong("amount_vnd"));
+    }
     static final int PAGE = 50;
     static final ZoneId ZONE = ZoneId.of("Asia/Ho_Chi_Minh");
     /** View state only: "recent" (unpaid + 12 months of paid periods) or "all". */
@@ -41,7 +62,7 @@ final class BillsScreen {
         if(reminders.length()==0)host.text(host.content,"Không có hóa đơn chưa trả đến mốc nhắc (còn 3 ngày, 1 ngày hoặc đến hạn hôm nay).",15);
         for(int i=0;i<reminders.length();i++){
             JSONObject n=reminders.getJSONObject(i);int days=n.getInt("days");
-            host.text(host.content,"Nhắc hạn: "+n.getString("name")+" · kỳ "+n.getString("month")+" · hạn "+n.getString("due_date")+" · "
+            UiHelpers.warning(host,host.content,"Nhắc hạn: "+n.getString("name")+" · kỳ "+n.getString("month")+" · hạn "+n.getString("due_date")+" · "
                 +(days==0?"đến hạn hôm nay":days+" ngày nữa")+" · "+host.money(n.getLong("amount_vnd")),17);
         }
     }
@@ -52,26 +73,29 @@ final class BillsScreen {
 
     static void obligations(MainActivity host, JSONObject o) throws Exception {
         host.text(host.content,"Đối chiếu nghĩa vụ "+o.getString("start")+" → "+o.getString("end")+": "+reconciliation(o.getString("status")),20);
-        host.text(host.content,"Ngân sách tổng tháng: "+(o.isNull("budget_total")?"chưa đặt":host.money(o.getLong("budget_total"))),16);
-        host.text(host.content,"Đã chi đã xác nhận: "+host.money(o.getLong("spent")),16);
-        host.text(host.content,"Ngân sách còn lại: "+(o.isNull("remaining_budget")?"chưa xác định (thiếu ngân sách tổng)":host.money(o.getLong("remaining_budget"))),16);
+        if(o.isNull("budget_total"))UiHelpers.warning(host,host.content,"Ngân sách tổng tháng: chưa đặt",16);
+        else UiHelpers.moneyText(host,host.content,"Ngân sách tổng tháng: ",o.getLong("budget_total"),16,false);
+        UiHelpers.moneyText(host,host.content,"Đã chi đã xác nhận: ",o.getLong("spent"),16,true);
+        if(o.isNull("remaining_budget"))UiHelpers.warning(host,host.content,"Ngân sách còn lại: chưa xác định (thiếu ngân sách tổng)",16);
+        else UiHelpers.moneyText(host,host.content,"Ngân sách còn lại: ",o.getLong("remaining_budget"),16,false);
         JSONArray items=o.getJSONArray("items");
-        host.text(host.content,"Hóa đơn chưa trả trong cửa sổ: "+host.money(o.getLong("obligations"))+" ("+items.length()+" kỳ)",16);
-        for(int i=0;i<items.length();i++)host.text(host.content,"• "+periodLine(host,items.getJSONObject(i)),15);
-        if(!o.isNull("difference"))host.text(host.content,"Ngân sách còn trừ nghĩa vụ: "+host.money(o.getLong("difference")),16);
-        host.text(host.content,o.getString("message"),16);
+        expenseLine(host,host.content,"Hóa đơn chưa trả trong cửa sổ: "+host.money(o.getLong("obligations"))+" ("+items.length()+" kỳ)",16,o.getLong("obligations"));
+        for(int i=0;i<items.length();i++)periodItem(host,items.getJSONObject(i));
+        if(!o.isNull("difference"))UiHelpers.moneyText(host,host.content,"Ngân sách còn trừ nghĩa vụ: ",o.getLong("difference"),16,false);
+        if(o.getString("status").equals("ENOUGH"))host.text(host.content,o.getString("message"),16);
+        else UiHelpers.warning(host,host.content,o.getString("message"),16);
         if(!o.isNull("excluded"))host.text(host.content,o.getString("excluded"),15);
         int olderCount=o.getInt("older_unpaid_count");
         if(olderCount>0){
             JSONArray older=o.getJSONArray("older_unpaid");
-            host.text(host.content,"Nợ tháng trước (không cộng vào đối chiếu): "+olderCount+" kỳ · "+host.money(o.getLong("older_unpaid_total"))
+            UiHelpers.warning(host,host.content,"Nợ tháng trước (không cộng vào đối chiếu): "+olderCount+" kỳ · "+host.money(o.getLong("older_unpaid_total"))
                 +(older.length()<olderCount?" · hiển thị "+older.length()+" kỳ gần nhất":""),16);
-            for(int i=0;i<older.length();i++)host.text(host.content,"• "+periodLine(host,older.getJSONObject(i)),15);
+            for(int i=0;i<older.length();i++)periodItem(host,older.getJSONObject(i));
         }
         JSONArray next=o.getJSONArray("next_month");
         if(next.length()>0){
             host.text(host.content,"Hóa đơn tháng sau đến hạn trong 7 ngày tới, tính cả hôm nay (không cộng vào đối chiếu):",16);
-            for(int i=0;i<next.length();i++)host.text(host.content,"• "+periodLine(host,next.getJSONObject(i)),15);
+            for(int i=0;i<next.length();i++)periodItem(host,next.getJSONObject(i));
         }
         host.text(host.content,o.getString("note"),13);
     }
@@ -90,8 +114,8 @@ final class BillsScreen {
         if(schedules.length()==0)host.text(host.content,"Chưa có lịch hóa đơn.",15);
         for(int i=0;i<schedules.length();i++){
             JSONObject s=schedules.getJSONObject(i);String name=s.getString("name");boolean running=s.isNull("end_month");
-            host.text(host.content,name+" · "+host.money(s.getLong("amount_vnd"))+" · ngày "+s.getInt("due_day")+" · từ "+s.getString("start_month")
-                +(running?" · đang chạy":" · đã ngừng sau kỳ "+s.getString("end_month")),16);
+            expenseLine(host,host.content,name+" · "+host.money(s.getLong("amount_vnd"))+" · ngày "+s.getInt("due_day")+" · từ "+s.getString("start_month")
+                +(running?" · đang chạy":" · đã ngừng sau kỳ "+s.getString("end_month")),16,s.getLong("amount_vnd"));
             host.button(host.content,"Sửa lịch: "+name,()->editForm(host,s));
             if(running)host.button(host.content,"Ngừng lịch: "+name,()->stopForm(host,s));
             else host.button(host.content,"Tiếp tục lịch: "+name,()->resumeForm(host,s));
@@ -107,7 +131,9 @@ final class BillsScreen {
             if(state.equals("PAID"))line+="\nĐã trả ngày "+row.getString("paid_on")+": "
                 +(row.isNull("paid_amount")?"không còn khoản chi liên kết":host.money(row.getLong("paid_amount"))
                   +(row.getLong("paid_amount")!=row.getLong("amount_vnd")?" (khác số dự kiến)":""));
-            host.text(list,line,17);
+            TextView period=expenseLine(host,list,line,17,row.getLong("amount_vnd"));
+            if(state.equals("PAID")&&!row.isNull("paid_amount"))period.setText(expenseLabel(host,line,row.getLong("amount_vnd"),row.getLong("paid_amount")));
+            if(state.equals("OVERDUE")||state.equals("DUE_TODAY")||state.equals("DUE_SOON"))UiHelpers.warningStyle(host,period);
             if(!state.equals("PAID"))host.button(list,"Đánh dấu đã trả / Liên kết khoản chi",()->host.payForm(row));
         }
         int shown=response.getInt("offset")+rows.length(),total=response.getInt("periods_total");
@@ -141,7 +167,7 @@ final class BillsScreen {
         host.formDialog("Xác nhận sửa lịch",box,()->{
             JSONObject body=new JSONObject().put("name",host.value(name)).put("amount_vnd",vnd(amount)).put("due_day",day(day)).put("start_month",host.value(start))
                 .put("end_month",host.value(end).isEmpty()?JSONObject.NULL:host.value(end));
-            host.api.call("PUT","/bills/"+s.getString("id"),body,r->{host.load();host.status.setText("Đã cập nhật lịch "+((JSONObject)r).getString("name")+".");},host::error);
+            host.api.call("PUT","/bills/"+s.getString("id"),body,r->{host.load();UiHelpers.status(host, "Đã cập nhật lịch "+((JSONObject)r).getString("name")+".");},host::error);
         });
     }
 
@@ -153,7 +179,7 @@ final class BillsScreen {
             String path="/bills/"+s.getString("id")+(host.value(end).isEmpty()?"":"?end_month="+java.net.URLEncoder.encode(host.value(end),"UTF-8"));
             host.api.call("DELETE",path,null,r->{
                 JSONObject result=(JSONObject)r;host.load();
-                host.status.setText(result.getBoolean("deleted")?"Đã xóa lịch (chưa có kỳ nào được trả).":"Đã ngừng lịch sau kỳ "+result.getString("end_month")+"; lịch sử đã trả được giữ.");
+                UiHelpers.status(host, result.getBoolean("deleted")?"Đã xóa lịch (chưa có kỳ nào được trả).":"Đã ngừng lịch sau kỳ "+result.getString("end_month")+"; lịch sử đã trả được giữ.");
             },host::error);
         });
     }
@@ -164,7 +190,7 @@ final class BillsScreen {
         host.formDialog("Xác nhận tiếp tục lịch",box,()->{
             JSONObject body=new JSONObject().put("name",s.getString("name")).put("amount_vnd",s.getLong("amount_vnd")).put("due_day",s.getInt("due_day"))
                 .put("start_month",s.getString("start_month")).put("end_month",JSONObject.NULL);
-            host.api.call("PUT","/bills/"+s.getString("id"),body,r->{host.load();host.status.setText("Đã tiếp tục lịch "+s.getString("name")+".");},host::error);
+            host.api.call("PUT","/bills/"+s.getString("id"),body,r->{host.load();UiHelpers.status(host, "Đã tiếp tục lịch "+s.getString("name")+".");},host::error);
         });
     }
 
@@ -200,7 +226,7 @@ final class BillsScreen {
                 .put("expense_id",linked?host.value(link):JSONObject.NULL).put("amount_vnd",linked?JSONObject.NULL:vnd(amount));
             host.api.call("POST","/bills/"+row.getString("id")+"/pay",body,v->{
                 JSONObject result=(JSONObject)v;host.load();
-                host.status.setText(result.getBoolean("already_paid")?"Kỳ này đã được ghi nhận trước đó; không ghi chi thêm."
+                UiHelpers.status(host, result.getBoolean("already_paid")?"Kỳ này đã được ghi nhận trước đó; không ghi chi thêm."
                     :"Đã ghi nhận kỳ "+row.getString("month")+": "+host.money(result.getLong("paid_amount"))+(linked?" (liên kết khoản chi đã có).":"."));
             },host::error);
         });

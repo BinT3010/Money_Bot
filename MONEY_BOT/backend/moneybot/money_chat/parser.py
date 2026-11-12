@@ -17,6 +17,9 @@ DATE = re.compile(r"\b(\d{1,2})/(\d{1,2})/(\d{4})\b")
 MONTH = re.compile(r"(?:tháng|thang)\s*(\d{1,2})(?:\s*[/\-]\s*|\s+năm\s+|\s+nam\s+)(\d{4})", re.I)
 
 
+MERCHANT = re.compile(r"(?:^|[;\n])\s*(?:cửa hàng|cua hang|merchant|store)\s*:\s*([^;\n]*)", re.I)
+
+
 # P02: Decimal tránh sai số tiền do float; đơn vị không rõ thì hỏi.
 def parse_money(text):
     matches = list(MONEY.finditer(text))
@@ -60,6 +63,7 @@ def parse_date(text, today):
 
 # P03: chỉ chọn ý định; thao tác xác nhận/hủy được engine xử lý riêng.
 def detect_intent(text):
+    text = MERCHANT.sub("", text).strip()
     t = fold(text)
     if "da tra" in t or "da thanh toan" in t:
         return "payment_unsupported"
@@ -119,8 +123,16 @@ class RuleInterpreter:
 
     def parse(self, text, today, intent=None, current=None):
         current = current or {}
+        merchant_matches = list(MERCHANT.finditer(text))
+        text = MERCHANT.sub("", text).strip()
         kind = intent or detect_intent(text)
         out = Parsed(intent=kind)
+        if kind == "record_expense" and merchant_matches:
+            names = {match.group(1).strip() for match in merchant_matches}
+            if len(names) == 1:
+                out.fields["merchant"] = names.pop()
+            else:
+                out.issues["merchant"] = "Có nhiều cửa hàng; hãy chọn một tên trong biểu mẫu."
         amount, error, matches = parse_money(text)
         out.multiple = len(matches) > 1
         if out.multiple:
