@@ -10,7 +10,20 @@ All feature PRs target staging. Each worker uses its own worktree.
 | feature/expense-capture | Text/manual/image/PDF -> editable transaction draft including merchant -> explicit confirmation -> durable record | Java ChatScreen, TransactionEditor; backend routes/chat.py, routes/transactions.py, ocr.py, classification.py, classifier.py, money_chat/parser.py; capture tests/cases/data |
 | feature/budget | History -> totals/charts -> suggestions with basis -> editable limits -> warnings | Java BudgetScreen, StatsScreen; backend budget.py, routes/budget.py; budget/statistics tests/cases |
 | feature/bills | Schedule -> reminders -> payment/linking -> period history and budget reconciliation | Java BillsScreen; backend bills.py, routes/bills.py; bill tests/cases |
+| feature/ui | General Android visual polish across completed flows; parked until a concrete task is assigned | Android presentation only; focused UI tests/docs; shared UiHelpers/navigation/theme changes require an integrator prerequisite patch |
 | experiment/evaluation | Reproducible independent acceptance evidence and cross-feature checks | evaluation harness, summary tooling, cross-feature test modules, human-trial protocol |
+
+## General UI polish acceptance
+
+This branch is parked until the maintainer assigns a concrete UI task. Basic
+feature flows are already implemented; do not invent product behavior or start
+broad visual changes without that direction. When assigned, keep work to Android
+presentation and usability: spacing, hierarchy, readability, consistent states,
+and accessibility. Preserve existing flows, API contracts, financial
+calculations, confirmation steps, and user data. Do not add dependencies or edit
+backend/domain code. Shared `UiHelpers`, navigation, themes, or common components
+require a small integrator-owned prerequisite patch. Add focused UI regression
+coverage for assigned behavior, then run full verification.
 
 ## Shared contracts (foundation/integrator ownership)
 
@@ -71,17 +84,18 @@ run on the integrated staging commit.
 
 ## Retired branches
 
-feature/merchant, feature/ocr-receipt and refactor/feature-workstreams have been
-deleted after confirming their commits are retained in staging. Do not recreate
-them. Merchant and OCR form one expense-capture flow. The active branches are
-feature/expense-capture, feature/budget, feature/bills and experiment/evaluation.
+feature/merchant, feature/ocr-receipt and refactor/feature-workstreams were
+deleted earlier. The completed feature/expense-capture, feature/budget and
+feature/bills branches were deleted after integration into main. Current work
+branches are feature/ui and experiment/evaluation. Keep feature/ui parked until
+the maintainer assigns a specific UI task.
 
 ## Start now: worker checklist
 
 1. Fetch origin. Use the existing assigned branch and a dedicated worktree. If
    already checked out elsewhere, use that worktree; don't force-check it out twice.
-   Example from the repository: `git worktree add ../Money_Bot-capture feature/expense-capture`.
-   Use Money_Bot-budget, Money_Bot-bills or Money_Bot-evaluation for the other roles.
+   Example from the repository: `git worktree add ../Money_Bot-ui feature/ui`.
+   Use Money_Bot-evaluation for the evaluation role.
 2. Confirm current branch and a clean working tree. Verify it includes current
    origin/staging (`git merge-base --is-ancestor origin/staging HEAD`). If it does
    not, ask the integrator to merge staging; never reset/rebase shared work.
