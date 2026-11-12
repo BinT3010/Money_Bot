@@ -4,15 +4,15 @@ from datetime import date, timedelta
 from uuid import uuid4
 
 from common import integer, month_check, shift_month
-from money_chat.models import validate
+from money_chat.models import money, validate
 from money_chat.storage import insert_record, write_fields
 
 
 class BillsMixin:
     """Dùng chung connection()/atomic()/overview() của FinanceStore."""
 
-    def periods(self, today):
-        """Bao gồm kỳ nợ cũ và mọi kỳ trong tháng hiện tại; ngày 31 được kẹp cuối tháng."""
+    def periods(self, today, until=None):
+        """Bao gồm kỳ nợ cũ và mọi kỳ đến tháng `until` (mặc định tháng hiện tại); ngày 31 được kẹp cuối tháng."""
         with self.connection() as db:
             bills = [dict(r) for r in db.execute("SELECT * FROM bills")]
             # Số tiền thực trả = số tiền của khoản chi đã ghi cho kỳ (có thể khác số tiền dự kiến).
@@ -20,7 +20,7 @@ class BillsMixin:
                 "SELECT p.period_id, p.expense_id, p.paid_on, e.amount_vnd AS paid_amount "
                 "FROM payments p LEFT JOIN expenses e ON e.id = p.expense_id")}
         result = []
-        current = today.strftime("%Y-%m")
+        current = until or today.strftime("%Y-%m")
         for bill in bills:
             m = bill["start_month"]
             last = min(current, bill["end_month"]) if bill["end_month"] else current  # lịch đã ngừng
@@ -134,15 +134,43 @@ class BillsMixin:
         return {"period_id": pid, "expense_id": expense_id, "paid_on": paid_on, "paid_amount": paid_amount, "already_paid": False}
 
     def obligations(self, today):
+        """Ou7: R = B − C (ngân sách tháng trừ chi đã xác nhận); S = hóa đơn chưa trả của tháng này có hạn đến
+        hết cửa sổ [hôm nay, min(hôm nay+6, cuối tháng)], kể cả kỳ quá hạn trong tháng. Hóa đơn tháng sau trong
+        sáu ngày tới và nợ tháng trước được liệt kê riêng, không cộng vào S."""
         month = today.strftime("%Y-%m")
-        end = min(today + timedelta(days=6), date(today.year, today.month, calendar.monthrange(today.year, today.month)[1]))
-        rows = [r for r in self.periods(today) if r["status"] != "PAID"]
+        horizon = today + timedelta(days=6)
+        end = min(horizon, date(today.year, today.month, calendar.monthrange(today.year, today.month)[1]))
+        next_month = shift_month(month, 1)
+        rows = [r for r in self.periods(today, until=next_month) if r["status"] != "PAID"]
         included = [r for r in rows if r["month"] == month and r["due_date"] <= end.isoformat()]
         older = [r for r in rows if r["month"] < month]
+        upcoming = [r for r in rows if r["month"] == next_month and r["due_date"] <= horizon.isoformat()]
         s = sum(r["amount_vnd"] for r in included)
-        remaining = self.overview(month)["remaining"]
+        overview = self.overview(month)
+        budget_total, spent, remaining = overview["budget"]["total"], overview["total"], overview["remaining"]
+        if remaining is None:
+            status, shortfall, surplus = "UNKNOWN", None, None
+            message = (f"Chưa có ngân sách tổng tháng {month}. Tổng hóa đơn đang xét là {money(s)}; "
+                       "hãy nhập ngân sách để đối chiếu. Chưa kết luận đủ hay thiếu.")
+        elif s > remaining:
+            status, shortfall, surplus = "SHORT", s - remaining, 0
+            message = (f"Theo dữ liệu đã ghi, ngân sách còn lại thấp hơn tổng hóa đơn đang xét {money(shortfall)}. "
+                       "Hãy kiểm tra các khoản chi và kế hoạch thanh toán.")
+        else:
+            status, shortfall, surplus = "ENOUGH", 0, remaining - s
+            message = ("Không có hóa đơn chưa trả trong cửa sổ này. " if not included else "") + (
+                f"Theo dữ liệu đã ghi, ngân sách còn lại đủ cho các hóa đơn đang xét"
+                f"{' (vừa đủ)' if surplus == 0 else f', còn dư {money(surplus)}'}.")
+        excluded = []
+        if upcoming:
+            excluded.append(f"{len(upcoming)} hóa đơn tháng {next_month} ({money(sum(r['amount_vnd'] for r in upcoming))})")
+        if older:
+            excluded.append(f"{len(older)} kỳ nợ tháng trước ({money(sum(r['amount_vnd'] for r in older))})")
         return {"start": today.isoformat(), "end": end.isoformat(), "items": included, "older_unpaid": older,
+                "next_month": upcoming, "budget_total": budget_total, "spent": spent,
                 "obligations": s, "remaining_budget": remaining, "difference": remaining - s if remaining is not None else None,
+                "status": status, "shortfall": shortfall, "surplus": surplus, "message": message,
+                "excluded": ("Chưa gộp vào phép đối chiếu: " + "; ".join(excluded) + ".") if excluded else None,
                 "note": "Chỉ đối chiếu ngân sách theo dữ liệu đã ghi, không phải số dư ngân hàng. Nợ tháng trước hiển thị riêng."}
 
     def reminders(self, today):
