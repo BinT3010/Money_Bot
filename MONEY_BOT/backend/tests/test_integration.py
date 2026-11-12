@@ -196,7 +196,7 @@ def test_real_image_ocr_to_draft_without_save(env):
     assert c.get("/api/transactions?month=2026-11").json() == []
     # Retry không phụ thuộc OCR phải chạy lại thành công và không tạo nháp thứ hai.
     from unittest.mock import patch
-    with patch("app.extract_text", side_effect=RuntimeError("OCR unavailable on retry")):
+    with patch("routes.chat.extract_text", side_effect=RuntimeError("OCR unavailable on retry")):
         again = c.post("/api/chat/android/receipt", files={"file": ("receipt.png", buf.getvalue(), "image/png")}, headers={"Idempotency-Key": key})
         assert again.json() == r.json()
 
