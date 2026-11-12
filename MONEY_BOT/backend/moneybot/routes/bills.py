@@ -4,8 +4,8 @@ from typing import Literal
 from fastapi import Depends
 from pydantic import Field, StrictInt
 
-from finance import FinanceStore
-from routes import StrictModel
+from moneybot.finance import FinanceStore
+from moneybot.routes import StrictModel
 
 
 class Bill(StrictModel):

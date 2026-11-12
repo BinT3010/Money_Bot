@@ -47,9 +47,10 @@ Nhắc hạn 3 ngày/1 ngày/đúng hạn được hiển thị trong tab Hóa �
 
 ```text
 backend/
-  app.py                 HTTP API và xác thực request
+  app.py                 entrypoint tương thích (uvicorn app:app)
+  moneybot/              implementation chính: app, routes, finance, budget, bills, money_chat
   auth.py                tài khoản, token, băm mật khẩu
-  finance.py             SQLite chung, ngân sách, kỳ hóa đơn, thanh toán
+  finance.py             import tương thích; code chính trong moneybot/
   classification.py      adapter dùng bộ phân loại của nhóm
   classifier.py          bộ từ khóa của Cường, đã hợp nhất đường sử dụng
   ocr.py                 OCR ONNX cục bộ, PDF và trích trường
@@ -90,3 +91,11 @@ Kiểm chứng ngày 12/11/2026: **63 kiểm thử Python và 5 kiểm thử Jav
 ## Nguồn tái sử dụng
 
 Dựa trên [Money_Bot commit 577f763f9c04c1a470a7900efe8323cda0868e9d](https://github.com/BinT3010/Money_Bot/tree/577f763f9c04c1a470a7900efe8323cda0868e9d): tái sử dụng Chat Python, parser/validation/idempotency, bộ phân loại và kiểm thử; giữ các luồng FE Chat/Stats/Budget/Bills/Auth và tài nguyên mascot. Logic phân loại/ngân sách/hóa đơn trước đây tách riêng trong Kotlin đã chuyển về backend chung. README này hướng dẫn chạy source, không phải báo cáo học phần hoặc slide.
+
+## Refactor kiến trúc
+
+Backend chính nằm trong package `moneybot`; các import cũ được giữ tương thích.
+Java tách AuthScreen, ChatScreen, StatsScreen, BudgetScreen, BillsScreen và UiHelpers;
+MainActivity giữ lifecycle/điều hướng/chọn file. ApiClient giữ giao diện công khai;
+HttpExecutor xử lý HTTP tuần tự. Hợp đồng API và dữ liệu lưu không đổi.
+APK có sẵn là artifact trước refactor; phải build và kiểm thử lại trước khi phân phối.

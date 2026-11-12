@@ -2,8 +2,8 @@
 from fastapi import Depends
 from pydantic import Field
 
-from money_chat.models import CATEGORIES
-from routes import StrictModel
+from moneybot.money_chat.models import CATEGORIES
+from moneybot.routes import StrictModel
 
 
 class Credentials(StrictModel):

@@ -2,8 +2,8 @@
 from fastapi import Depends
 from pydantic import StrictInt
 
-from finance import FinanceStore, month_check
-from routes import StrictModel
+from moneybot.finance import FinanceStore, month_check
+from moneybot.routes import StrictModel
 
 
 class Budget(StrictModel):

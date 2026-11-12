@@ -162,4 +162,32 @@ public class IntegrationTest {
     private static final class AlertDialogCheck {
         static void assertShown(){assertNotNull(org.robolectric.shadows.ShadowAlertDialog.getLatestAlertDialog());}
     }
+    @Test public void activityRecreationPreservesAccountTabAndSelectedMonth() throws Exception {
+        api.login(new JSONObject().put("email", "restore@test.vn").put("token", "dummy"));
+        android.os.Bundle saved = new android.os.Bundle();
+        saved.putString("tab", "Tài khoản"); saved.putString("month", "2026-09");
+        org.robolectric.android.controller.ActivityController<MainActivity> first =
+            Robolectric.buildActivity(MainActivity.class).create(saved).start().resume().visible();
+        android.os.Bundle next = new android.os.Bundle();
+        first.saveInstanceState(next).pause().stop().destroy();
+        org.robolectric.android.controller.ActivityController<MainActivity> second =
+            Robolectric.buildActivity(MainActivity.class).create(next).start().resume().visible();
+        assertEquals("Tài khoản", second.get().tab);
+        assertEquals("2026-09", second.get().month);
+        assertEquals("restore@test.vn", second.get().api.email());
+        second.pause().stop().destroy();
+    }
+    @Test public void pendingUploadSurvivesStoreRecreation() throws Exception {
+        android.content.SharedPreferences prefs = context.getSharedPreferences("moneybot", Context.MODE_PRIVATE);
+        PendingRequestStore first = new PendingRequestStore(prefs, context);
+        java.io.File upload = new java.io.File(context.getFilesDir(), "pending-receipt.bin");
+        try (java.io.FileOutputStream out = new java.io.FileOutputStream(upload)) { out.write(new byte[]{1,2,3}); }
+        first.save(new JSONObject().put("key", "stable-key").put("owner", "owner@test.vn").put("upload", true));
+        PendingRequestStore restored = new PendingRequestStore(prefs, context);
+        assertTrue(restored.exists());
+        assertEquals("stable-key", restored.read().getString("key"));
+        assertEquals(3L, upload.length());
+        restored.clear();
+        assertFalse(restored.exists()); assertFalse(upload.exists());
+    }
 }

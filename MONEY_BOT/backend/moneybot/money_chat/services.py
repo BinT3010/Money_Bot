@@ -1,6 +1,6 @@
 """V01–V03: các điểm nối với phần Cường, Phúc, Dũng."""
 from typing import Protocol
-from classification import TeamClassifier
+from moneybot.classification import TeamClassifier
 
 
 # V01: chỉ định chữ ký cần có; engine không phụ thuộc cách triển khai cụ thể.

@@ -1,3 +1,5 @@
+> **Bản tham khảo:** ứng dụng được hỗ trợ nằm trong `MONEY_BOT/` (Java Android + Python). Không dùng tài liệu này làm hợp đồng tích hợp hiện tại.
+
 # Money Set — Android (Kotlin · Jetpack Compose)
 
 App quản lý chi tiêu với trợ lý AI: ghi chi tiêu bằng chat/giọng nói/ảnh hóa đơn, ngân sách & cảnh báo hạn mức, hóa đơn định kỳ.

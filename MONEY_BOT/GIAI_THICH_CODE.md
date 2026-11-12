@@ -22,9 +22,9 @@
 | `money_chat/services.py` | Protocol và tên import tương thích; KeywordClassifier nay dùng chung TeamClassifier, không còn bộ luật khác. |
 | `money_chat/storage.py` | Cơ sở SQLite kế thừa từ code Chat: expenses, bills, paid_periods, sessions, operations. |
 | `finance.py — atomic/once/commit` | Mở một transaction cho cả yêu cầu; khóa SQLite chống ghi cạnh tranh; lưu kết quả theo khóa chống lặp. |
-| `finance.py — overview/set_budget/suggest` | Ngân sách tổng/hạn mức, cảnh báo và công thức trung bình ba tháng có co ngân sách. Tính số nguyên để không sai do làm tròn float. |
-| `finance.py — periods/pay` | Sinh kỳ từ tháng bắt đầu, kẹp ngày cuối tháng, xử lý nợ cũ; đánh dấu trả và tạo/liên kết chi trong cùng transaction. |
-| `finance.py — obligations/reminders` | Cửa sổ 7 ngày giới hạn cuối tháng; nợ cũ riêng; danh sách nhắc đúng các mốc 3/1/0 ngày với ID ổn định. |
+| `moneybot/budget.py — overview/set_budget/suggest` | Ngân sách tổng/hạn mức, cảnh báo và công thức trung bình ba tháng có co ngân sách. Tính số nguyên để không sai do làm tròn float. |
+| `moneybot/bills.py — periods/pay` | Sinh kỳ từ tháng bắt đầu, kẹp ngày cuối tháng, xử lý nợ cũ; đánh dấu trả và tạo/liên kết chi trong cùng transaction. |
+| `moneybot/bills.py — obligations/reminders` | Cửa sổ 7 ngày giới hạn cuối tháng; nợ cũ riêng; danh sách nhắc đúng các mốc 3/1/0 ngày với ID ổn định. |
 | `auth.py` | PBKDF2 600.000 vòng với salt riêng; token ngẫu nhiên chỉ lưu bản băm; hết hạn 7 ngày; giới hạn thử sai theo email. |
 | `ocr.py — extract_text/image_text` | PDF có text đọc trực tiếp; PDF scan render; ảnh nhận dạng bằng RapidOCR/ONNX, ghép box cùng dòng. Giới hạn dung lượng/trang/pixel. |
 | `ocr.py — receipt_fields` | Chọn giá trị trên dòng tổng, không lấy số lớn nhất tùy tiện; xử lý ngày, phân loại; không ghi DB. |
@@ -54,3 +54,6 @@
 - Không lưu từ OCR hoặc câu chat khi chưa xác nhận. Sửa nháp tăng phiên bản, nút xác nhận cũ không còn hiệu lực.
 - Một kỳ hóa đơn chỉ gắn một giao dịch; một giao dịch không trả cho hai kỳ. Liên kết yêu cầu khớp tiền, ngày và danh mục hóa đơn.
 - Mọi màn hình đọc API; Android không tính một tổng chi khác và không giữ kho tiền độc lập.
+
+Implementation backend chính trong `backend/moneybot/`; module ở gốc backend là import tương thích.
+MainActivity ủy quyền hiển thị cho các lớp *Screen và UiHelpers; HttpExecutor giữ HTTP tuần tự.
