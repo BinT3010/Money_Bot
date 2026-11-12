@@ -1,7 +1,7 @@
 # Agent operating rules
 
 ## Read before editing
-Read this file, README.md, CONTRIBUTING.md, and the relevant component documentation.
+Read this file, README.md, CONTRIBUTING.md, docs/BRANCH_TASKS.md, and the relevant component documentation.
 Inspect git status and the assigned branch. Preserve unrelated edits. If unexpected
 changes or shared-file conflicts appear, stop the affected work and report them.
 
@@ -16,7 +16,9 @@ dependency upgrades, and unrelated refactoring require an explicit team decision
 Do not spawn additional agents unless explicitly requested.
 
 ## Git and collaboration
-Use the assigned branch; this refactor uses refactor/java-python-structure.
+Use the assigned branch. Run `git branch --show-current` and follow the matching
+assignment in docs/BRANCH_TASKS.md. If there is no assignment, establish task scope
+before implementation. The refactor branch is complete and must not be recreated.
 Create a task branch from current main only when no branch has been assigned.
 Do not create branches for individual numbered subtasks. Normal pushes to the
 assigned task branch are allowed. Merging, direct main pushes, force-pushing,

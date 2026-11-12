@@ -24,3 +24,8 @@ khai báo trong backend/moneybot/routes và hiển thị ở /openapi.json, /doc
 Nếu yêu cầu và triển khai mâu thuẫn, báo cáo để nhóm quyết định, không tự đổi mục tiêu.
 
 Không đồng bộ hoặc xóa các nhánh feature/* và experiment/* chỉ vì chúng đứng sau main.
+
+## Phân công theo nhánh
+
+Agent đọc [hướng dẫn công việc theo nhánh](docs/BRANCH_TASKS.md) sau AGENTS.md.
+Bốn nhánh feature dùng chung tài liệu này; chọn đúng mục theo tên nhánh hiện tại.
