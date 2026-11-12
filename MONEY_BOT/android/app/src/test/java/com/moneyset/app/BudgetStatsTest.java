@@ -114,6 +114,14 @@ public class BudgetStatsTest {
         if (view instanceof ViewGroup) { ViewGroup g = (ViewGroup) view; for (int i = 0; i < g.getChildCount(); i++) { T r = described(g.getChildAt(i), description, type); if (r != null) return r; } }
         return null;
     }
+    private void assertCategoryLevel(View root,String category,String level,String amount) {
+        View found=find(root,"●  "+category+" · ",true);
+        assertNotNull("Missing compact budget row for "+category,found);
+        TextView line=(TextView)found;
+        assertTrue(line.getText().toString(),line.getText().toString().contains(amount));
+        assertTrue(category+" should be "+level+", was "+line.getContentDescription(),
+            line.getContentDescription()!=null&&line.getContentDescription().toString().endsWith(" "+level));
+    }
     private EditText field(View root, String label) {
         EditText e = described(root, label, EditText.class);
         assertNotNull("Missing field " + label, e);
@@ -139,17 +147,13 @@ public class BudgetStatsTest {
         MainActivity a = open("Ngân sách"); View root = a.getWindow().getDecorView();
 
         assertTrue(contains(root, "cảnh báo sớm ở 80%"));
-        assertNotNull(described(root, "WARNING", TextView.class));
-        assertTrue(contains(root, "Ăn uống · " + a.money(80000)));
-        assertNotNull(described(root, "REACHED", TextView.class));
-        assertTrue(contains(root, "Đi lại · " + a.money(50000)));
-        assertNotNull(described(root, "OVER", TextView.class));
-        assertTrue(contains(root, "Hóa đơn tiện ích · " + a.money(250000)));
+        assertCategoryLevel(root,"Ăn uống","WARNING",a.money(80000));
+        assertCategoryLevel(root,"Đi lại","REACHED",a.money(50000));
+        assertCategoryLevel(root,"Hóa đơn tiện ích","OVER",a.money(250000));
         // Zero limit is a set limit, not "unset".
-        assertNotNull(described(root, "NORMAL", TextView.class));
-        assertTrue(contains(root, "Tiêu dùng/Mua sắm · " + a.money(0)));
-        assertNotNull(described(root, "UNSET", TextView.class));
-        assertTrue(contains(root, "Khác · " + a.money(10000)));
+        assertCategoryLevel(root,"Tiêu dùng/Mua sắm","NORMAL",a.money(0));
+        assertCategoryLevel(root,"Khác","UNSET",a.money(10000));
+        assertCategoryLevel(root,"Giải trí","UNSET",a.money(0));
         // 400 000 - 390 000 spent.
         assertTrue(contains(root, "Ngân sách tổng còn: " + a.money(10000)));
 
@@ -158,9 +162,9 @@ public class BudgetStatsTest {
         click(root, "Xác nhận lưu ngân sách"); idle(a);
         assertEquals(90, ((JSONObject) request("GET", "/budgets/" + month, null)).getInt("threshold"));
         assertTrue(contains(root, "cảnh báo sớm ở 90%"));
-        assertNotNull(described(root, "NORMAL", TextView.class));
-        assertNotNull(described(root, "REACHED", TextView.class));
-        assertNotNull(described(root, "OVER", TextView.class));
+        assertCategoryLevel(root,"Ăn uống","NORMAL",a.money(80000));
+        assertCategoryLevel(root,"Đi lại","REACHED",a.money(50000));
+        assertCategoryLevel(root,"Hóa đơn tiện ích","OVER",a.money(250000));
 
         // Overspending the total budget: 390 000 + 20 000 = 410 000 > 400 000.
         spend("Thêm", 20000, "other", today);
@@ -191,6 +195,10 @@ public class BudgetStatsTest {
         assertEquals("0", field(root, "Giải trí").getText().toString());
         assertTrue(contains(root, "Gợi ý hạn mức (chưa lưu) · căn cứ " + m3 + " – " + m1));
         assertEquals(2399998,((JSONObject)request("GET","/budgets/"+month+"/suggestions",null)).getLong("allocated"));
+        assertTrue(contains(root,"Tổng trung bình A = 3.033.333,33đ vượt ngân sách B = 2.400.000đ"));
+        assertTrue(contains(root,"hệ số B/A = 0,7912"));
+        assertTrue(contains(root,"Phần chưa phân bổ: 2đ."));
+        assertTrue(contains(root,m2.toString()));
         assertTrue(a.status.getText().toString().contains("Chưa lưu"));
         // Suggestion is not persisted until confirmation.
         assertEquals(0, ((JSONObject) request("GET", "/budgets/" + month, null)).getJSONObject("limits").length());
