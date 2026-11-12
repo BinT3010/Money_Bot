@@ -20,9 +20,9 @@ final class BudgetScreen {
             total.setTextColor(UiHelpers.FUNDS_GREEN);
             EditText threshold=host.input(host.content,"Cảnh báo sớm (%)",b.getString("threshold"),true);
             TextView thresholdValue=host.text(host.content,"Cảnh báo từ "+b.getInt("threshold")+"%",13);
-            SeekBar thresholdSlider=new SeekBar(host);thresholdSlider.setMax(98);thresholdSlider.setProgress(Math.max(0,Math.min(98,b.getInt("threshold")-1)));
-            thresholdSlider.setProgressTintList(android.content.res.ColorStateList.valueOf(UiHelpers.BRAND));
-            host.content.addView(thresholdSlider,new LinearLayout.LayoutParams(-1,host.dp(38)));
+            SeekBar thresholdSlider=new SeekBar(host);styleBudgetSlider(host,thresholdSlider,UiHelpers.BRAND);
+            thresholdSlider.setMax(98);thresholdSlider.setProgress(Math.max(0,Math.min(98,b.getInt("threshold")-1)));
+            host.content.addView(thresholdSlider,new LinearLayout.LayoutParams(-1,host.dp(56)));
             thresholdSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
                 @Override public void onProgressChanged(SeekBar seekBar,int progress,boolean fromUser){if(fromUser){int value=progress+1;threshold.setText(String.valueOf(value));thresholdValue.setText("Cảnh báo từ "+value+"%");}}
                 @Override public void onStartTrackingTouch(SeekBar seekBar){}
@@ -46,7 +46,7 @@ final class BudgetScreen {
             boolean[] baseCaseActive={limits.length()==0},applyingBaseCase={false};
             android.animation.ValueAnimator[] warningPulses=new android.animation.ValueAnimator[6];
             host.text(host.content,"Để trống: chưa đặt hạn mức. Nhập 0: không dành ngân sách cho danh mục.",14);
-            host.text(host.content,"Mặc định cơ bản: 20% cho năm danh mục chính, 0% cho Khác. Mỗi danh mục tối đa 50% tổng ngân sách.",12);
+            host.text(host.content,"Mặc định: 20% mỗi danh mục chính, 0% cho Khác. Mốc tham chiếu là 0–50% tổng ngân sách; vượt sẽ đỏ.",12);
             TextView allocationSummary=host.text(host.content,"",13);
             for(int i=0;i<6;i++){
                 final int index=i;edits[i]=host.input(host.content,host.labels[i],limits.optString(host.categories[i]),true);
@@ -61,14 +61,14 @@ final class BudgetScreen {
                 LinearLayout.LayoutParams recommendationParams=new LinearLayout.LayoutParams(-1,host.dp(7));
                 recommendationParams.bottomMargin=host.dp(2);
                 host.content.addView(recommendationBars[i],recommendationParams);
-                SeekBar limitSlider=new SeekBar(host);limitSliders[i]=limitSlider;limitSlider.setMax(100);
+                SeekBar limitSlider=new SeekBar(host);limitSliders[i]=limitSlider;styleBudgetSlider(host,limitSlider,UiHelpers.BRAND);limitSlider.setMax(100);
                 long cap=b.isNull("total")?0:b.getLong("total");
                 hasRange[i]=cap>0;rangeMinimum[i]=0;rangeMaximum[i]=cap*PLACEHOLDER_RANGE_MAX_BUDGET_PERCENT/100;
                 boolean configured=limits.has(host.categories[i]);long saved=configured?limits.getLong(host.categories[i]):0;
                 limitSlider.setProgress(cap>0?(int)Math.max(0,Math.min(100,saved*100/cap)):0);
                 limitSlider.setEnabled(cap>0);limitSlider.setProgressTintList(android.content.res.ColorStateList.valueOf(UiHelpers.BRAND));
                 limitSlider.setContentDescription(host.labels[i]+" · kéo để chỉnh hạn mức trong tổng ngân sách");
-                host.content.addView(limitSlider,new LinearLayout.LayoutParams(-1,host.dp(34)));
+                host.content.addView(limitSlider,new LinearLayout.LayoutParams(-1,host.dp(56)));
                 limitSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
                     @Override public void onProgressChanged(SeekBar bar,int progress,boolean fromUser){
                         long currentCap=amountOrZero(host.value(total));
@@ -229,6 +229,27 @@ final class BudgetScreen {
     private static long amountOrZero(String value){try{return Long.parseLong(value.replace(",",""));}catch(NumberFormatException ignored){return 0;}}
 
     private static boolean outsideRange(long value,long minimum,long maximum){return value<minimum||value>maximum;}
+
+    private static void styleBudgetSlider(MainActivity host,SeekBar slider,int progressColor){
+        android.graphics.drawable.GradientDrawable track=new android.graphics.drawable.GradientDrawable();
+        track.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
+        track.setColor(android.graphics.Color.rgb(30,41,59));
+        track.setCornerRadius(host.dp(9));track.setStroke(host.dp(2),android.graphics.Color.rgb(71,85,105));
+        track.setSize(host.dp(1),host.dp(14));
+        android.graphics.drawable.GradientDrawable fill=new android.graphics.drawable.GradientDrawable();
+        fill.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
+        fill.setColor(progressColor);fill.setCornerRadius(host.dp(9));fill.setSize(host.dp(1),host.dp(14));
+        android.graphics.drawable.ClipDrawable clipped=new android.graphics.drawable.ClipDrawable(fill,android.view.Gravity.LEFT,android.graphics.drawable.ClipDrawable.HORIZONTAL);
+        android.graphics.drawable.LayerDrawable progress=new android.graphics.drawable.LayerDrawable(new android.graphics.drawable.Drawable[]{track,clipped});
+        progress.setId(0,android.R.id.background);progress.setId(1,android.R.id.progress);slider.setProgressDrawable(progress);
+        android.graphics.drawable.GradientDrawable thumb=new android.graphics.drawable.GradientDrawable();
+        thumb.setShape(android.graphics.drawable.GradientDrawable.OVAL);
+        thumb.setColor(android.graphics.Color.rgb(15,23,42));
+        thumb.setStroke(host.dp(4),UiHelpers.EXPENSE_RED);thumb.setSize(host.dp(32),host.dp(32));
+        slider.setThumb(thumb);slider.setThumbOffset(host.dp(16));
+        slider.setMinimumHeight(host.dp(50));slider.setPadding(host.dp(8),host.dp(10),host.dp(8),host.dp(10));
+        slider.setProgressTintList(android.content.res.ColorStateList.valueOf(progressColor));
+    }
 
     private static void fillBaseCase(long total,EditText[] edits,boolean[] applying){
         applying[0]=true;
