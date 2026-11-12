@@ -1,7 +1,7 @@
 # Agent operating rules
 
 ## Read before editing
-Read this file, README.md, CONTRIBUTING.md, docs/BRANCH_TASKS.md, and the relevant component documentation.
+Read this file, README.md, CONTRIBUTING.md, docs/BRANCH_TASKS.md, docs/AUTONOMOUS_WORKFLOW.md, and relevant component documentation.
 Inspect git status and the assigned branch. Preserve unrelated edits. If unexpected
 changes or shared-file conflicts appear, stop the affected work and report them.
 
@@ -16,17 +16,22 @@ dependency upgrades, and unrelated refactoring require an explicit team decision
 Do not spawn additional agents unless explicitly requested.
 
 ## Git and collaboration
-Use the assigned branch. Run `git branch --show-current` and follow the matching
-assignment in docs/BRANCH_TASKS.md. If there is no assignment, establish task scope
-before implementation. The refactor branch is complete and must not be recreated.
-Create a task branch from current main only when no branch has been assigned.
-Do not create branches for individual numbered subtasks. Normal pushes to the
-assigned task branch are allowed. Merging, direct main pushes, force-pushing,
-rewriting published history, branch deletion/renaming/resetting, and synchronizing
-other branches require explicit authorization for that action.
-Preserve feature/* and experiment/* as planned team work even when merged or behind.
-Do not infer permission to delete from ancestry or an automatic merge setting.
-Prepare reviewable changes and report checks before proposing integration.
+Use the assigned branch and its docs/BRANCH_TASKS.md assignment. One coherent
+user flow per branch; no branches per numbered subtask. Use separate worktrees
+for parallel workers. Normal pushes to assigned task branches are allowed.
+The approved integration policy permits the integrator to merge reviewed work
+into staging after full verification of the exact merge candidate. It may update
+active feature branches from staging without rewriting their history.
+Main remains review-gated: never merge/push main without the user's explicit final
+approval. Branch deletion/renaming, force-pushing feature branches, architecture
+replacement and scope expansion still need explicit authorization.
+Preserve feature/merchant and feature/ocr-receipt as parked references; new expense
+capture work belongs to feature/expense-capture. Do not assign workers to both.
+Feature PRs target staging; the final release PR targets main. An independent
+review must bind approval to the exact head and staging base commits. Changes to
+acceptance thresholds/labels/held-out answers require explicit separate review.
+Routine build/test fixes may be retried at most three times per unchanged failure;
+then record the blocker and continue independent work. Never hide a failed check.
 
 ## Financial and interface invariants
 Keep calculations and financial persistence on the backend. Money is integer VND;

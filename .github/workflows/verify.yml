@@ -1,0 +1,37 @@
+name: Verify application
+on:
+  pull_request:
+    branches: [main, staging]
+  push:
+    branches: [main, staging]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: MONEY_BOT/backend/requirements.txt
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - run: sdkmanager 'platforms;android-35' 'build-tools;34.0.0'
+      - run: python -m pip install -r MONEY_BOT/backend/requirements.txt
+      - run: python MONEY_BOT/scripts/verify.py --out "$RUNNER_TEMP/verification"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: verification-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/verification
+            MONEY_BOT/android/app/build/reports
+            MONEY_BOT/android/app/build/test-results
+            MONEY_BOT/android/app/build/outputs/apk/debug/*.apk
