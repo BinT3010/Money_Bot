@@ -41,50 +41,16 @@ final class BillsScreen {
     static String page(int offset) { return "/bills?limit="+PAGE+"&offset="+offset+"&history="+history; }
 
     static void bills(MainActivity host) {
-        host.button(host.content,"Tạo lịch hóa đơn",()->host.billForm());
         host.api.call("GET",page(0),null,r->render(host,(JSONObject)r),host::error);
     }
 
     static void render(MainActivity host, JSONObject response) throws Exception {
-        JSONArray reminders=response.getJSONArray("reminders");
-        JSONObject obligations=response.getJSONObject("obligations");
-        JSONArray schedules=response.getJSONArray("schedules");
-        JSONArray periods=response.getJSONArray("periods");
-        section(host,"Nhắc hạn",reminders.length()==0?"Không có nhắc hạn":""+reminders.length()+" kỳ cần chú ý",false,()->reminders(host,reminders));
-        String obligationSummary=reconciliation(obligations.getString("status"))+" · "+host.money(obligations.getLong("obligations"))+" chưa trả";
-        if(!obligations.isNull("remaining_budget"))obligationSummary+=" · còn "+host.money(obligations.getLong("remaining_budget"));
-        section(host,"Đối chiếu nghĩa vụ",obligationSummary,false,()->obligations(host,obligations));
-        section(host,"Lịch định kỳ",schedules.length()+" lịch",false,()->schedules(host,schedules));
-        section(host,"Các kỳ hóa đơn",periods.length()+"/"+response.getInt("periods_total")+" kỳ · "+(history.equals("all")?"toàn bộ lịch sử":"12 tháng đã trả"),false,()->{
-            host.button(host.content,history.equals("all")?"Chỉ xem 12 tháng gần nhất":"Xem toàn bộ lịch sử đã trả",()->{history=history.equals("all")?"recent":"all";host.load();});
-            LinearLayout list=host.column();host.content.addView(list);appendPeriods(host,list,response);
-        });
-    }
-
-    private interface SectionBody { void render() throws Exception; }
-
-    /** Keep the overview short while leaving every existing detail and action one tap away. */
-    private static void section(MainActivity host,String title,String summary,boolean expanded,SectionBody content) throws Exception {
-        LinearLayout card=host.column();card.setPadding(host.dp(8),host.dp(2),host.dp(8),host.dp(2));
-        card.setBackground(UiHelpers.shape(host,android.graphics.Color.WHITE,android.graphics.Color.rgb(226,232,240),13));
-        LinearLayout.LayoutParams cardParams=new LinearLayout.LayoutParams(-1,-2);cardParams.bottomMargin=host.dp(7);host.content.addView(card,cardParams);
-        LinearLayout toggle=new LinearLayout(host);toggle.setOrientation(LinearLayout.HORIZONTAL);toggle.setGravity(android.view.Gravity.CENTER_VERTICAL);
-        toggle.setMinimumHeight(host.dp(42));toggle.setContentDescription(title+(summary.isEmpty()?"":" · "+summary));
-        TextView heading=host.text(toggle,title,14);heading.setTypeface(null,android.graphics.Typeface.BOLD);
-        heading.setLayoutParams(new LinearLayout.LayoutParams(0,-2,summary.isEmpty()?1:.55f));
-        if(!summary.isEmpty()){TextView detail=host.text(toggle,summary,12);detail.setTextColor(UiHelpers.NEUTRAL);detail.setGravity(android.view.Gravity.RIGHT);
-            LinearLayout.LayoutParams detailParams=new LinearLayout.LayoutParams(0,-2,.45f);detail.setLayoutParams(detailParams);}
-        TextView cue=host.text(toggle,expanded?"−":"+",20);cue.setTextColor(UiHelpers.BRAND);cue.setGravity(android.view.Gravity.CENTER);
-        cue.setLayoutParams(new LinearLayout.LayoutParams(host.dp(32),-1));card.addView(toggle);
-        LinearLayout body=host.column();body.setVisibility(expanded?android.view.View.VISIBLE:android.view.View.GONE);card.addView(body);
-        toggle.setOnClickListener(v->{boolean show=body.getVisibility()!=android.view.View.VISIBLE;body.setVisibility(show?android.view.View.VISIBLE:android.view.View.GONE);cue.setText(show?"−":"+");});
-        if(expanded){LinearLayout previous=host.content;host.content=body;try{content.render();}finally{host.content=previous;}}
-        else {
-            // Defer rendering until expanded so large histories do not inflate every view at once.
-            toggle.setOnClickListener(v->{boolean show=body.getVisibility()!=android.view.View.VISIBLE;body.setVisibility(show?android.view.View.VISIBLE:android.view.View.GONE);cue.setText(show?"−":"+");
-                if(show&&body.getChildCount()==0){LinearLayout previous=host.content;host.content=body;try{content.render();}catch(Exception e){host.error(e.getMessage());}finally{host.content=previous;}}
-            });
-        }
+        host.button(host.content,"Tạo lịch hóa đơn",()->host.billForm());
+        LinearLayout tools=new LinearLayout(host);tools.setGravity(android.view.Gravity.RIGHT);host.content.addView(tools);
+        Button historyButton=host.button(tools,history.equals("all")?"12m":"∞",()->{history=history.equals("all")?"recent":"all";host.load();});
+        historyButton.setTextSize(13);historyButton.setContentDescription(history.equals("all")?"Chỉ xem 12 tháng gần nhất":"Xem toàn bộ lịch sử đã trả");
+        historyButton.setMinWidth(0);historyButton.setMinimumWidth(0);historyButton.setLayoutParams(new LinearLayout.LayoutParams(host.dp(52),host.dp(40)));
+        LinearLayout list=host.column();host.content.addView(list);appendPeriods(host,list,response);
     }
 
     static void reminders(MainActivity host, JSONArray reminders) throws Exception {
@@ -164,7 +130,7 @@ final class BillsScreen {
             card.setBackground(UiHelpers.shape(host,fill,paid?android.graphics.Color.rgb(134,239,172):android.graphics.Color.rgb(252,165,165),12));
             LinearLayout.LayoutParams cardParams=new LinearLayout.LayoutParams(-1,-2);cardParams.bottomMargin=host.dp(6);list.addView(card,cardParams);
             LinearLayout header=new LinearLayout(host);header.setOrientation(LinearLayout.HORIZONTAL);header.setGravity(android.view.Gravity.CENTER_VERTICAL);
-            TextView name=host.text(header,row.getString("name")+" · "+row.getString("month"),14);name.setTypeface(null,android.graphics.Typeface.BOLD);name.setTextColor(statusColor);
+            TextView name=host.text(header,row.getString("name"),14);name.setTypeface(null,android.graphics.Typeface.BOLD);name.setTextColor(statusColor);
             name.setLayoutParams(new LinearLayout.LayoutParams(0,-2,1));
             TextView amount=new TextView(host);amount.setText(host.money(row.getLong("amount_vnd")));amount.setTextSize(14);amount.setTextColor(statusColor);
             header.addView(amount);TextView cue=host.text(header,"+",18);cue.setGravity(android.view.Gravity.CENTER);cue.setTextColor(statusColor);
@@ -178,8 +144,7 @@ final class BillsScreen {
                     "Đã trả "+host.money(row.getLong("paid_amount"))+" ngày "+row.getString("paid_on"),12);
             }else host.button(detail,"Đánh dấu đã trả / Liên kết khoản chi",()->host.payForm(row));
         }
-        int shown=response.getInt("offset")+rows.length(),total=response.getInt("periods_total");
-        if(total>0)host.text(list,"Đang hiển thị "+shown+"/"+total+" kỳ",13);
+        int shown=response.getInt("offset")+rows.length();
         if(response.getBoolean("has_more")){
             Button[] more=new Button[1];
             more[0]=host.button(list,"Tải thêm kỳ hóa đơn",()->host.api.call("GET",page(shown),null,r->{

@@ -30,14 +30,14 @@ the Java Android app under `MONEY_BOT/android`.
   sliders bounded by the current total budget. Edits stay local until the existing
   save action; warning levels and usage bars continue to come from the server.
   Tapping a category usage row focuses its limit field.
-- The Bills tab now opens with four compact expandable sections for reminders,
-  reconciliation, recurring schedules, and bill periods. Each header summarizes
-  the section; all previous detail and actions remain available after expansion.
-- Expand/collapse text labels have been replaced by plus/minus cues. Individual
-  bill periods show name and amount in a green paid or red unpaid card, with dates,
-  status, actual payment, and actions revealed on tap. Budget status rows use
-  concise amounts and color cues; the suggestion discard control is icon-only
-  with an accessibility description.
+- The Bills tab now shows only the create-schedule action and one list of bill
+  periods. Each card shows the name and amount only, green when paid and red when
+  unpaid; dates, payment details, and payment/link actions appear after tapping.
+  Reminder, reconciliation, and recurring-schedule summaries are not rendered
+  here; reminder data/API behavior remains available for future notification work.
+- Bill-card expand/collapse uses plus/minus cues. Budget status rows use concise
+  amounts and color cues; the suggestion discard control is icon-only with an
+  accessibility description.
 - Added accessible labels for chart values and navigation actions.
 
 ## Verification
