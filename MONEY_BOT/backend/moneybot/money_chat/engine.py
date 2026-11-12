@@ -138,13 +138,14 @@ class ChatEngine:
         draft = body["draft"]
         if body["pending"] or not draft or (draft["id"], draft["version"]) != (draft_id, version):
             return self.reply(body, "Bản nháp đã thay đổi hoặc đang lưu. Hãy xem phiên bản mới nhất.")
-        body["switch_text"] = None  # sửa bằng biểu mẫu nghĩa là giữ bản nháp hiện tại
         allowed = {"description", "name", "date", "amount_vnd", "category_id", "due_day", "start_month", "month"}
         changes = {k: v for k, v in changes.items() if k in allowed}
         if "category_id" in changes:
             changes["category_source"] = "user"
         if "date" in changes:
             changes["date_source"] = "user"
+
+        body["switch_text"] = None  # sửa bằng biểu mẫu nghĩa là giữ bản nháp hiện tại
         return self.merge(body, changes)
 
     # E05: đọc không ghi. Lỗi đọc giữ yêu cầu để thử lại, không trả số 0 giả.
