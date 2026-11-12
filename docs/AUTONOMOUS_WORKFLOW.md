@@ -28,11 +28,21 @@ coding agents. A session/controller must remain active to dispatch workers.
 ## One verification command
 
 With Python 3.12 dependencies installed, JDK 17, Android platform 35/build-tools
-34.0.0 and ANDROID_HOME configured:
+34.0.0 and the Android SDK configured, run the verifier from a checkout or
+worktree with `ANDROID_HOME` and `ANDROID_SDK_ROOT` set to the local SDK
+directory. Keep machine-specific SDK paths in local environment configuration;
+do not commit them or add them to this guide. For example:
 
 ```sh
+export ANDROID_HOME=/path/to/your/android-sdk
+export ANDROID_SDK_ROOT="$ANDROID_HOME"
 python MONEY_BOT/scripts/verify.py --out /tmp/money-verification
 ```
+
+On Linux, `local.properties` is often ignored and exists only in the primary
+checkout, so a detached worktree may not discover the SDK automatically. The
+environment variables above let Gradle find the same local SDK without copying
+that file into the worktree. Use JDK 17 for Gradle verification.
 
 Use MONEY_BOT/.venv/bin/python on Linux or .venv/Scripts/python.exe on Windows.
 The runner checks backend/API/OCR, existing strict evaluation suites and Android
