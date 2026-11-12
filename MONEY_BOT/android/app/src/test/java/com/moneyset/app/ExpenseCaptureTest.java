@@ -89,6 +89,11 @@ public class ExpenseCaptureTest {
             find(root, "Gửi", false).performClick(); idle(a);
             assertNotNull(find(root, "Cửa hàng: Quán Minh", false));
             assertEquals(0, rows().length());
+            JSONObject current = a.chat.getJSONObject("draft");
+            a.chatAction(new JSONObject().put("action", "edit").put("draft_id", current.getString("id"))
+                .put("version", current.getInt("version")).put("fields", new JSONObject().put("merchant", JSONObject.NULL)));
+            idle(a);
+            assertNull(find(root, "Cửa hàng: null", false));
             find(root, "Sửa bản nháp", false).performClick();
             AlertDialog dialog = ShadowAlertDialog.getLatestAlertDialog();
             fill(dialog, "Cửa hàng (tùy chọn)", "Quán An");

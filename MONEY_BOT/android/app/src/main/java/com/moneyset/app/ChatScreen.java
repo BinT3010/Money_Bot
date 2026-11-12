@@ -31,7 +31,7 @@ final class ChatScreen {
             host.text(host.content, "Bản nháp — chưa lưu", 20);
             JSONObject fields = d.getJSONObject("fields");
             if(fields.has("description"))host.text(host.content,fields.getString("description"),18);
-            if(!fields.optString("merchant").isEmpty())host.text(host.content,"Cửa hàng: "+fields.getString("merchant"),16);
+            if(!fields.isNull("merchant")&&!fields.optString("merchant").isEmpty())host.text(host.content,"Cửa hàng: "+fields.getString("merchant"),16);
             if(fields.has("name"))host.text(host.content,fields.getString("name"),18);
             if(fields.has("amount_vnd"))host.text(host.content,"Số tiền: "+host.money(fields.getLong("amount_vnd")),18);
             if(fields.has("category_id"))host.text(host.content,"Danh mục: "+host.label(fields.getString("category_id")),16);
