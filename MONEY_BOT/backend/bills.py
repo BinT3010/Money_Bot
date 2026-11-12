@@ -192,5 +192,8 @@ class BillsMixin:
                 "note": "Chỉ đối chiếu ngân sách theo dữ liệu đã ghi, không phải số dư ngân hàng. Nợ tháng trước hiển thị riêng."}
 
     def reminders(self, today):
-        return [{**r, "notice_id": f"{r['period_id']}:{r['days']}"} for r in self.periods(today)
+        """Mốc nhắc 3 ngày, 1 ngày, hôm nay. Xét cả kỳ tháng sau: cuối tháng, hóa đơn hạn ngày 1–3 tháng sau
+        phải được nhắc trước (giáp ranh tháng/năm). notice_id = kỳ + mốc, nên làm mới không tạo thông báo trùng."""
+        next_month = shift_month(today.strftime("%Y-%m"), 1)
+        return [{**r, "notice_id": f"{r['period_id']}:{r['days']}"} for r in self.periods(today, until=next_month)
                 if r["status"] != "PAID" and r["days"] in (3, 1, 0)]
