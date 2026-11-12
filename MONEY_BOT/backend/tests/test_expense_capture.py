@@ -120,3 +120,36 @@ def test_merchant_metadata_cannot_control_conversation_intent(client, merchant):
     assert state['draft']['fields']['merchant'] == merchant
     assert state['draft']['fields']['category_id'] == 'food'
     assert rows(client) == []
+
+
+def test_queued_expenses_keep_their_own_merchants(client):
+    first = action(client, {'action': 'send', 'text': 'ăn trưa 45k; merchant: Quán An'})
+    waiting = action(client, {'action': 'send', 'text': 'đổ xăng 70k; merchant: Trạm Bình'})
+    assert waiting['draft']['id'] == first['draft']['id']
+    assert rows(client) == []
+    next_state = confirm(client, waiting)
+    assert rows(client)[0]['merchant'] == 'Quán An'
+    assert next_state['draft']['fields']['merchant'] == 'Trạm Bình'
+    assert next_state['draft']['fields']['amount_vnd'] == 70000
+    confirm(client, next_state)
+    assert {(r['merchant'], r['amount_vnd']) for r in rows(client)} == {('Quán An', 45000), ('Trạm Bình', 70000)}
+
+
+def test_merchant_form_edit_keeps_current_draft_and_cancels_switch(client):
+    action(client, {'action': 'send', 'text': 'ăn trưa 45k; merchant: Quán An'})
+    waiting = action(client, {'action': 'send', 'text': 'đổ xăng 70k; merchant: Trạm Bình'})
+    changed = edit(client, waiting, merchant='Quán Minh')
+    assert changed['switch_text'] is None
+    completed = confirm(client, changed)
+    assert completed['draft'] is None
+    assert len(rows(client)) == 1 and rows(client)[0]['merchant'] == 'Quán Minh'
+
+
+def test_retyped_same_expense_updates_merchant_without_queue(client):
+    first = action(client, {'action': 'send', 'text': 'ăn trưa 45k; merchant: Quán An'})
+    changed = action(client, {'action': 'send', 'text': 'ăn trưa 45k; merchant: Quán Bình'})
+    assert changed['draft']['id'] == first['draft']['id']
+    assert changed['switch_text'] is None
+    assert changed['draft']['fields']['merchant'] == 'Quán Bình'
+    confirm(client, changed)
+    assert len(rows(client)) == 1 and rows(client)[0]['merchant'] == 'Quán Bình'

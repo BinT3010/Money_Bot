@@ -93,3 +93,20 @@ or backend contract was added. These are presentation changes only. Existing
 Python/evaluation/Java checks and APK build/lint passed during development; use
 latest PR CI for the committed head. Updated build is installed with -r to retain
 the existing emulator account and app data.
+
+## Reconciliation with bills staging — 2026-11-13
+
+Merged staging6eaf8c3 into this feature branch after the bills work landed.
+Kept the complete staged bills UI: edit/stop/resume, actual payments/linking,
+paging/history, reconciliation, reminders and timezone handling. Reapplied the
+requested warning cards and amount colors to the new rendering methods; success
+messages use the shared status helper so they do not remain hidden after an empty
+status card. No staged bills behavior was intentionally removed.
+
+The automatic engine merge retains both merchant editing and the new queued
+expense behavior. Three cross-feature API regressions cover preserving different
+merchants across queued expenses, editing the current merchant to cancel a queued
+switch, and retyping the same expense with an updated merchant. Focused capture
+and draft-switch checks:34 passed. Full verification and independent review are
+required on this reconciled head before integration. This operation updates the
+feature PR only; remote staging and main are not merged by the worker.
