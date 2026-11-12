@@ -2,8 +2,16 @@
 import json
 
 from common import month_check, shift_month, integer
-from money_chat.models import CATEGORIES
+from money_chat.models import CATEGORIES, money
 from money_chat.storage import encode
+
+
+def money_text(value):
+    """Tiền có thể lẻ (trung bình): số nguyên in như money(); phần lẻ in tối đa 2 chữ số, dấu phẩy thập phân."""
+    if float(value).is_integer():
+        return money(int(value))
+    whole, frac = f"{value:.2f}".split(".")
+    return money(int(whole)).removesuffix("đ") + "," + frac.rstrip("0") + "đ"
 
 
 class BudgetMixin:
@@ -52,13 +60,33 @@ class BudgetMixin:
         months = [shift_month(month, -n) for n in (3, 2, 1)]
         with self.connection() as db:
             first = db.execute("SELECT MIN(date) FROM expenses").fetchone()[0]
-        if not first or first[:7] > months[0] or b["total"] is None:
-            return {"available": False, "months": months, "reason": "Cần ngân sách tổng và lịch sử bắt đầu ít nhất ba tháng trước; hãy nhập hạn mức thủ công."}
-        totals = {k: sum(self.summary(m)["by_category"].get(k, 0) for m in months) for k in CATEGORIES}
+        missing = ([] if b["total"] is not None else ["budget"]) + ([] if first and first[:7] <= months[0] else ["history"])
+        if missing:
+            return {"available": False, "months": months, "missing": missing, "budget_total": b["total"],
+                    "reason": "Cần ngân sách tổng và lịch sử bắt đầu ít nhất ba tháng trước; hãy nhập hạn mức thủ công."}
+        history = {m: {k: self.summary(m)["by_category"].get(k, 0) for k in CATEGORIES} for m in months}
+        totals = {k: sum(history[m][k] for m in months) for k in CATEGORIES}
         aggregate = sum(totals.values())
         if aggregate == 0:
-            return {"available": False, "months": months, "reason": "Ba tháng không có chi tiêu; hãy nhập hạn mức thủ công."}
-        # Tính bằng số nguyên để floor chính xác; A=sum(totals)/3.
-        limits = {k: v // 3 if aggregate <= 3 * b["total"] else v * b["total"] // aggregate for k, v in totals.items()}
-        return {"available": True, "months": months, "limits": limits,
-                "reason": "Trung bình 3 tháng đầy đủ, co theo ngân sách tổng; tháng không chi tính 0. Dữ liệu nhập được giả định đầy đủ."}
+            return {"available": False, "months": months, "missing": [], "budget_total": b["total"], "history": history,
+                    "reason": "Ba tháng không có chi tiêu; hãy nhập hạn mức thủ công."}
+        total = b["total"]
+        # Công thức mục 3.7: L_i = floor(x̄_i · min(1, B/A)), x̄_i = totals_i/3, A = Σx̄_i = aggregate/3.
+        # Tính bằng số nguyên để floor chính xác: x̄_i·B/A = totals_i·B/aggregate.
+        scaled = aggregate > 3 * total
+        limits = {k: v * total // aggregate if scaled else v // 3 for k, v in totals.items()}
+        factor = 3 * total / aggregate if scaled else 1.0
+        allocated = sum(limits.values())
+        factor_text = f"{factor:.4f}".rstrip("0").rstrip(".").replace(".", ",")
+        reason = (f"Trung bình 3 tháng {months[0]} – {months[-1]} (tháng không chi tính 0). "
+                  + (f"Tổng trung bình A = {money_text(aggregate / 3)} vượt ngân sách B = {money_text(total)}, "
+                     f"nên mỗi danh mục nhân hệ số B/A = {factor_text} và làm tròn xuống."
+                     if scaled else
+                     f"Tổng trung bình A = {money_text(aggregate / 3)} không vượt ngân sách B = {money_text(total)}, "
+                     "nên giữ nguyên trung bình (hệ số 1) và làm tròn xuống.")
+                  + f" Phần chưa phân bổ: {money_text(total - allocated)}. Dữ liệu nhập được giả định đầy đủ.")
+        return {"available": True, "months": months, "limits": limits, "reason": reason,
+                "history": history, "totals": totals,
+                "averages": {k: round(v / 3, 2) for k, v in totals.items()},
+                "average_total": round(aggregate / 3, 2), "budget_total": total,
+                "factor": round(factor, 6), "allocated": allocated, "unallocated": total - allocated}
