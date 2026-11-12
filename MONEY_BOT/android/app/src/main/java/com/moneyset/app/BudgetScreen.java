@@ -46,7 +46,6 @@ final class BudgetScreen {
             boolean[] baseCaseActive={limits.length()==0},applyingBaseCase={false};
             android.animation.ValueAnimator[] warningPulses=new android.animation.ValueAnimator[6];
             host.text(host.content,"Để trống: chưa đặt hạn mức. Nhập 0: không dành ngân sách cho danh mục.",14);
-            host.text(host.content,"Mặc định: 20% mỗi danh mục chính, 0% cho Khác. Mốc tham chiếu là 0–50% tổng ngân sách; vượt sẽ đỏ.",12);
             TextView allocationSummary=host.text(host.content,"",13);
             for(int i=0;i<6;i++){
                 final int index=i;edits[i]=host.input(host.content,host.labels[i],limits.optString(host.categories[i]),true);
