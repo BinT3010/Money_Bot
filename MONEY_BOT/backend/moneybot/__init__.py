@@ -1,0 +1,1 @@
+"""Supported Money Bot backend."""

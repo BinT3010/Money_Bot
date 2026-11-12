@@ -1,6 +1,10 @@
-"""Route theo miền. Mỗi module có register(app, deps); deps do app.create_app tạo (xác thực, kho, khóa chống lặp)."""
-from pydantic import BaseModel, ConfigDict
+"""Compatibility package."""
+from moneybot import routes as _implementation
+__path__ = _implementation.__path__
+from moneybot.routes import StrictModel
 
-
-class StrictModel(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+import importlib
+import sys
+for _name in ['auth', 'chat', 'transactions', 'budget', 'bills']:
+    sys.modules[__name__ + "." + _name] = importlib.import_module("moneybot.routes." + _name)
+    globals()[_name] = sys.modules[__name__ + "." + _name]

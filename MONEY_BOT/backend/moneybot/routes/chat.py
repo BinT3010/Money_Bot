@@ -5,10 +5,10 @@ from typing import Literal
 from fastapi import Depends, File, UploadFile
 from pydantic import Field, StrictInt
 
-from finance import FinanceStore
-from money_chat.models import Draft
-from ocr import extract_text, receipt_fields
-from routes import StrictModel
+from moneybot.finance import FinanceStore
+from moneybot.money_chat.models import Draft
+from moneybot.ocr import extract_text, receipt_fields
+from moneybot.routes import StrictModel
 
 
 class ChatAction(StrictModel):
