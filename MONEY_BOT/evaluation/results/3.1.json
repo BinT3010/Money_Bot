@@ -1,0 +1,1237 @@
+{
+  "suite": "3.1",
+  "title": "Lưu tên hóa đơn, tiền dự kiến, ngày hạn, chu kỳ tháng và trạng thái từng kỳ",
+  "threshold": {
+    "min_cases": 5,
+    "pass_rate": 1.0
+  },
+  "cases": 7,
+  "passed": 7,
+  "pass_rate": 1.0,
+  "met": true,
+  "results": [
+    {
+      "id": "3.1-01",
+      "desc": "5 hóa đơn mẫu được lưu đúng, kỳ tháng này có ngày hạn đúng (kể cả ngày 31)",
+      "input": [
+        {
+          "req": "POST /bills",
+          "body": {
+            "name": "Tiền phòng",
+            "amount_vnd": 2000000,
+            "due_day": 5,
+            "start_month": "2026-11"
+          }
+        },
+        {
+          "req": "POST /bills",
+          "body": {
+            "name": "Điện",
+            "amount_vnd": 850000,
+            "due_day": 20,
+            "start_month": "2026-11"
+          }
+        },
+        {
+          "req": "POST /bills",
+          "body": {
+            "name": "Internet",
+            "amount_vnd": 400000,
+            "due_day": 31,
+            "start_month": "2026-11"
+          }
+        },
+        {
+          "req": "POST /bills",
+          "body": {
+            "name": "Nước",
+            "amount_vnd": 120000,
+            "due_day": 1,
+            "start_month": "2026-11"
+          }
+        },
+        {
+          "req": "POST /bills",
+          "body": {
+            "name": "Cước di động",
+            "amount_vnd": 99000,
+            "due_day": 15,
+            "start_month": "2026-11"
+          }
+        },
+        {
+          "req": "GET /bills",
+          "expect": {
+            "schedules": [
+              {
+                "name": "Cước di động",
+                "amount_vnd": 99000,
+                "due_day": 15,
+                "start_month": "2026-11",
+                "end_month": null
+              },
+              {
+                "name": "Internet",
+                "amount_vnd": 400000,
+                "due_day": 31,
+                "start_month": "2026-11",
+                "end_month": null
+              },
+              {
+                "name": "Nước",
+                "amount_vnd": 120000,
+                "due_day": 1,
+                "start_month": "2026-11",
+                "end_month": null
+              },
+              {
+                "name": "Tiền phòng",
+                "amount_vnd": 2000000,
+                "due_day": 5,
+                "start_month": "2026-11",
+                "end_month": null
+              },
+              {
+                "name": "Điện",
+                "amount_vnd": 850000,
+                "due_day": 20,
+                "start_month": "2026-11",
+                "end_month": null
+              }
+            ],
+            "periods": [
+              {
+                "name": "Nước",
+                "month": "2026-11",
+                "due_date": "2026-11-01",
+                "status": "OVERDUE"
+              },
+              {
+                "name": "Tiền phòng",
+                "month": "2026-11",
+                "due_date": "2026-11-05",
+                "status": "OVERDUE"
+              },
+              {
+                "name": "Cước di động",
+                "month": "2026-11",
+                "due_date": "2026-11-15",
+                "status": "DUE_SOON"
+              },
+              {
+                "name": "Điện",
+                "month": "2026-11",
+                "due_date": "2026-11-20",
+                "status": "UPCOMING"
+              },
+              {
+                "name": "Internet",
+                "month": "2026-11",
+                "due_date": "2026-11-30",
+                "status": "UPCOMING"
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "req": "GET /bills",
+          "expect": {
+            "schedules": [
+              {
+                "name": "Cước di động",
+                "amount_vnd": 99000,
+                "due_day": 15,
+                "start_month": "2026-11",
+                "end_month": null
+              },
+              {
+                "name": "Internet",
+                "amount_vnd": 400000,
+                "due_day": 31,
+                "start_month": "2026-11",
+                "end_month": null
+              },
+              {
+                "name": "Nước",
+                "amount_vnd": 120000,
+                "due_day": 1,
+                "start_month": "2026-11",
+                "end_month": null
+              },
+              {
+                "name": "Tiền phòng",
+                "amount_vnd": 2000000,
+                "due_day": 5,
+                "start_month": "2026-11",
+                "end_month": null
+              },
+              {
+                "name": "Điện",
+                "amount_vnd": 850000,
+                "due_day": 20,
+                "start_month": "2026-11",
+                "end_month": null
+              }
+            ],
+            "periods": [
+              {
+                "name": "Nước",
+                "month": "2026-11",
+                "due_date": "2026-11-01",
+                "status": "OVERDUE"
+              },
+              {
+                "name": "Tiền phòng",
+                "month": "2026-11",
+                "due_date": "2026-11-05",
+                "status": "OVERDUE"
+              },
+              {
+                "name": "Cước di động",
+                "month": "2026-11",
+                "due_date": "2026-11-15",
+                "status": "DUE_SOON"
+              },
+              {
+                "name": "Điện",
+                "month": "2026-11",
+                "due_date": "2026-11-20",
+                "status": "UPCOMING"
+              },
+              {
+                "name": "Internet",
+                "month": "2026-11",
+                "due_date": "2026-11-30",
+                "status": "UPCOMING"
+              }
+            ]
+          }
+        }
+      ],
+      "actual": {
+        "schedules": [
+          {
+            "id": "4e97b568ce634ad4b65afcdcbc1adbb7",
+            "name": "Cước di động",
+            "amount_vnd": 99000,
+            "due_day": 15,
+            "start_month": "2026-11",
+            "end_month": null
+          },
+          {
+            "id": "e5d86599351b40b397e62d98ed61243a",
+            "name": "Internet",
+            "amount_vnd": 400000,
+            "due_day": 31,
+            "start_month": "2026-11",
+            "end_month": null
+          },
+          {
+            "id": "b0b36b201b3042ae87fae4fafdc34b3e",
+            "name": "Nước",
+            "amount_vnd": 120000,
+            "due_day": 1,
+            "start_month": "2026-11",
+            "end_month": null
+          },
+          {
+            "id": "07ae99a201df40e99b16772f64dcaee2",
+            "name": "Tiền phòng",
+            "amount_vnd": 2000000,
+            "due_day": 5,
+            "start_month": "2026-11",
+            "end_month": null
+          },
+          {
+            "id": "e9fc3f5f8f114b54b97ebd9255d2ff50",
+            "name": "Điện",
+            "amount_vnd": 850000,
+            "due_day": 20,
+            "start_month": "2026-11",
+            "end_month": null
+          }
+        ],
+        "periods": [
+          {
+            "id": "b0b36b201b3042ae87fae4fafdc34b3e",
+            "name": "Nước",
+            "amount_vnd": 120000,
+            "due_day": 1,
+            "start_month": "2026-11",
+            "end_month": null,
+            "period_id": "b0b36b201b3042ae87fae4fafdc34b3e:2026-11",
+            "month": "2026-11",
+            "due_date": "2026-11-01",
+            "days": -11,
+            "status": "OVERDUE",
+            "expense_id": null,
+            "paid_on": null,
+            "paid_amount": null
+          },
+          {
+            "id": "07ae99a201df40e99b16772f64dcaee2",
+            "name": "Tiền phòng",
+            "amount_vnd": 2000000,
+            "due_day": 5,
+            "start_month": "2026-11",
+            "end_month": null,
+            "period_id": "07ae99a201df40e99b16772f64dcaee2:2026-11",
+            "month": "2026-11",
+            "due_date": "2026-11-05",
+            "days": -7,
+            "status": "OVERDUE",
+            "expense_id": null,
+            "paid_on": null,
+            "paid_amount": null
+          },
+          {
+            "id": "4e97b568ce634ad4b65afcdcbc1adbb7",
+            "name": "Cước di động",
+            "amount_vnd": 99000,
+            "due_day": 15,
+            "start_month": "2026-11",
+            "end_month": null,
+            "period_id": "4e97b568ce634ad4b65afcdcbc1adbb7:2026-11",
+            "month": "2026-11",
+            "due_date": "2026-11-15",
+            "days": 3,
+            "status": "DUE_SOON",
+            "expense_id": null,
+            "paid_on": null,
+            "paid_amount": null
+          },
+          {
+            "id": "e9fc3f5f8f114b54b97ebd9255d2ff50",
+            "name": "Điện",
+            "amount_vnd": 850000,
+            "due_day": 20,
+            "start_month": "2026-11",
+            "end_month": null,
+            "period_id": "e9fc3f5f8f114b54b97ebd9255d2ff50:2026-11",
+            "month": "2026-11",
+            "due_date": "2026-11-20",
+            "days": 8,
+            "status": "UPCOMING",
+            "expense_id": null,
+            "paid_on": null,
+            "paid_amount": null
+          },
+          {
+            "id": "e5d86599351b40b397e62d98ed61243a",
+            "name": "Internet",
+            "amount_vnd": 400000,
+            "due_day": 31,
+            "start_month": "2026-11",
+            "end_month": null,
+            "period_id": "e5d86599351b40b397e62d98ed61243a:2026-11",
+            "month": "2026-11",
+            "due_date": "2026-11-30",
+            "days": 18,
+            "status": "UPCOMING",
+            "expense_id": null,
+            "paid_on": null,
+            "paid_amount": null
+          }
+        ],
+        "periods_total": 5,
+        "offset": 0,
+        "limit": 100,
+        "has_more": false,
+        "reminders": [
+          {
+            "id": "4e97b568ce634ad4b65afcdcbc1adbb7",
+            "name": "Cước di động",
+            "amount_vnd": 99000,
+            "due_day": 15,
+            "start_month": "2026-11",
+            "end_month": null,
+            "period_id": "4e97b568ce634ad4b65afcdcbc1adbb7:2026-11",
+            "month": "2026-11",
+            "due_date": "2026-11-15",
+            "days": 3,
+            "status": "DUE_SOON",
+            "expense_id": null,
+            "paid_on": null,
+            "paid_amount": null,
+            "notice_id": "4e97b568ce634ad4b65afcdcbc1adbb7:2026-11:3"
+          }
+        ],
+        "obligations": {
+          "start": "2026-11-12",
+          "end": "2026-11-18",
+          "items": [
+            {
+              "id": "b0b36b201b3042ae87fae4fafdc34b3e",
+              "name": "Nước",
+              "amount_vnd": 120000,
+              "due_day": 1,
+              "start_month": "2026-11",
+              "end_month": null,
+              "period_id": "b0b36b201b3042ae87fae4fafdc34b3e:2026-11",
+              "month": "2026-11",
+              "due_date": "2026-11-01",
+              "days": -11,
+              "status": "OVERDUE",
+              "expense_id": null,
+              "paid_on": null,
+              "paid_amount": null
+            },
+            {
+              "id": "07ae99a201df40e99b16772f64dcaee2",
+              "name": "Tiền phòng",
+              "amount_vnd": 2000000,
+              "due_day": 5,
+              "start_month": "2026-11",
+              "end_month": null,
+              "period_id": "07ae99a201df40e99b16772f64dcaee2:2026-11",
+              "month": "2026-11",
+              "due_date": "2026-11-05",
+              "days": -7,
+              "status": "OVERDUE",
+              "expense_id": null,
+              "paid_on": null,
+              "paid_amount": null
+            },
+            {
+              "id": "4e97b568ce634ad4b65afcdcbc1adbb7",
+              "name": "Cước di động",
+              "amount_vnd": 99000,
+              "due_day": 15,
+              "start_month": "2026-11",
+              "end_month": null,
+              "period_id": "4e97b568ce634ad4b65afcdcbc1adbb7:2026-11",
+              "month": "2026-11",
+              "due_date": "2026-11-15",
+              "days": 3,
+              "status": "DUE_SOON",
+              "expense_id": null,
+              "paid_on": null,
+              "paid_amount": null
+            }
+          ],
+          "older_unpaid": [],
+          "older_unpaid_count": 0,
+          "older_unpaid_total": 0,
+          "next_month": [],
+          "budget_total": null,
+          "spent": 0,
+          "obligations": 2219000,
+          "remaining_budget": null,
+          "difference": null,
+          "status": "UNKNOWN",
+          "shortfall": null,
+          "surplus": null,
+          "message": "Chưa có ngân sách tổng tháng 2026-11. Tổng hóa đơn đang xét là 2.219.000đ; hãy nhập ngân sách để đối chiếu. Chưa kết luận đủ hay thiếu.",
+          "excluded": null,
+          "note": "Chỉ đối chiếu ngân sách theo dữ liệu đã ghi, không phải số dư ngân hàng. Nợ tháng trước hiển thị riêng."
+        }
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "step": 1,
+          "req": "POST /bills",
+          "status": 200,
+          "ms": 103.9
+        },
+        {
+          "step": 2,
+          "req": "POST /bills",
+          "status": 200,
+          "ms": 21.7
+        },
+        {
+          "step": 3,
+          "req": "POST /bills",
+          "status": 200,
+          "ms": 19.7
+        },
+        {
+          "step": 4,
+          "req": "POST /bills",
+          "status": 200,
+          "ms": 22.9
+        },
+        {
+          "step": 5,
+          "req": "POST /bills",
+          "status": 200,
+          "ms": 22.0
+        },
+        {
+          "step": 6,
+          "req": "GET /bills",
+          "status": 200,
+          "ms": 14.7
+        }
+      ]
+    },
+    {
+      "id": "3.1-02",
+      "desc": "Tên trống hoặc chỉ khoảng trắng: từ chối",
+      "input": [
+        {
+          "req": "POST /bills",
+          "body": {
+            "name": "",
+            "amount_vnd": 100000,
+            "due_day": 5,
+            "start_month": "2026-11"
+          },
+          "status": 400,
+          "expect": {
+            "message": "Tên hóa đơn là gì?"
+          }
+        },
+        {
+          "req": "POST /bills",
+          "body": {
+            "name": "   ",
+            "amount_vnd": 100000,
+            "due_day": 5,
+            "start_month": "2026-11"
+          },
+          "status": 400
+        },
+        {
+          "req": "GET /bills",
+          "expect": {
+            "schedules": []
+          }
+        }
+      ],
+      "expected": [
+        {
+          "req": "POST /bills",
+          "status": 400,
+          "expect": {
+            "message": "Tên hóa đơn là gì?"
+          }
+        },
+        {
+          "req": "POST /bills",
+          "status": 400
+        },
+        {
+          "req": "GET /bills",
+          "expect": {
+            "schedules": []
+          }
+        }
+      ],
+      "actual": {
+        "schedules": [],
+        "periods": [],
+        "periods_total": 0,
+        "offset": 0,
+        "limit": 100,
+        "has_more": false,
+        "reminders": [],
+        "obligations": {
+          "start": "2026-11-12",
+          "end": "2026-11-18",
+          "items": [],
+          "older_unpaid": [],
+          "older_unpaid_count": 0,
+          "older_unpaid_total": 0,
+          "next_month": [],
+          "budget_total": null,
+          "spent": 0,
+          "obligations": 0,
+          "remaining_budget": null,
+          "difference": null,
+          "status": "UNKNOWN",
+          "shortfall": null,
+          "surplus": null,
+          "message": "Chưa có ngân sách tổng tháng 2026-11. Tổng hóa đơn đang xét là 0đ; hãy nhập ngân sách để đối chiếu. Chưa kết luận đủ hay thiếu.",
+          "excluded": null,
+          "note": "Chỉ đối chiếu ngân sách theo dữ liệu đã ghi, không phải số dư ngân hàng. Nợ tháng trước hiển thị riêng."
+        }
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "step": 1,
+          "req": "POST /bills",
+          "status": 400,
+          "ms": 100.1
+        },
+        {
+          "step": 2,
+          "req": "POST /bills",
+          "status": 400,
+          "ms": 11.7
+        },
+        {
+          "step": 3,
+          "req": "GET /bills",
+          "status": 200,
+          "ms": 10.8
+        }
+      ]
+    },
+    {
+      "id": "3.1-03",
+      "desc": "Số tiền không dương: từ chối",
+      "input": [
+        {
+          "req": "POST /bills",
+          "body": {
+            "name": "Điện",
+            "amount_vnd": 0,
+            "due_day": 5,
+            "start_month": "2026-11"
+          },
+          "status": 400
+        },
+        {
+          "req": "POST /bills",
+          "body": {
+            "name": "Điện",
+            "amount_vnd": -850000,
+            "due_day": 5,
+            "start_month": "2026-11"
+          },
+          "status": 400
+        },
+        {
+          "req": "POST /bills",
+          "body": {
+            "name": "Điện",
+            "amount_vnd": 1.5,
+            "due_day": 5,
+            "start_month": "2026-11"
+          },
+          "status": 422
+        },
+        {
+          "req": "GET /bills",
+          "expect": {
+            "schedules": []
+          }
+        }
+      ],
+      "expected": [
+        {
+          "req": "POST /bills",
+          "status": 400
+        },
+        {
+          "req": "POST /bills",
+          "status": 400
+        },
+        {
+          "req": "POST /bills",
+          "status": 422
+        },
+        {
+          "req": "GET /bills",
+          "expect": {
+            "schedules": []
+          }
+        }
+      ],
+      "actual": {
+        "schedules": [],
+        "periods": [],
+        "periods_total": 0,
+        "offset": 0,
+        "limit": 100,
+        "has_more": false,
+        "reminders": [],
+        "obligations": {
+          "start": "2026-11-12",
+          "end": "2026-11-18",
+          "items": [],
+          "older_unpaid": [],
+          "older_unpaid_count": 0,
+          "older_unpaid_total": 0,
+          "next_month": [],
+          "budget_total": null,
+          "spent": 0,
+          "obligations": 0,
+          "remaining_budget": null,
+          "difference": null,
+          "status": "UNKNOWN",
+          "shortfall": null,
+          "surplus": null,
+          "message": "Chưa có ngân sách tổng tháng 2026-11. Tổng hóa đơn đang xét là 0đ; hãy nhập ngân sách để đối chiếu. Chưa kết luận đủ hay thiếu.",
+          "excluded": null,
+          "note": "Chỉ đối chiếu ngân sách theo dữ liệu đã ghi, không phải số dư ngân hàng. Nợ tháng trước hiển thị riêng."
+        }
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "step": 1,
+          "req": "POST /bills",
+          "status": 400,
+          "ms": 151.9
+        },
+        {
+          "step": 2,
+          "req": "POST /bills",
+          "status": 400,
+          "ms": 14.0
+        },
+        {
+          "step": 3,
+          "req": "POST /bills",
+          "status": 422,
+          "ms": 13.2
+        },
+        {
+          "step": 4,
+          "req": "GET /bills",
+          "status": 200,
+          "ms": 10.3
+        }
+      ]
+    },
+    {
+      "id": "3.1-04",
+      "desc": "Ngày lặp ngoài 1–31: từ chối",
+      "input": [
+        {
+          "req": "POST /bills",
+          "body": {
+            "name": "Điện",
+            "amount_vnd": 850000,
+            "due_day": 0,
+            "start_month": "2026-11"
+          },
+          "status": 400,
+          "expect": {
+            "message": "Ngày lặp phải từ 1 đến 31."
+          }
+        },
+        {
+          "req": "POST /bills",
+          "body": {
+            "name": "Điện",
+            "amount_vnd": 850000,
+            "due_day": 32,
+            "start_month": "2026-11"
+          },
+          "status": 400
+        },
+        {
+          "req": "GET /bills",
+          "expect": {
+            "schedules": []
+          }
+        }
+      ],
+      "expected": [
+        {
+          "req": "POST /bills",
+          "status": 400,
+          "expect": {
+            "message": "Ngày lặp phải từ 1 đến 31."
+          }
+        },
+        {
+          "req": "POST /bills",
+          "status": 400
+        },
+        {
+          "req": "GET /bills",
+          "expect": {
+            "schedules": []
+          }
+        }
+      ],
+      "actual": {
+        "schedules": [],
+        "periods": [],
+        "periods_total": 0,
+        "offset": 0,
+        "limit": 100,
+        "has_more": false,
+        "reminders": [],
+        "obligations": {
+          "start": "2026-11-12",
+          "end": "2026-11-18",
+          "items": [],
+          "older_unpaid": [],
+          "older_unpaid_count": 0,
+          "older_unpaid_total": 0,
+          "next_month": [],
+          "budget_total": null,
+          "spent": 0,
+          "obligations": 0,
+          "remaining_budget": null,
+          "difference": null,
+          "status": "UNKNOWN",
+          "shortfall": null,
+          "surplus": null,
+          "message": "Chưa có ngân sách tổng tháng 2026-11. Tổng hóa đơn đang xét là 0đ; hãy nhập ngân sách để đối chiếu. Chưa kết luận đủ hay thiếu.",
+          "excluded": null,
+          "note": "Chỉ đối chiếu ngân sách theo dữ liệu đã ghi, không phải số dư ngân hàng. Nợ tháng trước hiển thị riêng."
+        }
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "step": 1,
+          "req": "POST /bills",
+          "status": 400,
+          "ms": 80.8
+        },
+        {
+          "step": 2,
+          "req": "POST /bills",
+          "status": 400,
+          "ms": 5.3
+        },
+        {
+          "step": 3,
+          "req": "GET /bills",
+          "status": 200,
+          "ms": 4.7
+        }
+      ]
+    },
+    {
+      "id": "3.1-05",
+      "desc": "Tháng bắt đầu sai định dạng hoặc quá xa: từ chối",
+      "input": [
+        {
+          "req": "POST /bills",
+          "body": {
+            "name": "Điện",
+            "amount_vnd": 850000,
+            "due_day": 5,
+            "start_month": "11/2026"
+          },
+          "status": 400
+        },
+        {
+          "req": "POST /bills",
+          "body": {
+            "name": "Điện",
+            "amount_vnd": 850000,
+            "due_day": 5,
+            "start_month": "1999-12"
+          },
+          "status": 400
+        },
+        {
+          "req": "POST /bills",
+          "body": {
+            "name": "Điện",
+            "amount_vnd": 850000,
+            "due_day": 5,
+            "start_month": "2037-01"
+          },
+          "status": 400
+        }
+      ],
+      "expected": [
+        {
+          "req": "POST /bills",
+          "status": 400
+        },
+        {
+          "req": "POST /bills",
+          "status": 400
+        },
+        {
+          "req": "POST /bills",
+          "status": 400
+        }
+      ],
+      "actual": {
+        "message": "Tháng bắt đầu phải từ năm 2000 đến tối đa 10 năm tới."
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "step": 1,
+          "req": "POST /bills",
+          "status": 400,
+          "ms": 104.1
+        },
+        {
+          "step": 2,
+          "req": "POST /bills",
+          "status": 400,
+          "ms": 12.1
+        },
+        {
+          "step": 3,
+          "req": "POST /bills",
+          "status": 400,
+          "ms": 8.9
+        }
+      ]
+    },
+    {
+      "id": "3.1-06",
+      "desc": "Chu kỳ hằng tháng: mỗi kỳ lưu trạng thái riêng",
+      "input": [
+        {
+          "req": "POST /bills",
+          "body": {
+            "name": "Điện",
+            "amount_vnd": 850000,
+            "due_day": 20,
+            "start_month": "2026-09"
+          },
+          "save": {
+            "bill": "id"
+          }
+        },
+        {
+          "req": "POST /bills/{bill}/pay",
+          "body": {
+            "month": "2026-10",
+            "paid_on": "2026-10-19"
+          }
+        },
+        {
+          "req": "GET /bills",
+          "expect": {
+            "periods": [
+              {
+                "month": "2026-09",
+                "due_date": "2026-09-20",
+                "status": "OVERDUE"
+              },
+              {
+                "month": "2026-10",
+                "due_date": "2026-10-20",
+                "status": "PAID",
+                "paid_amount": 850000,
+                "paid_on": "2026-10-19"
+              },
+              {
+                "month": "2026-11",
+                "due_date": "2026-11-20",
+                "status": "UPCOMING"
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "req": "GET /bills",
+          "expect": {
+            "periods": [
+              {
+                "month": "2026-09",
+                "due_date": "2026-09-20",
+                "status": "OVERDUE"
+              },
+              {
+                "month": "2026-10",
+                "due_date": "2026-10-20",
+                "status": "PAID",
+                "paid_amount": 850000,
+                "paid_on": "2026-10-19"
+              },
+              {
+                "month": "2026-11",
+                "due_date": "2026-11-20",
+                "status": "UPCOMING"
+              }
+            ]
+          }
+        }
+      ],
+      "actual": {
+        "schedules": [
+          {
+            "id": "4a6d2d4158924ec9a907a43c690f930e",
+            "name": "Điện",
+            "amount_vnd": 850000,
+            "due_day": 20,
+            "start_month": "2026-09",
+            "end_month": null
+          }
+        ],
+        "periods": [
+          {
+            "id": "4a6d2d4158924ec9a907a43c690f930e",
+            "name": "Điện",
+            "amount_vnd": 850000,
+            "due_day": 20,
+            "start_month": "2026-09",
+            "end_month": null,
+            "period_id": "4a6d2d4158924ec9a907a43c690f930e:2026-09",
+            "month": "2026-09",
+            "due_date": "2026-09-20",
+            "days": -53,
+            "status": "OVERDUE",
+            "expense_id": null,
+            "paid_on": null,
+            "paid_amount": null
+          },
+          {
+            "id": "4a6d2d4158924ec9a907a43c690f930e",
+            "name": "Điện",
+            "amount_vnd": 850000,
+            "due_day": 20,
+            "start_month": "2026-09",
+            "end_month": null,
+            "period_id": "4a6d2d4158924ec9a907a43c690f930e:2026-10",
+            "month": "2026-10",
+            "due_date": "2026-10-20",
+            "days": -23,
+            "status": "PAID",
+            "expense_id": "3360ad8d49bf4774a2c3d713b7f8a8e3",
+            "paid_on": "2026-10-19",
+            "paid_amount": 850000
+          },
+          {
+            "id": "4a6d2d4158924ec9a907a43c690f930e",
+            "name": "Điện",
+            "amount_vnd": 850000,
+            "due_day": 20,
+            "start_month": "2026-09",
+            "end_month": null,
+            "period_id": "4a6d2d4158924ec9a907a43c690f930e:2026-11",
+            "month": "2026-11",
+            "due_date": "2026-11-20",
+            "days": 8,
+            "status": "UPCOMING",
+            "expense_id": null,
+            "paid_on": null,
+            "paid_amount": null
+          }
+        ],
+        "periods_total": 3,
+        "offset": 0,
+        "limit": 100,
+        "has_more": false,
+        "reminders": [],
+        "obligations": {
+          "start": "2026-11-12",
+          "end": "2026-11-18",
+          "items": [],
+          "older_unpaid": [
+            {
+              "id": "4a6d2d4158924ec9a907a43c690f930e",
+              "name": "Điện",
+              "amount_vnd": 850000,
+              "due_day": 20,
+              "start_month": "2026-09",
+              "end_month": null,
+              "period_id": "4a6d2d4158924ec9a907a43c690f930e:2026-09",
+              "month": "2026-09",
+              "due_date": "2026-09-20",
+              "days": -53,
+              "status": "OVERDUE",
+              "expense_id": null,
+              "paid_on": null,
+              "paid_amount": null
+            }
+          ],
+          "older_unpaid_count": 1,
+          "older_unpaid_total": 850000,
+          "next_month": [],
+          "budget_total": null,
+          "spent": 0,
+          "obligations": 0,
+          "remaining_budget": null,
+          "difference": null,
+          "status": "UNKNOWN",
+          "shortfall": null,
+          "surplus": null,
+          "message": "Chưa có ngân sách tổng tháng 2026-11. Tổng hóa đơn đang xét là 0đ; hãy nhập ngân sách để đối chiếu. Chưa kết luận đủ hay thiếu.",
+          "excluded": "Chưa gộp vào phép đối chiếu: 1 kỳ nợ tháng trước (850.000đ).",
+          "note": "Chỉ đối chiếu ngân sách theo dữ liệu đã ghi, không phải số dư ngân hàng. Nợ tháng trước hiển thị riêng."
+        }
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "step": 1,
+          "req": "POST /bills",
+          "status": 200,
+          "ms": 122.4
+        },
+        {
+          "step": 2,
+          "req": "POST /bills/4a6d2d4158924ec9a907a43c690f930e/pay",
+          "status": 200,
+          "ms": 23.8
+        },
+        {
+          "step": 3,
+          "req": "GET /bills",
+          "status": 200,
+          "ms": 16.1
+        }
+      ]
+    },
+    {
+      "id": "3.1-07",
+      "desc": "Sửa ngày hạn của lịch: các kỳ chưa trả cập nhật",
+      "input": [
+        {
+          "req": "POST /bills",
+          "body": {
+            "name": "Điện",
+            "amount_vnd": 850000,
+            "due_day": 20,
+            "start_month": "2026-11"
+          },
+          "save": {
+            "bill": "id"
+          }
+        },
+        {
+          "req": "PUT /bills/{bill}",
+          "body": {
+            "name": "Điện",
+            "amount_vnd": 900000,
+            "due_day": 14,
+            "start_month": "2026-11"
+          }
+        },
+        {
+          "req": "GET /bills",
+          "expect": {
+            "schedules": [
+              {
+                "due_day": 14,
+                "amount_vnd": 900000
+              }
+            ],
+            "periods": [
+              {
+                "due_date": "2026-11-14",
+                "status": "DUE_SOON",
+                "amount_vnd": 900000
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "req": "GET /bills",
+          "expect": {
+            "schedules": [
+              {
+                "due_day": 14,
+                "amount_vnd": 900000
+              }
+            ],
+            "periods": [
+              {
+                "due_date": "2026-11-14",
+                "status": "DUE_SOON",
+                "amount_vnd": 900000
+              }
+            ]
+          }
+        }
+      ],
+      "actual": {
+        "schedules": [
+          {
+            "id": "fdd47c98e5d74052a71e111c60432290",
+            "name": "Điện",
+            "amount_vnd": 900000,
+            "due_day": 14,
+            "start_month": "2026-11",
+            "end_month": null
+          }
+        ],
+        "periods": [
+          {
+            "id": "fdd47c98e5d74052a71e111c60432290",
+            "name": "Điện",
+            "amount_vnd": 900000,
+            "due_day": 14,
+            "start_month": "2026-11",
+            "end_month": null,
+            "period_id": "fdd47c98e5d74052a71e111c60432290:2026-11",
+            "month": "2026-11",
+            "due_date": "2026-11-14",
+            "days": 2,
+            "status": "DUE_SOON",
+            "expense_id": null,
+            "paid_on": null,
+            "paid_amount": null
+          }
+        ],
+        "periods_total": 1,
+        "offset": 0,
+        "limit": 100,
+        "has_more": false,
+        "reminders": [],
+        "obligations": {
+          "start": "2026-11-12",
+          "end": "2026-11-18",
+          "items": [
+            {
+              "id": "fdd47c98e5d74052a71e111c60432290",
+              "name": "Điện",
+              "amount_vnd": 900000,
+              "due_day": 14,
+              "start_month": "2026-11",
+              "end_month": null,
+              "period_id": "fdd47c98e5d74052a71e111c60432290:2026-11",
+              "month": "2026-11",
+              "due_date": "2026-11-14",
+              "days": 2,
+              "status": "DUE_SOON",
+              "expense_id": null,
+              "paid_on": null,
+              "paid_amount": null
+            }
+          ],
+          "older_unpaid": [],
+          "older_unpaid_count": 0,
+          "older_unpaid_total": 0,
+          "next_month": [],
+          "budget_total": null,
+          "spent": 0,
+          "obligations": 900000,
+          "remaining_budget": null,
+          "difference": null,
+          "status": "UNKNOWN",
+          "shortfall": null,
+          "surplus": null,
+          "message": "Chưa có ngân sách tổng tháng 2026-11. Tổng hóa đơn đang xét là 900.000đ; hãy nhập ngân sách để đối chiếu. Chưa kết luận đủ hay thiếu.",
+          "excluded": null,
+          "note": "Chỉ đối chiếu ngân sách theo dữ liệu đã ghi, không phải số dư ngân hàng. Nợ tháng trước hiển thị riêng."
+        }
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "step": 1,
+          "req": "POST /bills",
+          "status": 200,
+          "ms": 105.3
+        },
+        {
+          "step": 2,
+          "req": "PUT /bills/fdd47c98e5d74052a71e111c60432290",
+          "status": 200,
+          "ms": 24.9
+        },
+        {
+          "step": 3,
+          "req": "GET /bills",
+          "status": 200,
+          "ms": 14.6
+        }
+      ]
+    }
+  ]
+}

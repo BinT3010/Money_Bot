@@ -151,7 +151,8 @@ def run_case(case, default_today):
             if status != want_status:
                 problems.append(f"bước {n} ({step['req']}): HTTP {status}, mong đợi {want_status}: {json.dumps(data, ensure_ascii=False)[:300]}")
             if "expect" in step:
-                problems += [f"bước {n}: {p}" for p in match(step["expect"], data)]
+                # Biến đã lưu ({bill}, {tx}) cũng dùng được trong đáp án chuẩn.
+                problems += [f"bước {n}: {p}" for p in match(substitute(step["expect"], s.vars), data)]
             if "max_ms" in step and ms > step["max_ms"]:
                 problems.append(f"bước {n}: {ms} ms > {step['max_ms']} ms")
             for name, dotted in step.get("save", {}).items():
@@ -204,11 +205,21 @@ def evaluate(spec, results):
             "cases": total, "passed": passed, "pass_rate": round(rate, 4), "met": met, **extra, "results": results}
 
 
+# 16 việc con trong đặc tả; việc chưa có bộ đo vẫn được liệt kê để bảng không ngầm báo là đã đủ.
+SUBTASKS = ["1.1", "1.2", "1.3", "1.4", "1.5", "2.1", "2.2", "2.3", "2.4", "3.1", "3.2", "3.3", "3.4", "4.1", "4.2", "4.3"]
+MANUAL = {"4.2": "Cần 6 thành viên thử thật; không chạy tự động (quy trình: M12)."}
+
+
 def summary_markdown(reports):
+    by_suite = {r["suite"]: r for r in reports}
     lines = ["# Kết quả thực nghiệm", "",
              f"Chạy ngày {date.today().isoformat()} bằng `evaluation/run_eval.py` (API thật, ngày đánh giá cố định theo từng tình huống).", "",
              "| Việc con | Nội dung | Đạt / tổng | Ngưỡng | Kết luận |", "|---|---|---|---|---|"]
-    for r in reports:
+    for code in SUBTASKS + sorted(set(by_suite) - set(SUBTASKS)):
+        r = by_suite.get(code)
+        if r is None:
+            lines.append(f"| {code} | {MANUAL.get(code, 'Chưa có bộ đo')} | – | – | Chưa đo |")
+            continue
         t = r["threshold"]
         need = f"≥{t.get('min_cases', 1)} tình huống, đạt {int(t.get('pass_rate', 1.0) * 100)}%"
         lines.append(f"| {r['suite']} | {r['title']} | {r['passed']}/{r['cases']} | {need} | {'Đạt' if r['met'] else 'Chưa đạt'} |")

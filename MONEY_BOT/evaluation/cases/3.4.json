@@ -1,0 +1,75 @@
+{
+  "suite": "3.4",
+  "title": "Bảng tổng nghĩa vụ chưa thanh toán, ngân sách còn lại và chênh lệch có giải thích",
+  "threshold": {"min_cases": 6, "pass_rate": 1.0},
+  "today": "2026-11-02",
+  "cases": [
+    {"id": "3.4-01", "desc": "Thiếu: ví dụ đặc tả ngày 02/11/2026 (R = 2.300.000, S = 2.400.000)",
+     "steps": [
+       {"req": "PUT /budgets/2026-11", "body": {"total": 4000000, "limits": {}}},
+       {"req": "POST /transactions", "body": {"amount_vnd": 1700000, "description": "Chi tiêu", "category_id": "food", "date": "2026-11-01"}},
+       {"req": "POST /bills", "body": {"name": "Tiền phòng", "amount_vnd": 2000000, "due_day": 5, "start_month": "2026-11"}, "save": {"rent": "id"}},
+       {"req": "POST /bills", "body": {"name": "Internet", "amount_vnd": 400000, "due_day": 6, "start_month": "2026-11"}},
+       {"req": "GET /bills", "expect": {"obligations": {
+         "start": "2026-11-02", "end": "2026-11-08", "items": [{"name": "Tiền phòng"}, {"name": "Internet"}],
+         "budget_total": 4000000, "spent": 1700000, "remaining_budget": 2300000, "obligations": 2400000,
+         "status": "SHORT", "shortfall": 100000,
+         "message": "Theo dữ liệu đã ghi, ngân sách còn lại thấp hơn tổng hóa đơn đang xét 100.000đ. Hãy kiểm tra các khoản chi và kế hoạch thanh toán."}}},
+       {"req": "POST /bills/{rent}/pay", "body": {"month": "2026-11", "paid_on": "2026-11-02"}},
+       {"req": "GET /bills", "expect": {"obligations": {"items": [{"name": "Internet"}], "spent": 3700000, "remaining_budget": 300000,
+         "obligations": 400000, "status": "SHORT", "shortfall": 100000}}}]},
+    {"id": "3.4-02", "desc": "Đủ (còn dư)",
+     "steps": [
+       {"req": "PUT /budgets/2026-11", "body": {"total": 4000000, "limits": {}}},
+       {"req": "POST /transactions", "body": {"amount_vnd": 1000000, "description": "Chi tiêu", "category_id": "food", "date": "2026-11-01"}},
+       {"req": "POST /bills", "body": {"name": "Tiền phòng", "amount_vnd": 2000000, "due_day": 5, "start_month": "2026-11"}},
+       {"req": "GET /bills", "expect": {"obligations": {"remaining_budget": 3000000, "obligations": 2000000, "status": "ENOUGH", "surplus": 1000000, "shortfall": 0,
+         "message": "Theo dữ liệu đã ghi, ngân sách còn lại đủ cho các hóa đơn đang xét, còn dư 1.000.000đ."}}}]},
+    {"id": "3.4-03", "desc": "Vừa đủ (R = S)",
+     "steps": [
+       {"req": "PUT /budgets/2026-11", "body": {"total": 4000000, "limits": {}}},
+       {"req": "POST /transactions", "body": {"amount_vnd": 2000000, "description": "Chi tiêu", "category_id": "food", "date": "2026-11-01"}},
+       {"req": "POST /bills", "body": {"name": "Tiền phòng", "amount_vnd": 2000000, "due_day": 5, "start_month": "2026-11"}},
+       {"req": "GET /bills", "expect": {"obligations": {"remaining_budget": 2000000, "obligations": 2000000, "status": "ENOUGH", "surplus": 0, "difference": 0,
+         "message": "Theo dữ liệu đã ghi, ngân sách còn lại đủ cho các hóa đơn đang xét (vừa đủ)."}}}]},
+    {"id": "3.4-04", "desc": "Thiếu dữ liệu ngân sách: chỉ hiển thị tổng, không kết luận",
+     "steps": [
+       {"req": "POST /bills", "body": {"name": "Tiền phòng", "amount_vnd": 2000000, "due_day": 5, "start_month": "2026-11"}},
+       {"req": "GET /bills", "expect": {"obligations": {"obligations": 2000000, "budget_total": null, "remaining_budget": null,
+         "status": "UNKNOWN", "shortfall": null, "difference": null}}}]},
+    {"id": "3.4-05", "desc": "Nhiều hóa đơn cộng lại vượt ngân sách còn lại",
+     "steps": [
+       {"req": "PUT /budgets/2026-11", "body": {"total": 1000000, "limits": {}}},
+       {"req": "POST /bills", "body": {"name": "Điện", "amount_vnd": 300000, "due_day": 3, "start_month": "2026-11"}},
+       {"req": "POST /bills", "body": {"name": "Nước", "amount_vnd": 300000, "due_day": 4, "start_month": "2026-11"}},
+       {"req": "POST /bills", "body": {"name": "Internet", "amount_vnd": 300000, "due_day": 5, "start_month": "2026-11"}},
+       {"req": "POST /bills", "body": {"name": "Di động", "amount_vnd": 200000, "due_day": 8, "start_month": "2026-11"}},
+       {"req": "GET /bills", "expect": {"obligations": {"items": {"$len": 4}, "obligations": 1100000, "remaining_budget": 1000000,
+         "status": "SHORT", "shortfall": 100000}}}]},
+    {"id": "3.4-06", "desc": "Khoản ngoài kỳ: hạn sau cửa sổ không cộng; quá hạn trong tháng có cộng", "today": "2026-11-12",
+     "steps": [
+       {"req": "PUT /budgets/2026-11", "body": {"total": 5000000, "limits": {}}},
+       {"req": "POST /bills", "body": {"name": "Quá hạn trong tháng", "amount_vnd": 100000, "due_day": 10, "start_month": "2026-11"}},
+       {"req": "POST /bills", "body": {"name": "Cuối cửa sổ", "amount_vnd": 200000, "due_day": 18, "start_month": "2026-11"}},
+       {"req": "POST /bills", "body": {"name": "Ngoài cửa sổ", "amount_vnd": 400000, "due_day": 19, "start_month": "2026-11"}},
+       {"req": "GET /bills", "expect": {"obligations": {"start": "2026-11-12", "end": "2026-11-18",
+         "items": [{"name": "Quá hạn trong tháng"}, {"name": "Cuối cửa sổ"}], "obligations": 300000}}}]},
+    {"id": "3.4-07", "desc": "Hóa đơn tháng sau và nợ tháng trước: liệt kê riêng, không gộp vào S", "today": "2026-11-28",
+     "steps": [
+       {"req": "PUT /budgets/2026-11", "body": {"total": 5000000, "limits": {}}},
+       {"req": "POST /bills", "body": {"name": "Nợ cũ", "amount_vnd": 150000, "due_day": 29, "start_month": "2026-10"}},
+       {"req": "POST /bills", "body": {"name": "Đầu tháng sau", "amount_vnd": 250000, "due_day": 3, "start_month": "2026-12"}},
+       {"req": "GET /bills", "expect": {"obligations": {"end": "2026-11-30",
+         "items": [{"name": "Nợ cũ", "month": "2026-11"}], "obligations": 150000,
+         "older_unpaid": [{"name": "Nợ cũ", "month": "2026-10"}],
+         "next_month": [{"name": "Đầu tháng sau", "due_date": "2026-12-03"}],
+         "excluded": "Chưa gộp vào phép đối chiếu: 1 hóa đơn tháng 2026-12 (250.000đ); 1 kỳ nợ tháng trước (150.000đ)."}}}]},
+    {"id": "3.4-08", "desc": "Kỳ đã trả rời khỏi S nhưng khoản chi vẫn thuộc C (không trừ hai lần)",
+     "steps": [
+       {"req": "PUT /budgets/2026-11", "body": {"total": 3000000, "limits": {}}},
+       {"req": "POST /bills", "body": {"name": "Điện", "amount_vnd": 1000000, "due_day": 4, "start_month": "2026-11"}, "save": {"bill": "id"}},
+       {"req": "GET /bills", "expect": {"obligations": {"obligations": 1000000, "remaining_budget": 3000000, "surplus": 2000000}}},
+       {"req": "POST /bills/{bill}/pay", "body": {"month": "2026-11", "paid_on": "2026-11-02"}},
+       {"req": "GET /bills", "expect": {"obligations": {"obligations": 0, "spent": 1000000, "remaining_budget": 2000000, "surplus": 2000000}}}]}
+  ]
+}

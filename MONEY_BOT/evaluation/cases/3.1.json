@@ -1,0 +1,63 @@
+{
+  "suite": "3.1",
+  "title": "Lưu tên hóa đơn, tiền dự kiến, ngày hạn, chu kỳ tháng và trạng thái từng kỳ",
+  "threshold": {"min_cases": 5, "pass_rate": 1.0},
+  "today": "2026-11-12",
+  "cases": [
+    {"id": "3.1-01", "desc": "5 hóa đơn mẫu được lưu đúng, kỳ tháng này có ngày hạn đúng (kể cả ngày 31)",
+     "steps": [
+       {"req": "POST /bills", "body": {"name": "Tiền phòng", "amount_vnd": 2000000, "due_day": 5, "start_month": "2026-11"}},
+       {"req": "POST /bills", "body": {"name": "Điện", "amount_vnd": 850000, "due_day": 20, "start_month": "2026-11"}},
+       {"req": "POST /bills", "body": {"name": "Internet", "amount_vnd": 400000, "due_day": 31, "start_month": "2026-11"}},
+       {"req": "POST /bills", "body": {"name": "Nước", "amount_vnd": 120000, "due_day": 1, "start_month": "2026-11"}},
+       {"req": "POST /bills", "body": {"name": "Cước di động", "amount_vnd": 99000, "due_day": 15, "start_month": "2026-11"}},
+       {"req": "GET /bills", "expect": {
+         "schedules": [
+           {"name": "Cước di động", "amount_vnd": 99000, "due_day": 15, "start_month": "2026-11", "end_month": null},
+           {"name": "Internet", "amount_vnd": 400000, "due_day": 31, "start_month": "2026-11", "end_month": null},
+           {"name": "Nước", "amount_vnd": 120000, "due_day": 1, "start_month": "2026-11", "end_month": null},
+           {"name": "Tiền phòng", "amount_vnd": 2000000, "due_day": 5, "start_month": "2026-11", "end_month": null},
+           {"name": "Điện", "amount_vnd": 850000, "due_day": 20, "start_month": "2026-11", "end_month": null}],
+         "periods": [
+           {"name": "Nước", "month": "2026-11", "due_date": "2026-11-01", "status": "OVERDUE"},
+           {"name": "Tiền phòng", "month": "2026-11", "due_date": "2026-11-05", "status": "OVERDUE"},
+           {"name": "Cước di động", "month": "2026-11", "due_date": "2026-11-15", "status": "DUE_SOON"},
+           {"name": "Điện", "month": "2026-11", "due_date": "2026-11-20", "status": "UPCOMING"},
+           {"name": "Internet", "month": "2026-11", "due_date": "2026-11-30", "status": "UPCOMING"}]}}]},
+    {"id": "3.1-02", "desc": "Tên trống hoặc chỉ khoảng trắng: từ chối",
+     "steps": [
+       {"req": "POST /bills", "body": {"name": "", "amount_vnd": 100000, "due_day": 5, "start_month": "2026-11"}, "status": 400, "expect": {"message": "Tên hóa đơn là gì?"}},
+       {"req": "POST /bills", "body": {"name": "   ", "amount_vnd": 100000, "due_day": 5, "start_month": "2026-11"}, "status": 400},
+       {"req": "GET /bills", "expect": {"schedules": []}}]},
+    {"id": "3.1-03", "desc": "Số tiền không dương: từ chối",
+     "steps": [
+       {"req": "POST /bills", "body": {"name": "Điện", "amount_vnd": 0, "due_day": 5, "start_month": "2026-11"}, "status": 400},
+       {"req": "POST /bills", "body": {"name": "Điện", "amount_vnd": -850000, "due_day": 5, "start_month": "2026-11"}, "status": 400},
+       {"req": "POST /bills", "body": {"name": "Điện", "amount_vnd": 1.5, "due_day": 5, "start_month": "2026-11"}, "status": 422},
+       {"req": "GET /bills", "expect": {"schedules": []}}]},
+    {"id": "3.1-04", "desc": "Ngày lặp ngoài 1–31: từ chối",
+     "steps": [
+       {"req": "POST /bills", "body": {"name": "Điện", "amount_vnd": 850000, "due_day": 0, "start_month": "2026-11"}, "status": 400, "expect": {"message": "Ngày lặp phải từ 1 đến 31."}},
+       {"req": "POST /bills", "body": {"name": "Điện", "amount_vnd": 850000, "due_day": 32, "start_month": "2026-11"}, "status": 400},
+       {"req": "GET /bills", "expect": {"schedules": []}}]},
+    {"id": "3.1-05", "desc": "Tháng bắt đầu sai định dạng hoặc quá xa: từ chối",
+     "steps": [
+       {"req": "POST /bills", "body": {"name": "Điện", "amount_vnd": 850000, "due_day": 5, "start_month": "11/2026"}, "status": 400},
+       {"req": "POST /bills", "body": {"name": "Điện", "amount_vnd": 850000, "due_day": 5, "start_month": "1999-12"}, "status": 400},
+       {"req": "POST /bills", "body": {"name": "Điện", "amount_vnd": 850000, "due_day": 5, "start_month": "2037-01"}, "status": 400}]},
+    {"id": "3.1-06", "desc": "Chu kỳ hằng tháng: mỗi kỳ lưu trạng thái riêng",
+     "steps": [
+       {"req": "POST /bills", "body": {"name": "Điện", "amount_vnd": 850000, "due_day": 20, "start_month": "2026-09"}, "save": {"bill": "id"}},
+       {"req": "POST /bills/{bill}/pay", "body": {"month": "2026-10", "paid_on": "2026-10-19"}},
+       {"req": "GET /bills", "expect": {"periods": [
+         {"month": "2026-09", "due_date": "2026-09-20", "status": "OVERDUE"},
+         {"month": "2026-10", "due_date": "2026-10-20", "status": "PAID", "paid_amount": 850000, "paid_on": "2026-10-19"},
+         {"month": "2026-11", "due_date": "2026-11-20", "status": "UPCOMING"}]}}]},
+    {"id": "3.1-07", "desc": "Sửa ngày hạn của lịch: các kỳ chưa trả cập nhật",
+     "steps": [
+       {"req": "POST /bills", "body": {"name": "Điện", "amount_vnd": 850000, "due_day": 20, "start_month": "2026-11"}, "save": {"bill": "id"}},
+       {"req": "PUT /bills/{bill}", "body": {"name": "Điện", "amount_vnd": 900000, "due_day": 14, "start_month": "2026-11"}},
+       {"req": "GET /bills", "expect": {"schedules": [{"due_day": 14, "amount_vnd": 900000}],
+         "periods": [{"due_date": "2026-11-14", "status": "DUE_SOON", "amount_vnd": 900000}]}}]}
+  ]
+}

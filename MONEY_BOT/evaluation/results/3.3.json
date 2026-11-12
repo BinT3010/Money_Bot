@@ -1,0 +1,1436 @@
+{
+  "suite": "3.3",
+  "title": "Trạng thái kỳ; dừng nhắc kỳ đã trả, giữ lịch sử, tạo kỳ tiếp theo",
+  "threshold": {
+    "min_cases": 6,
+    "pass_rate": 1.0
+  },
+  "cases": 8,
+  "passed": 8,
+  "pass_rate": 1.0,
+  "met": true,
+  "results": [
+    {
+      "id": "3.3-01",
+      "desc": "Trả sớm trước hạn: Đã thanh toán, dừng nhắc, ghi một khoản chi",
+      "input": [
+        {
+          "req": "POST /bills",
+          "body": {
+            "name": "Điện",
+            "amount_vnd": 850000,
+            "due_day": 15,
+            "start_month": "2026-11"
+          },
+          "save": {
+            "bill": "id"
+          }
+        },
+        {
+          "req": "POST /bills/{bill}/pay",
+          "body": {
+            "month": "2026-11",
+            "paid_on": "2026-11-12"
+          },
+          "expect": {
+            "already_paid": false,
+            "paid_amount": 850000
+          }
+        },
+        {
+          "req": "GET /bills",
+          "expect": {
+            "reminders": [],
+            "periods": [
+              {
+                "status": "PAID",
+                "paid_on": "2026-11-12"
+              }
+            ]
+          }
+        },
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "total": 850000,
+            "count": 1,
+            "categories": {
+              "$contains": [
+                {
+                  "category_id": "utilities",
+                  "spent": 850000
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "expected": [
+        {
+          "req": "POST /bills/{bill}/pay",
+          "expect": {
+            "already_paid": false,
+            "paid_amount": 850000
+          }
+        },
+        {
+          "req": "GET /bills",
+          "expect": {
+            "reminders": [],
+            "periods": [
+              {
+                "status": "PAID",
+                "paid_on": "2026-11-12"
+              }
+            ]
+          }
+        },
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "total": 850000,
+            "count": 1,
+            "categories": {
+              "$contains": [
+                {
+                  "category_id": "utilities",
+                  "spent": 850000
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "actual": {
+        "month": "2026-11",
+        "total": 850000,
+        "count": 1,
+        "by_category": {
+          "utilities": 850000
+        },
+        "budget": {
+          "month": "2026-11",
+          "total": null,
+          "limits": {},
+          "threshold": 80
+        },
+        "remaining": null,
+        "categories": [
+          {
+            "category_id": "food",
+            "label": "Ăn uống",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "shopping",
+            "label": "Tiêu dùng/Mua sắm",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "transport",
+            "label": "Đi lại",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "utilities",
+            "label": "Hóa đơn tiện ích",
+            "spent": 850000,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "entertainment",
+            "label": "Giải trí",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "other",
+            "label": "Khác",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          }
+        ]
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "step": 1,
+          "req": "POST /bills",
+          "status": 200,
+          "ms": 78.7
+        },
+        {
+          "step": 2,
+          "req": "POST /bills/4cd60df217b843deb1134b126e95dfca/pay",
+          "status": 200,
+          "ms": 24.7
+        },
+        {
+          "step": 3,
+          "req": "GET /bills",
+          "status": 200,
+          "ms": 13.7
+        },
+        {
+          "step": 4,
+          "req": "GET /summary?month=2026-11",
+          "status": 200,
+          "ms": 12.7
+        }
+      ]
+    },
+    {
+      "id": "3.3-02",
+      "desc": "Kỳ quá hạn tháng trước được trả: hết nợ cũ, lịch sử giữ",
+      "input": [
+        {
+          "req": "POST /bills",
+          "body": {
+            "name": "Internet",
+            "amount_vnd": 400000,
+            "due_day": 5,
+            "start_month": "2026-10"
+          },
+          "save": {
+            "bill": "id"
+          }
+        },
+        {
+          "req": "GET /bills",
+          "expect": {
+            "periods": [
+              {
+                "month": "2026-10",
+                "status": "OVERDUE"
+              },
+              {
+                "month": "2026-11",
+                "status": "OVERDUE"
+              }
+            ],
+            "obligations": {
+              "older_unpaid": [
+                {
+                  "month": "2026-10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "req": "POST /bills/{bill}/pay",
+          "body": {
+            "month": "2026-10",
+            "paid_on": "2026-11-12"
+          }
+        },
+        {
+          "req": "GET /bills",
+          "expect": {
+            "periods": [
+              {
+                "month": "2026-10",
+                "status": "PAID"
+              },
+              {
+                "month": "2026-11",
+                "status": "OVERDUE"
+              }
+            ],
+            "obligations": {
+              "older_unpaid": [],
+              "older_unpaid_count": 0
+            }
+          }
+        }
+      ],
+      "expected": [
+        {
+          "req": "GET /bills",
+          "expect": {
+            "periods": [
+              {
+                "month": "2026-10",
+                "status": "OVERDUE"
+              },
+              {
+                "month": "2026-11",
+                "status": "OVERDUE"
+              }
+            ],
+            "obligations": {
+              "older_unpaid": [
+                {
+                  "month": "2026-10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "req": "GET /bills",
+          "expect": {
+            "periods": [
+              {
+                "month": "2026-10",
+                "status": "PAID"
+              },
+              {
+                "month": "2026-11",
+                "status": "OVERDUE"
+              }
+            ],
+            "obligations": {
+              "older_unpaid": [],
+              "older_unpaid_count": 0
+            }
+          }
+        }
+      ],
+      "actual": {
+        "schedules": [
+          {
+            "id": "7afba5f6700d4fcda1fa6983876fd524",
+            "name": "Internet",
+            "amount_vnd": 400000,
+            "due_day": 5,
+            "start_month": "2026-10",
+            "end_month": null
+          }
+        ],
+        "periods": [
+          {
+            "id": "7afba5f6700d4fcda1fa6983876fd524",
+            "name": "Internet",
+            "amount_vnd": 400000,
+            "due_day": 5,
+            "start_month": "2026-10",
+            "end_month": null,
+            "period_id": "7afba5f6700d4fcda1fa6983876fd524:2026-10",
+            "month": "2026-10",
+            "due_date": "2026-10-05",
+            "days": -38,
+            "status": "PAID",
+            "expense_id": "da39282ddf9c43fa925a1892dbec3a5c",
+            "paid_on": "2026-11-12",
+            "paid_amount": 400000
+          },
+          {
+            "id": "7afba5f6700d4fcda1fa6983876fd524",
+            "name": "Internet",
+            "amount_vnd": 400000,
+            "due_day": 5,
+            "start_month": "2026-10",
+            "end_month": null,
+            "period_id": "7afba5f6700d4fcda1fa6983876fd524:2026-11",
+            "month": "2026-11",
+            "due_date": "2026-11-05",
+            "days": -7,
+            "status": "OVERDUE",
+            "expense_id": null,
+            "paid_on": null,
+            "paid_amount": null
+          }
+        ],
+        "periods_total": 2,
+        "offset": 0,
+        "limit": 100,
+        "has_more": false,
+        "reminders": [],
+        "obligations": {
+          "start": "2026-11-12",
+          "end": "2026-11-18",
+          "items": [
+            {
+              "id": "7afba5f6700d4fcda1fa6983876fd524",
+              "name": "Internet",
+              "amount_vnd": 400000,
+              "due_day": 5,
+              "start_month": "2026-10",
+              "end_month": null,
+              "period_id": "7afba5f6700d4fcda1fa6983876fd524:2026-11",
+              "month": "2026-11",
+              "due_date": "2026-11-05",
+              "days": -7,
+              "status": "OVERDUE",
+              "expense_id": null,
+              "paid_on": null,
+              "paid_amount": null
+            }
+          ],
+          "older_unpaid": [],
+          "older_unpaid_count": 0,
+          "older_unpaid_total": 0,
+          "next_month": [],
+          "budget_total": null,
+          "spent": 400000,
+          "obligations": 400000,
+          "remaining_budget": null,
+          "difference": null,
+          "status": "UNKNOWN",
+          "shortfall": null,
+          "surplus": null,
+          "message": "Chưa có ngân sách tổng tháng 2026-11. Tổng hóa đơn đang xét là 400.000đ; hãy nhập ngân sách để đối chiếu. Chưa kết luận đủ hay thiếu.",
+          "excluded": null,
+          "note": "Chỉ đối chiếu ngân sách theo dữ liệu đã ghi, không phải số dư ngân hàng. Nợ tháng trước hiển thị riêng."
+        }
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "step": 1,
+          "req": "POST /bills",
+          "status": 200,
+          "ms": 64.6
+        },
+        {
+          "step": 2,
+          "req": "GET /bills",
+          "status": 200,
+          "ms": 6.4
+        },
+        {
+          "step": 3,
+          "req": "POST /bills/7afba5f6700d4fcda1fa6983876fd524/pay",
+          "status": 200,
+          "ms": 10.6
+        },
+        {
+          "step": 4,
+          "req": "GET /bills",
+          "status": 200,
+          "ms": 7.5
+        }
+      ]
+    },
+    {
+      "id": "3.3-03",
+      "desc": "Xác nhận hai lần: cùng khóa trả lại kết quả cũ; khóa mới báo đã trả; chỉ một khoản chi",
+      "input": [
+        {
+          "req": "POST /bills",
+          "body": {
+            "name": "Điện",
+            "amount_vnd": 850000,
+            "due_day": 15,
+            "start_month": "2026-11"
+          },
+          "save": {
+            "bill": "id"
+          }
+        },
+        {
+          "req": "POST /bills/{bill}/pay",
+          "body": {
+            "month": "2026-11",
+            "paid_on": "2026-11-12"
+          },
+          "key": "pay-twice-0001",
+          "save": {
+            "expense": "expense_id"
+          }
+        },
+        {
+          "req": "POST /bills/{bill}/pay",
+          "body": {
+            "month": "2026-11",
+            "paid_on": "2026-11-12"
+          },
+          "key": "pay-twice-0001",
+          "expect": {
+            "expense_id": "{expense}",
+            "already_paid": false
+          }
+        },
+        {
+          "req": "POST /bills/{bill}/pay",
+          "body": {
+            "month": "2026-11",
+            "paid_on": "2026-11-12"
+          },
+          "expect": {
+            "expense_id": "{expense}",
+            "already_paid": true
+          }
+        },
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "count": 1,
+            "total": 850000
+          }
+        }
+      ],
+      "expected": [
+        {
+          "req": "POST /bills/{bill}/pay",
+          "expect": {
+            "expense_id": "{expense}",
+            "already_paid": false
+          }
+        },
+        {
+          "req": "POST /bills/{bill}/pay",
+          "expect": {
+            "expense_id": "{expense}",
+            "already_paid": true
+          }
+        },
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "count": 1,
+            "total": 850000
+          }
+        }
+      ],
+      "actual": {
+        "month": "2026-11",
+        "total": 850000,
+        "count": 1,
+        "by_category": {
+          "utilities": 850000
+        },
+        "budget": {
+          "month": "2026-11",
+          "total": null,
+          "limits": {},
+          "threshold": 80
+        },
+        "remaining": null,
+        "categories": [
+          {
+            "category_id": "food",
+            "label": "Ăn uống",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "shopping",
+            "label": "Tiêu dùng/Mua sắm",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "transport",
+            "label": "Đi lại",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "utilities",
+            "label": "Hóa đơn tiện ích",
+            "spent": 850000,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "entertainment",
+            "label": "Giải trí",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "other",
+            "label": "Khác",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          }
+        ]
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "step": 1,
+          "req": "POST /bills",
+          "status": 200,
+          "ms": 51.5
+        },
+        {
+          "step": 2,
+          "req": "POST /bills/97c9bccc276346f4a207f3fc9aa7f69a/pay",
+          "status": 200,
+          "ms": 14.4
+        },
+        {
+          "step": 3,
+          "req": "POST /bills/97c9bccc276346f4a207f3fc9aa7f69a/pay",
+          "status": 200,
+          "ms": 8.0
+        },
+        {
+          "step": 4,
+          "req": "POST /bills/97c9bccc276346f4a207f3fc9aa7f69a/pay",
+          "status": 200,
+          "ms": 10.5
+        },
+        {
+          "step": 5,
+          "req": "GET /summary?month=2026-11",
+          "status": 200,
+          "ms": 7.7
+        }
+      ]
+    },
+    {
+      "id": "3.3-04",
+      "desc": "Giao dịch đã tồn tại: chỉ liên kết, không tăng chi",
+      "input": [
+        {
+          "req": "POST /transactions",
+          "body": {
+            "amount_vnd": 2000000,
+            "description": "Chuyển khoản tiền phòng",
+            "category_id": "utilities",
+            "date": "2026-11-03"
+          },
+          "save": {
+            "tx": "id"
+          }
+        },
+        {
+          "req": "POST /bills",
+          "body": {
+            "name": "Tiền phòng",
+            "amount_vnd": 2000000,
+            "due_day": 5,
+            "start_month": "2026-11"
+          },
+          "save": {
+            "bill": "id"
+          }
+        },
+        {
+          "req": "POST /bills/{bill}/pay",
+          "body": {
+            "month": "2026-11",
+            "paid_on": "2026-11-03",
+            "expense_id": "{tx}"
+          },
+          "expect": {
+            "expense_id": "{tx}"
+          }
+        },
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "count": 1,
+            "total": 2000000
+          }
+        },
+        {
+          "req": "GET /bills",
+          "expect": {
+            "periods": [
+              {
+                "status": "PAID",
+                "expense_id": "{tx}"
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "req": "POST /bills/{bill}/pay",
+          "expect": {
+            "expense_id": "{tx}"
+          }
+        },
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "count": 1,
+            "total": 2000000
+          }
+        },
+        {
+          "req": "GET /bills",
+          "expect": {
+            "periods": [
+              {
+                "status": "PAID",
+                "expense_id": "{tx}"
+              }
+            ]
+          }
+        }
+      ],
+      "actual": {
+        "schedules": [
+          {
+            "id": "1cb427c133ff4a2e907c5dcadb00387e",
+            "name": "Tiền phòng",
+            "amount_vnd": 2000000,
+            "due_day": 5,
+            "start_month": "2026-11",
+            "end_month": null
+          }
+        ],
+        "periods": [
+          {
+            "id": "1cb427c133ff4a2e907c5dcadb00387e",
+            "name": "Tiền phòng",
+            "amount_vnd": 2000000,
+            "due_day": 5,
+            "start_month": "2026-11",
+            "end_month": null,
+            "period_id": "1cb427c133ff4a2e907c5dcadb00387e:2026-11",
+            "month": "2026-11",
+            "due_date": "2026-11-05",
+            "days": -7,
+            "status": "PAID",
+            "expense_id": "11589437aab945448d654f2a47866dd3",
+            "paid_on": "2026-11-03",
+            "paid_amount": 2000000
+          }
+        ],
+        "periods_total": 1,
+        "offset": 0,
+        "limit": 100,
+        "has_more": false,
+        "reminders": [],
+        "obligations": {
+          "start": "2026-11-12",
+          "end": "2026-11-18",
+          "items": [],
+          "older_unpaid": [],
+          "older_unpaid_count": 0,
+          "older_unpaid_total": 0,
+          "next_month": [],
+          "budget_total": null,
+          "spent": 2000000,
+          "obligations": 0,
+          "remaining_budget": null,
+          "difference": null,
+          "status": "UNKNOWN",
+          "shortfall": null,
+          "surplus": null,
+          "message": "Chưa có ngân sách tổng tháng 2026-11. Tổng hóa đơn đang xét là 0đ; hãy nhập ngân sách để đối chiếu. Chưa kết luận đủ hay thiếu.",
+          "excluded": null,
+          "note": "Chỉ đối chiếu ngân sách theo dữ liệu đã ghi, không phải số dư ngân hàng. Nợ tháng trước hiển thị riêng."
+        }
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "step": 1,
+          "req": "POST /transactions",
+          "status": 200,
+          "ms": 74.6
+        },
+        {
+          "step": 2,
+          "req": "POST /bills",
+          "status": 200,
+          "ms": 17.8
+        },
+        {
+          "step": 3,
+          "req": "POST /bills/1cb427c133ff4a2e907c5dcadb00387e/pay",
+          "status": 200,
+          "ms": 16.5
+        },
+        {
+          "step": 4,
+          "req": "GET /summary?month=2026-11",
+          "status": 200,
+          "ms": 9.7
+        },
+        {
+          "step": 5,
+          "req": "GET /bills",
+          "status": 200,
+          "ms": 5.6
+        }
+      ]
+    },
+    {
+      "id": "3.3-05",
+      "desc": "Giao dịch đã liên kết không sửa/xóa được; không liên kết cho kỳ thứ hai",
+      "input": [
+        {
+          "req": "POST /transactions",
+          "body": {
+            "amount_vnd": 400000,
+            "description": "Internet",
+            "category_id": "utilities",
+            "date": "2026-11-12"
+          },
+          "save": {
+            "tx": "id"
+          }
+        },
+        {
+          "req": "POST /bills",
+          "body": {
+            "name": "Internet",
+            "amount_vnd": 400000,
+            "due_day": 5,
+            "start_month": "2026-10"
+          },
+          "save": {
+            "bill": "id"
+          }
+        },
+        {
+          "req": "POST /bills/{bill}/pay",
+          "body": {
+            "month": "2026-11",
+            "paid_on": "2026-11-12",
+            "expense_id": "{tx}"
+          }
+        },
+        {
+          "req": "DELETE /transactions/{tx}",
+          "status": 400
+        },
+        {
+          "req": "PUT /transactions/{tx}",
+          "body": {
+            "amount_vnd": 1,
+            "description": "x",
+            "category_id": "utilities",
+            "date": "2026-11-12"
+          },
+          "status": 400
+        },
+        {
+          "req": "POST /bills/{bill}/pay",
+          "body": {
+            "month": "2026-10",
+            "paid_on": "2026-11-12",
+            "expense_id": "{tx}"
+          },
+          "status": 400
+        }
+      ],
+      "expected": [
+        {
+          "req": "DELETE /transactions/{tx}",
+          "status": 400
+        },
+        {
+          "req": "PUT /transactions/{tx}",
+          "status": 400
+        },
+        {
+          "req": "POST /bills/{bill}/pay",
+          "status": 400
+        }
+      ],
+      "actual": {
+        "message": "Giao dịch đã liên kết một kỳ khác."
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "step": 1,
+          "req": "POST /transactions",
+          "status": 200,
+          "ms": 68.6
+        },
+        {
+          "step": 2,
+          "req": "POST /bills",
+          "status": 200,
+          "ms": 16.4
+        },
+        {
+          "step": 3,
+          "req": "POST /bills/f4824fb7665f4b1bb1dd63daf7d599a2/pay",
+          "status": 200,
+          "ms": 15.0
+        },
+        {
+          "step": 4,
+          "req": "DELETE /transactions/ce814f810eb449e99e69ad30ca592e9d",
+          "status": 400,
+          "ms": 12.2
+        },
+        {
+          "step": 5,
+          "req": "PUT /transactions/ce814f810eb449e99e69ad30ca592e9d",
+          "status": 400,
+          "ms": 8.0
+        },
+        {
+          "step": 6,
+          "req": "POST /bills/f4824fb7665f4b1bb1dd63daf7d599a2/pay",
+          "status": 400,
+          "ms": 7.4
+        }
+      ]
+    },
+    {
+      "id": "3.3-06",
+      "desc": "Sang tháng mới: tạo kỳ tiếp theo, kỳ đã trả giữ trong lịch sử",
+      "input": [
+        {
+          "req": "POST /bills",
+          "body": {
+            "name": "Điện",
+            "amount_vnd": 850000,
+            "due_day": 15,
+            "start_month": "2026-11"
+          },
+          "save": {
+            "bill": "id"
+          }
+        },
+        {
+          "req": "POST /bills/{bill}/pay",
+          "body": {
+            "month": "2026-11",
+            "paid_on": "2026-11-12"
+          }
+        },
+        {
+          "today": "2026-12-01"
+        },
+        {
+          "req": "GET /bills",
+          "expect": {
+            "periods": [
+              {
+                "month": "2026-11",
+                "status": "PAID",
+                "paid_on": "2026-11-12"
+              },
+              {
+                "month": "2026-12",
+                "status": "UPCOMING",
+                "due_date": "2026-12-15",
+                "paid_amount": null
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "req": "GET /bills",
+          "expect": {
+            "periods": [
+              {
+                "month": "2026-11",
+                "status": "PAID",
+                "paid_on": "2026-11-12"
+              },
+              {
+                "month": "2026-12",
+                "status": "UPCOMING",
+                "due_date": "2026-12-15",
+                "paid_amount": null
+              }
+            ]
+          }
+        }
+      ],
+      "actual": {
+        "schedules": [
+          {
+            "id": "8859b29e25424ca998d9261b14b19911",
+            "name": "Điện",
+            "amount_vnd": 850000,
+            "due_day": 15,
+            "start_month": "2026-11",
+            "end_month": null
+          }
+        ],
+        "periods": [
+          {
+            "id": "8859b29e25424ca998d9261b14b19911",
+            "name": "Điện",
+            "amount_vnd": 850000,
+            "due_day": 15,
+            "start_month": "2026-11",
+            "end_month": null,
+            "period_id": "8859b29e25424ca998d9261b14b19911:2026-11",
+            "month": "2026-11",
+            "due_date": "2026-11-15",
+            "days": -16,
+            "status": "PAID",
+            "expense_id": "69f08ad1a4e745178189c9bd7dc65ef1",
+            "paid_on": "2026-11-12",
+            "paid_amount": 850000
+          },
+          {
+            "id": "8859b29e25424ca998d9261b14b19911",
+            "name": "Điện",
+            "amount_vnd": 850000,
+            "due_day": 15,
+            "start_month": "2026-11",
+            "end_month": null,
+            "period_id": "8859b29e25424ca998d9261b14b19911:2026-12",
+            "month": "2026-12",
+            "due_date": "2026-12-15",
+            "days": 14,
+            "status": "UPCOMING",
+            "expense_id": null,
+            "paid_on": null,
+            "paid_amount": null
+          }
+        ],
+        "periods_total": 2,
+        "offset": 0,
+        "limit": 100,
+        "has_more": false,
+        "reminders": [],
+        "obligations": {
+          "start": "2026-12-01",
+          "end": "2026-12-07",
+          "items": [],
+          "older_unpaid": [],
+          "older_unpaid_count": 0,
+          "older_unpaid_total": 0,
+          "next_month": [],
+          "budget_total": null,
+          "spent": 0,
+          "obligations": 0,
+          "remaining_budget": null,
+          "difference": null,
+          "status": "UNKNOWN",
+          "shortfall": null,
+          "surplus": null,
+          "message": "Chưa có ngân sách tổng tháng 2026-12. Tổng hóa đơn đang xét là 0đ; hãy nhập ngân sách để đối chiếu. Chưa kết luận đủ hay thiếu.",
+          "excluded": null,
+          "note": "Chỉ đối chiếu ngân sách theo dữ liệu đã ghi, không phải số dư ngân hàng. Nợ tháng trước hiển thị riêng."
+        }
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "step": 1,
+          "req": "POST /bills",
+          "status": 200,
+          "ms": 53.0
+        },
+        {
+          "step": 2,
+          "req": "POST /bills/8859b29e25424ca998d9261b14b19911/pay",
+          "status": 200,
+          "ms": 17.2
+        },
+        {
+          "step": 3,
+          "today": "2026-12-01"
+        },
+        {
+          "step": 4,
+          "req": "GET /bills",
+          "status": 200,
+          "ms": 10.6
+        }
+      ]
+    },
+    {
+      "id": "3.3-07",
+      "desc": "Số tiền thực trả khác dự kiến: ghi đúng tiền thực trả",
+      "input": [
+        {
+          "req": "POST /bills",
+          "body": {
+            "name": "Điện",
+            "amount_vnd": 850000,
+            "due_day": 15,
+            "start_month": "2026-11"
+          },
+          "save": {
+            "bill": "id"
+          }
+        },
+        {
+          "req": "POST /bills/{bill}/pay",
+          "body": {
+            "month": "2026-11",
+            "paid_on": "2026-11-12",
+            "amount_vnd": 912345
+          }
+        },
+        {
+          "req": "GET /bills",
+          "expect": {
+            "periods": [
+              {
+                "amount_vnd": 850000,
+                "paid_amount": 912345,
+                "status": "PAID"
+              }
+            ]
+          }
+        },
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "total": 912345
+          }
+        }
+      ],
+      "expected": [
+        {
+          "req": "GET /bills",
+          "expect": {
+            "periods": [
+              {
+                "amount_vnd": 850000,
+                "paid_amount": 912345,
+                "status": "PAID"
+              }
+            ]
+          }
+        },
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "total": 912345
+          }
+        }
+      ],
+      "actual": {
+        "month": "2026-11",
+        "total": 912345,
+        "count": 1,
+        "by_category": {
+          "utilities": 912345
+        },
+        "budget": {
+          "month": "2026-11",
+          "total": null,
+          "limits": {},
+          "threshold": 80
+        },
+        "remaining": null,
+        "categories": [
+          {
+            "category_id": "food",
+            "label": "Ăn uống",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "shopping",
+            "label": "Tiêu dùng/Mua sắm",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "transport",
+            "label": "Đi lại",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "utilities",
+            "label": "Hóa đơn tiện ích",
+            "spent": 912345,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "entertainment",
+            "label": "Giải trí",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "other",
+            "label": "Khác",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          }
+        ]
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "step": 1,
+          "req": "POST /bills",
+          "status": 200,
+          "ms": 56.7
+        },
+        {
+          "step": 2,
+          "req": "POST /bills/5c57f0636c5d4e9db2e0f02924c3482d/pay",
+          "status": 200,
+          "ms": 22.3
+        },
+        {
+          "step": 3,
+          "req": "GET /bills",
+          "status": 200,
+          "ms": 12.6
+        },
+        {
+          "step": 4,
+          "req": "GET /summary?month=2026-11",
+          "status": 200,
+          "ms": 10.0
+        }
+      ]
+    },
+    {
+      "id": "3.3-08",
+      "desc": "Không trả trước kỳ tương lai; không ghi chi khi bị từ chối",
+      "input": [
+        {
+          "req": "POST /bills",
+          "body": {
+            "name": "Điện",
+            "amount_vnd": 850000,
+            "due_day": 15,
+            "start_month": "2026-11"
+          },
+          "save": {
+            "bill": "id"
+          }
+        },
+        {
+          "req": "POST /bills/{bill}/pay",
+          "body": {
+            "month": "2026-12",
+            "paid_on": "2026-11-12"
+          },
+          "status": 400
+        },
+        {
+          "req": "POST /bills/{bill}/pay",
+          "body": {
+            "month": "2026-11",
+            "paid_on": "2026-11-13"
+          },
+          "status": 400
+        },
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "count": 0
+          }
+        }
+      ],
+      "expected": [
+        {
+          "req": "POST /bills/{bill}/pay",
+          "status": 400
+        },
+        {
+          "req": "POST /bills/{bill}/pay",
+          "status": 400
+        },
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "count": 0
+          }
+        }
+      ],
+      "actual": {
+        "month": "2026-11",
+        "total": 0,
+        "count": 0,
+        "by_category": {},
+        "budget": {
+          "month": "2026-11",
+          "total": null,
+          "limits": {},
+          "threshold": 80
+        },
+        "remaining": null,
+        "categories": [
+          {
+            "category_id": "food",
+            "label": "Ăn uống",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "shopping",
+            "label": "Tiêu dùng/Mua sắm",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "transport",
+            "label": "Đi lại",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "utilities",
+            "label": "Hóa đơn tiện ích",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "entertainment",
+            "label": "Giải trí",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "other",
+            "label": "Khác",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          }
+        ]
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "step": 1,
+          "req": "POST /bills",
+          "status": 200,
+          "ms": 60.8
+        },
+        {
+          "step": 2,
+          "req": "POST /bills/de6ea652fdc746fc955a94fb54ca95c4/pay",
+          "status": 400,
+          "ms": 21.2
+        },
+        {
+          "step": 3,
+          "req": "POST /bills/de6ea652fdc746fc955a94fb54ca95c4/pay",
+          "status": 400,
+          "ms": 14.7
+        },
+        {
+          "step": 4,
+          "req": "GET /summary?month=2026-11",
+          "status": 200,
+          "ms": 16.0
+        }
+      ]
+    }
+  ]
+}

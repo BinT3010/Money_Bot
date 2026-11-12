@@ -1,0 +1,64 @@
+{
+  "suite": "3.3",
+  "title": "Trạng thái kỳ; dừng nhắc kỳ đã trả, giữ lịch sử, tạo kỳ tiếp theo",
+  "threshold": {"min_cases": 6, "pass_rate": 1.0},
+  "today": "2026-11-12",
+  "cases": [
+    {"id": "3.3-01", "desc": "Trả sớm trước hạn: Đã thanh toán, dừng nhắc, ghi một khoản chi",
+     "steps": [
+       {"req": "POST /bills", "body": {"name": "Điện", "amount_vnd": 850000, "due_day": 15, "start_month": "2026-11"}, "save": {"bill": "id"}},
+       {"req": "POST /bills/{bill}/pay", "body": {"month": "2026-11", "paid_on": "2026-11-12"}, "expect": {"already_paid": false, "paid_amount": 850000}},
+       {"req": "GET /bills", "expect": {"reminders": [], "periods": [{"status": "PAID", "paid_on": "2026-11-12"}]}},
+       {"req": "GET /summary?month=2026-11", "expect": {"total": 850000, "count": 1, "categories": {"$contains": [{"category_id": "utilities", "spent": 850000}]}}}]},
+    {"id": "3.3-02", "desc": "Kỳ quá hạn tháng trước được trả: hết nợ cũ, lịch sử giữ",
+     "steps": [
+       {"req": "POST /bills", "body": {"name": "Internet", "amount_vnd": 400000, "due_day": 5, "start_month": "2026-10"}, "save": {"bill": "id"}},
+       {"req": "GET /bills", "expect": {"periods": [{"month": "2026-10", "status": "OVERDUE"}, {"month": "2026-11", "status": "OVERDUE"}],
+         "obligations": {"older_unpaid": [{"month": "2026-10"}]}}},
+       {"req": "POST /bills/{bill}/pay", "body": {"month": "2026-10", "paid_on": "2026-11-12"}},
+       {"req": "GET /bills", "expect": {"periods": [{"month": "2026-10", "status": "PAID"}, {"month": "2026-11", "status": "OVERDUE"}],
+         "obligations": {"older_unpaid": [], "older_unpaid_count": 0}}}]},
+    {"id": "3.3-03", "desc": "Xác nhận hai lần: cùng khóa trả lại kết quả cũ; khóa mới báo đã trả; chỉ một khoản chi",
+     "steps": [
+       {"req": "POST /bills", "body": {"name": "Điện", "amount_vnd": 850000, "due_day": 15, "start_month": "2026-11"}, "save": {"bill": "id"}},
+       {"req": "POST /bills/{bill}/pay", "body": {"month": "2026-11", "paid_on": "2026-11-12"}, "key": "pay-twice-0001", "save": {"expense": "expense_id"}},
+       {"req": "POST /bills/{bill}/pay", "body": {"month": "2026-11", "paid_on": "2026-11-12"}, "key": "pay-twice-0001", "expect": {"expense_id": "{expense}", "already_paid": false}},
+       {"req": "POST /bills/{bill}/pay", "body": {"month": "2026-11", "paid_on": "2026-11-12"}, "expect": {"expense_id": "{expense}", "already_paid": true}},
+       {"req": "GET /summary?month=2026-11", "expect": {"count": 1, "total": 850000}}]},
+    {"id": "3.3-04", "desc": "Giao dịch đã tồn tại: chỉ liên kết, không tăng chi",
+     "steps": [
+       {"req": "POST /transactions", "body": {"amount_vnd": 2000000, "description": "Chuyển khoản tiền phòng", "category_id": "utilities", "date": "2026-11-03"}, "save": {"tx": "id"}},
+       {"req": "POST /bills", "body": {"name": "Tiền phòng", "amount_vnd": 2000000, "due_day": 5, "start_month": "2026-11"}, "save": {"bill": "id"}},
+       {"req": "POST /bills/{bill}/pay", "body": {"month": "2026-11", "paid_on": "2026-11-03", "expense_id": "{tx}"}, "expect": {"expense_id": "{tx}"}},
+       {"req": "GET /summary?month=2026-11", "expect": {"count": 1, "total": 2000000}},
+       {"req": "GET /bills", "expect": {"periods": [{"status": "PAID", "expense_id": "{tx}"}]}}]},
+    {"id": "3.3-05", "desc": "Giao dịch đã liên kết không sửa/xóa được; không liên kết cho kỳ thứ hai",
+     "steps": [
+       {"req": "POST /transactions", "body": {"amount_vnd": 400000, "description": "Internet", "category_id": "utilities", "date": "2026-11-12"}, "save": {"tx": "id"}},
+       {"req": "POST /bills", "body": {"name": "Internet", "amount_vnd": 400000, "due_day": 5, "start_month": "2026-10"}, "save": {"bill": "id"}},
+       {"req": "POST /bills/{bill}/pay", "body": {"month": "2026-11", "paid_on": "2026-11-12", "expense_id": "{tx}"}},
+       {"req": "DELETE /transactions/{tx}", "status": 400},
+       {"req": "PUT /transactions/{tx}", "body": {"amount_vnd": 1, "description": "x", "category_id": "utilities", "date": "2026-11-12"}, "status": 400},
+       {"req": "POST /bills/{bill}/pay", "body": {"month": "2026-10", "paid_on": "2026-11-12", "expense_id": "{tx}"}, "status": 400}]},
+    {"id": "3.3-06", "desc": "Sang tháng mới: tạo kỳ tiếp theo, kỳ đã trả giữ trong lịch sử", "today": "2026-11-12",
+     "steps": [
+       {"req": "POST /bills", "body": {"name": "Điện", "amount_vnd": 850000, "due_day": 15, "start_month": "2026-11"}, "save": {"bill": "id"}},
+       {"req": "POST /bills/{bill}/pay", "body": {"month": "2026-11", "paid_on": "2026-11-12"}},
+       {"today": "2026-12-01"},
+       {"req": "GET /bills", "expect": {"periods": [
+         {"month": "2026-11", "status": "PAID", "paid_on": "2026-11-12"},
+         {"month": "2026-12", "status": "UPCOMING", "due_date": "2026-12-15", "paid_amount": null}]}}]},
+    {"id": "3.3-07", "desc": "Số tiền thực trả khác dự kiến: ghi đúng tiền thực trả",
+     "steps": [
+       {"req": "POST /bills", "body": {"name": "Điện", "amount_vnd": 850000, "due_day": 15, "start_month": "2026-11"}, "save": {"bill": "id"}},
+       {"req": "POST /bills/{bill}/pay", "body": {"month": "2026-11", "paid_on": "2026-11-12", "amount_vnd": 912345}},
+       {"req": "GET /bills", "expect": {"periods": [{"amount_vnd": 850000, "paid_amount": 912345, "status": "PAID"}]}},
+       {"req": "GET /summary?month=2026-11", "expect": {"total": 912345}}]},
+    {"id": "3.3-08", "desc": "Không trả trước kỳ tương lai; không ghi chi khi bị từ chối",
+     "steps": [
+       {"req": "POST /bills", "body": {"name": "Điện", "amount_vnd": 850000, "due_day": 15, "start_month": "2026-11"}, "save": {"bill": "id"}},
+       {"req": "POST /bills/{bill}/pay", "body": {"month": "2026-12", "paid_on": "2026-11-12"}, "status": 400},
+       {"req": "POST /bills/{bill}/pay", "body": {"month": "2026-11", "paid_on": "2026-11-13"}, "status": 400},
+       {"req": "GET /summary?month=2026-11", "expect": {"count": 0}}]}
+  ]
+}

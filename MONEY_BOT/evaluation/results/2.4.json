@@ -196,31 +196,31 @@
           "step": 1,
           "req": "PUT /budgets/2026-11",
           "status": 200,
-          "ms": 120.4
+          "ms": 103.9
         },
         {
           "step": 2,
           "req": "POST /transactions",
           "status": 200,
-          "ms": 13.2
+          "ms": 19.2
         },
         {
           "step": 3,
           "req": "GET /summary?month=2026-11",
           "status": 200,
-          "ms": 5.9
+          "ms": 10.2
         },
         {
           "step": 4,
           "req": "PUT /budgets/2026-11",
           "status": 200,
-          "ms": 12.9
+          "ms": 14.4
         },
         {
           "step": 5,
           "req": "GET /summary?month=2026-11",
           "status": 200,
-          "ms": 6.6
+          "ms": 7.7
         }
       ]
     },
@@ -403,31 +403,31 @@
           "step": 1,
           "req": "PUT /budgets/2026-11",
           "status": 200,
-          "ms": 120.1
+          "ms": 102.0
         },
         {
           "step": 2,
           "req": "POST /transactions",
           "status": 200,
-          "ms": 19.9
+          "ms": 22.9
         },
         {
           "step": 3,
           "req": "GET /summary?month=2026-11",
           "status": 200,
-          "ms": 7.6
+          "ms": 11.8
         },
         {
           "step": 4,
           "req": "PUT /budgets/2026-11",
           "status": 200,
-          "ms": 12.2
+          "ms": 17.0
         },
         {
           "step": 5,
           "req": "GET /summary?month=2026-11",
           "status": 200,
-          "ms": 9.5
+          "ms": 11.8
         }
       ]
     },
@@ -535,37 +535,37 @@
           "step": 1,
           "req": "PUT /budgets/2026-11",
           "status": 200,
-          "ms": 101.7
+          "ms": 115.7
         },
         {
           "step": 2,
           "req": "PUT /budgets/2026-11",
           "status": 400,
-          "ms": 14.8
+          "ms": 15.6
         },
         {
           "step": 3,
           "req": "PUT /budgets/2026-11",
           "status": 400,
-          "ms": 8.1
+          "ms": 9.3
         },
         {
           "step": 4,
           "req": "PUT /budgets/2026-11",
           "status": 400,
-          "ms": 6.4
+          "ms": 8.0
         },
         {
           "step": 5,
           "req": "PUT /budgets/2026-11",
           "status": 422,
-          "ms": 5.2
+          "ms": 5.9
         },
         {
           "step": 6,
           "req": "GET /budgets/2026-11",
           "status": 200,
-          "ms": 4.8
+          "ms": 5.3
         }
       ]
     },
@@ -783,43 +783,43 @@
           "step": 1,
           "req": "PUT /budgets/2026-11",
           "status": 200,
-          "ms": 98.6
+          "ms": 103.3
         },
         {
           "step": 2,
           "req": "POST /transactions",
           "status": 200,
-          "ms": 21.5
+          "ms": 23.4
         },
         {
           "step": 3,
           "req": "GET /summary?month=2026-11",
           "status": 200,
-          "ms": 10.9
+          "ms": 14.1
         },
         {
           "step": 4,
           "req": "POST /transactions",
           "status": 200,
-          "ms": 16.0
+          "ms": 18.0
         },
         {
           "step": 5,
           "req": "GET /summary?month=2026-11",
           "status": 200,
-          "ms": 10.8
+          "ms": 14.7
         },
         {
           "step": 6,
           "req": "POST /transactions",
           "status": 200,
-          "ms": 17.4
+          "ms": 20.7
         },
         {
           "step": 7,
           "req": "GET /summary?month=2026-11",
           "status": 200,
-          "ms": 13.9
+          "ms": 10.4
         }
       ]
     },
@@ -979,25 +979,25 @@
           "step": 1,
           "req": "GET /budgets/2026-11",
           "status": 200,
-          "ms": 118.0
+          "ms": 93.1
         },
         {
           "step": 2,
           "req": "PUT /budgets/2026-11",
           "status": 200,
-          "ms": 23.8
+          "ms": 22.1
         },
         {
           "step": 3,
           "req": "POST /transactions",
           "status": 200,
-          "ms": 34.6
+          "ms": 23.0
         },
         {
           "step": 4,
           "req": "GET /summary?month=2026-11",
           "status": 200,
-          "ms": 23.5
+          "ms": 9.6
         }
       ]
     }

@@ -55,6 +55,16 @@ def test_run_case_with_save_and_clock():
     assert all(e["ms"] >= 0 for e in r["evidence"] if "ms" in e)
 
 
+def test_saved_variables_are_substituted_in_expect():
+    case = {"id": "t-5", "steps": [
+        {"req": "POST /bills", "body": BILL, "save": {"bill": "id"}},
+        {"req": "GET /bills", "expect": {"reminders": [{"notice_id": "{bill}:2026-11:3", "id": "{bill}"}]}},
+    ]}
+    assert run_eval.run_case(case, "2026-11-12")["passed"]
+    case["steps"][1]["expect"]["reminders"][0]["notice_id"] = "{bill}:2026-11:1"
+    assert not run_eval.run_case(case, "2026-11-12")["passed"]
+
+
 def test_run_case_reports_mismatch_and_errors_without_crashing():
     wrong = run_eval.run_case({"id": "t-2", "steps": [
         {"req": "POST /bills", "body": BILL},

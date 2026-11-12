@@ -1,0 +1,79 @@
+{
+  "suite": "3.2",
+  "title": "Nhắc trước 3 ngày, trước 1 ngày và khi đến hạn hôm nay",
+  "threshold": {"min_cases": 10, "pass_rate": 1.0},
+  "today": "2026-11-12",
+  "cases": [
+    {"id": "3.2-01", "desc": "Còn 3 ngày: nhắc, đủ thông tin Ou5", "today": "2026-11-12",
+     "steps": [
+       {"req": "POST /bills", "body": {"name": "Điện", "amount_vnd": 850000, "due_day": 15, "start_month": "2026-11"}},
+       {"req": "GET /bills", "expect": {"reminders": [{"name": "Điện", "month": "2026-11", "amount_vnd": 850000, "due_date": "2026-11-15", "days": 3, "status": "DUE_SOON"}]}}]},
+    {"id": "3.2-02", "desc": "Còn 2 ngày: không có mốc nhắc", "today": "2026-11-13",
+     "steps": [
+       {"req": "POST /bills", "body": {"name": "Điện", "amount_vnd": 850000, "due_day": 15, "start_month": "2026-11"}},
+       {"req": "GET /bills", "expect": {"reminders": []}}]},
+    {"id": "3.2-03", "desc": "Còn 1 ngày: nhắc", "today": "2026-11-14",
+     "steps": [
+       {"req": "POST /bills", "body": {"name": "Điện", "amount_vnd": 850000, "due_day": 15, "start_month": "2026-11"}},
+       {"req": "GET /bills", "expect": {"reminders": [{"name": "Điện", "days": 1}]}}]},
+    {"id": "3.2-04", "desc": "Đến hạn hôm nay: nhắc", "today": "2026-11-15",
+     "steps": [
+       {"req": "POST /bills", "body": {"name": "Điện", "amount_vnd": 850000, "due_day": 15, "start_month": "2026-11"}},
+       {"req": "GET /bills", "expect": {"reminders": [{"name": "Điện", "days": 0, "status": "DUE_TODAY"}]}}]},
+    {"id": "3.2-05", "desc": "Quá hạn: không nằm trong mốc nhắc, trạng thái Quá hạn", "today": "2026-11-16",
+     "steps": [
+       {"req": "POST /bills", "body": {"name": "Điện", "amount_vnd": 850000, "due_day": 15, "start_month": "2026-11"}},
+       {"req": "GET /bills", "expect": {"reminders": [], "periods": [{"status": "OVERDUE", "days": -1}]}}]},
+    {"id": "3.2-06", "desc": "Ngày 31 ở tháng 30 ngày: hạn 30/11, nhắc từ 27/11", "today": "2026-11-27",
+     "steps": [
+       {"req": "POST /bills", "body": {"name": "Internet", "amount_vnd": 400000, "due_day": 31, "start_month": "2026-11"}},
+       {"req": "GET /bills", "expect": {"reminders": [{"name": "Internet", "due_date": "2026-11-30", "days": 3}]}}]},
+    {"id": "3.2-07", "desc": "Ngày 31 ở tháng 2: hạn 28/02/2027; tháng 3 trở lại ngày 31", "today": "2027-02-25",
+     "steps": [
+       {"req": "POST /bills", "body": {"name": "Internet", "amount_vnd": 400000, "due_day": 31, "start_month": "2027-02"}},
+       {"req": "GET /bills", "expect": {"reminders": [{"due_date": "2027-02-28", "days": 3}]}},
+       {"today": "2027-03-28"},
+       {"req": "GET /bills", "expect": {"reminders": [{"due_date": "2027-03-31", "days": 3}]}}]},
+    {"id": "3.2-08", "desc": "Giáp ranh tháng: hạn ngày 1 tháng sau, nhắc trước 3 ngày từ cuối tháng này", "today": "2026-11-28",
+     "steps": [
+       {"req": "POST /bills", "body": {"name": "Nước", "amount_vnd": 120000, "due_day": 1, "start_month": "2026-12"}},
+       {"req": "GET /bills", "expect": {"reminders": [{"name": "Nước", "month": "2026-12", "due_date": "2026-12-01", "days": 3}]}},
+       {"today": "2026-11-30"},
+       {"req": "GET /bills", "expect": {"reminders": [{"name": "Nước", "due_date": "2026-12-01", "days": 1}]}}]},
+    {"id": "3.2-09", "desc": "Giáp ranh năm: hạn 01/01/2027 nhắc ngày 29/12/2026", "today": "2026-12-29",
+     "steps": [
+       {"req": "POST /bills", "body": {"name": "Tiền phòng", "amount_vnd": 2000000, "due_day": 1, "start_month": "2026-12"}},
+       {"req": "GET /bills", "expect": {"reminders": [{"month": "2027-01", "due_date": "2027-01-01", "days": 3}]}}]},
+    {"id": "3.2-10", "desc": "Làm mới nhiều lần trong ngày: một thông báo, cùng mã, không trùng", "today": "2026-11-12",
+     "steps": [
+       {"req": "POST /bills", "body": {"name": "Điện", "amount_vnd": 850000, "due_day": 15, "start_month": "2026-11"}},
+       {"req": "GET /bills", "expect": {"reminders": {"$len": 1}}, "save": {"notice": "reminders.0.notice_id"}},
+       {"req": "GET /bills", "expect": {"reminders": [{"notice_id": "{notice}"}]}},
+       {"req": "GET /bills", "expect": {"reminders": [{"notice_id": "{notice}"}]}}]},
+    {"id": "3.2-11", "desc": "Mỗi mốc một mã thông báo riêng (3 ngày, 1 ngày, hôm nay)", "today": "2026-11-12",
+     "steps": [
+       {"req": "POST /bills", "body": {"name": "Điện", "amount_vnd": 850000, "due_day": 15, "start_month": "2026-11"}, "save": {"bill": "id"}},
+       {"req": "GET /bills", "expect": {"reminders": [{"notice_id": "{bill}:2026-11:3"}]}},
+       {"today": "2026-11-14"},
+       {"req": "GET /bills", "expect": {"reminders": [{"notice_id": "{bill}:2026-11:1"}]}},
+       {"today": "2026-11-15"},
+       {"req": "GET /bills", "expect": {"reminders": [{"notice_id": "{bill}:2026-11:0"}]}}]},
+    {"id": "3.2-12", "desc": "Kỳ đã trả: dừng nhắc", "today": "2026-11-12",
+     "steps": [
+       {"req": "POST /bills", "body": {"name": "Điện", "amount_vnd": 850000, "due_day": 15, "start_month": "2026-11"}, "save": {"bill": "id"}},
+       {"req": "POST /bills/{bill}/pay", "body": {"month": "2026-11", "paid_on": "2026-11-12"}},
+       {"req": "GET /bills", "expect": {"reminders": []}},
+       {"today": "2026-11-15"},
+       {"req": "GET /bills", "expect": {"reminders": []}}]},
+    {"id": "3.2-13", "desc": "Hai hóa đơn cùng hạn: nhắc cả hai", "today": "2026-11-12",
+     "steps": [
+       {"req": "POST /bills", "body": {"name": "Điện", "amount_vnd": 850000, "due_day": 15, "start_month": "2026-11"}},
+       {"req": "POST /bills", "body": {"name": "Nước", "amount_vnd": 120000, "due_day": 15, "start_month": "2026-11"}},
+       {"req": "GET /bills", "expect": {"reminders": {"$contains": [{"name": "Điện", "days": 3}, {"name": "Nước", "days": 3}]}}},
+       {"req": "GET /bills", "expect": {"reminders": {"$len": 2}}}]},
+    {"id": "3.2-14", "desc": "Lịch bắt đầu từ tháng sau xa: chưa nhắc trước tháng bắt đầu", "today": "2026-11-12",
+     "steps": [
+       {"req": "POST /bills", "body": {"name": "Học phí", "amount_vnd": 5000000, "due_day": 15, "start_month": "2027-01"}},
+       {"req": "GET /bills", "expect": {"reminders": [], "periods": []}}]}
+  ]
+}
