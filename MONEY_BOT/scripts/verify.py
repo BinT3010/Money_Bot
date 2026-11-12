@@ -51,6 +51,7 @@ def main():
             if not args.backend_only:
                 # Java integration tests intentionally use this fixed loopback port.
                 with closing(socket.socket()) as probe:
+                    probe.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                     probe.bind(("127.0.0.1", 18080))
                 with (out / "server.log").open("w", encoding="utf-8") as log:
                     server = subprocess.Popen([sys.executable, "-m", "uvicorn", "app:app", "--host", "127.0.0.1", "--port", "18080"], cwd=ROOT / "backend", env=env, stdout=log, stderr=subprocess.STDOUT)
