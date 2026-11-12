@@ -38,7 +38,7 @@ final class BudgetScreen {
                 }
                 @Override public void afterTextChanged(android.text.Editable text){}
             });
-            EditText[] edits=new EditText[6];SeekBar[] limitSliders=new SeekBar[6];
+            EditText[] edits=new EditText[6];SeekBar[] limitSliders=new SeekBar[6];TextView[] allocationWarnings=new TextView[6];
             long[] lastAllocation=new long[6];
             TextView[] recommendationLabels=new TextView[6];ProgressBar[] recommendationBars=new ProgressBar[6];
             long[] recommended=new long[6],rangeMinimum=new long[6],rangeMaximum=new long[6];
@@ -60,6 +60,9 @@ final class BudgetScreen {
                 LinearLayout.LayoutParams recommendationParams=new LinearLayout.LayoutParams(-1,host.dp(7));
                 recommendationParams.bottomMargin=host.dp(2);
                 host.content.addView(recommendationBars[i],recommendationParams);
+                TextView allocationWarning=host.text(host.content,"Quá nhiều!",13);allocationWarnings[i]=allocationWarning;
+                allocationWarning.setTextColor(UiHelpers.EXPENSE_RED);allocationWarning.setTypeface(null,android.graphics.Typeface.BOLD);
+                allocationWarning.setVisibility(android.view.View.GONE);
                 SeekBar limitSlider=new SeekBar(host);limitSliders[i]=limitSlider;styleBudgetSlider(host,limitSlider,UiHelpers.BRAND);limitSlider.setMax(100);
                 long cap=b.isNull("total")?0:b.getLong("total");
                 hasRange[i]=cap>0;rangeMinimum[i]=0;rangeMaximum[i]=cap*PLACEHOLDER_RANGE_MAX_BUDGET_PERCENT/100;
@@ -95,7 +98,7 @@ final class BudgetScreen {
                         lastAllocation[index]=value;
                         limitSlider.setProgress(currentCap>0?(int)Math.max(0,Math.min(100,value*100/currentCap)):0);
                         if(hasRange[index])
-                            setAllocationWarning(limitSlider,warningPulses,index,outsideRange(value,rangeMinimum[index],rangeMaximum[index]));
+                            setAllocationWarning(limitSlider,warningPulses,allocationWarning,index,outsideRange(value,rangeMinimum[index],rangeMaximum[index]));
                         if(hasRecommendation[index]){
                             int recommendationProgress=currentCap>0?(int)Math.max(0,Math.min(100,recommended[index]*100/currentCap)):0;
                             recommendationBars[index].setProgress(recommendationProgress);
@@ -107,14 +110,14 @@ final class BudgetScreen {
                 });
                 limitSlider.addOnAttachStateChangeListener(new android.view.View.OnAttachStateChangeListener(){
                     @Override public void onViewAttachedToWindow(android.view.View view){
-                        if(hasRange[index])setAllocationWarning(limitSlider,warningPulses,index,
+                        if(hasRange[index])setAllocationWarning(limitSlider,warningPulses,allocationWarning,index,
                             outsideRange(amountOrZero(host.value(edits[index])),rangeMinimum[index],rangeMaximum[index]));
                     }
                     @Override public void onViewDetachedFromWindow(android.view.View view){
                         if(warningPulses[index]!=null)warningPulses[index].cancel();
                     }
                 });
-                if(hasRange[i])setAllocationWarning(limitSlider,warningPulses,i,
+                if(hasRange[i])setAllocationWarning(limitSlider,warningPulses,allocationWarning,i,
                     outsideRange(saved,rangeMinimum[i],rangeMaximum[i]));
             }
             total.addTextChangedListener(new android.text.TextWatcher(){
@@ -128,7 +131,7 @@ final class BudgetScreen {
                         hasRange[i]=cap>0;rangeMinimum[i]=0;
                         rangeMaximum[i]=cap*PLACEHOLDER_RANGE_MAX_BUDGET_PERCENT/100;
                         limitSliders[i].setProgress(cap>0?(int)Math.max(0,Math.min(100,value*100/cap)):0);
-                        setAllocationWarning(limitSliders[i],warningPulses,i,
+                        setAllocationWarning(limitSliders[i],warningPulses,allocationWarnings[i],i,
                             hasRange[i]&&outsideRange(value,rangeMinimum[i],rangeMaximum[i]));
                         if(hasRecommendation[i]){
                             recommendationBars[i].setProgress(cap>0?(int)Math.max(0,Math.min(100,recommended[i]*100/cap)):0);
@@ -291,7 +294,8 @@ final class BudgetScreen {
         }
     }
 
-    private static void setAllocationWarning(SeekBar slider,android.animation.ValueAnimator[] pulses,int index,boolean unreasonable){
+    private static void setAllocationWarning(SeekBar slider,android.animation.ValueAnimator[] pulses,TextView warning,int index,boolean unreasonable){
+        warning.setVisibility(unreasonable?android.view.View.VISIBLE:android.view.View.GONE);
         slider.setContentDescription(unreasonable
             ?"Hạn mức ngoài khoảng thử nghiệm 0–"+PLACEHOLDER_RANGE_MAX_BUDGET_PERCENT+"% ngân sách tổng · cảnh báo đỏ"
             :"Hạn mức trong khoảng thử nghiệm 0–"+PLACEHOLDER_RANGE_MAX_BUDGET_PERCENT+"% ngân sách tổng · xanh dương");
