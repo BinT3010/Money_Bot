@@ -11,6 +11,7 @@ from typing import Annotated, Literal
 from fastapi import FastAPI, Depends, Header, HTTPException, UploadFile, File, Request
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from pydantic import BaseModel, Field, ConfigDict, StrictInt
 from auth import Auth
 from finance import FinanceStore, month_check
@@ -83,9 +84,10 @@ def create_app(data_dir=None, today_provider=None):
     async def bad_schema(request, exc):
         return JSONResponse(status_code=422, content={"message": "Dữ liệu không đúng cấu trúc hoặc kiểu. Kiểm tra các trường bắt buộc."})
 
-    @app.exception_handler(HTTPException)
+    # Lớp gốc của Starlette: gồm cả 404/405 do router sinh ra, không chỉ HTTPException của FastAPI.
+    @app.exception_handler(StarletteHTTPException)
     async def http_error(request, exc):
-        return JSONResponse(status_code=exc.status_code, content={"message": str(exc.detail)})
+        return JSONResponse(status_code=exc.status_code, content={"message": str(exc.detail)}, headers=getattr(exc, "headers", None))
 
     def token(authorization: Annotated[str | None, Header()] = None):
         if not authorization or not authorization.startswith("Bearer "):

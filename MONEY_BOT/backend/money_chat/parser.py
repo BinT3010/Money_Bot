@@ -12,7 +12,7 @@ def fold(text):
     return "".join(c for c in text if unicodedata.category(c) != "Mn")
 
 
-MONEY = re.compile(r"(?<![\w/])(-?\d+(?:[.,]\d+)*)\s*(triệu|trieu|nghìn|nghin|ngàn|ngan|k|đồng|dong|vnđ|vnd|đ)(?!\w)", re.I)
+MONEY = re.compile(r"(?<![\w/])(-?\d+(?:[.,]\d+)*)\s*(triệu|trieu|tr|nghìn|nghin|ngàn|ngan|k|đồng|dong|vnđ|vnd|đ)(?!\w)", re.I)
 DATE = re.compile(r"\b(\d{1,2})/(\d{1,2})/(\d{4})\b")
 MONTH = re.compile(r"(?:tháng|thang)\s*(\d{1,2})(?:\s*[/\-]\s*|\s+năm\s+|\s+nam\s+)(\d{4})", re.I)
 
@@ -24,7 +24,7 @@ def parse_money(text):
         return None, None, []
     raw, unit = matches[0].group(1, 2)
     unit = fold(unit)
-    multiplier = 10**6 if unit == "trieu" else 1000 if unit in {"k", "nghin", "ngan"} else 1
+    multiplier = 10**6 if unit in {"trieu", "tr"} else 1000 if unit in {"k", "nghin", "ngan"} else 1
     if re.fullmatch(r"-?\d{1,3}(?:[.,]\d{3})+", raw):
         raw = raw.replace(".", "").replace(",", "")
     else:
@@ -67,7 +67,7 @@ def detect_intent(text):
         return "unsupported"
     if any(s in t for s in ["sap phai dong", "sap den han", "hoa don can tra", "khoan can tra", "xem hoa don"]):
         return "list_due_bills"
-    if any(s in t for s in ["moi thang", "tao lich", "nhac tien", "han ngay"]):
+    if any(s in t for s in ["moi thang", "hang thang", "tao lich", "tao hoa don", "nhac tien", "han ngay"]):
         return "create_recurring_bill"
     if ("thang" in t and any(s in t for s in ["chi bao nhieu", "chi tieu", "tong", "rieng"])) or "thong ke" in t:
         return "query_spending"
@@ -102,7 +102,7 @@ def description_from(text, intent):
     clean = re.sub(r"(?i)(hôm qua|hôm nay|hom qua|hom nay)", "", clean)
     if intent == "create_recurring_bill":
         clean = re.sub(r"(?i)(hạn\s+)?ngày\s+\d+", "", clean)
-        clean = re.sub(r"(?i)(mỗi tháng|bắt đầu|từ tháng|từ|nhắc|tạo lịch|tạo)", "", clean)
+        clean = re.sub(r"(?i)(mỗi tháng|hàng tháng|bắt đầu|từ tháng|từ|nhắc|tạo hóa đơn|tạo hoá đơn|tạo lịch|tạo)", "", clean)
     clean = re.sub(r"(?i)^\s*(sửa thành|đổi thành|sửa nội dung thành|ghi chi|ghi lại|ghi|chi|sửa|đổi)\s*", "", clean)
     clean = re.sub(r"(?i)\bngày\b", "", clean)
     # Giữ nội dung khi tiền thiếu đơn vị: “Cà phê 45” -> “Cà phê”.
@@ -155,6 +155,7 @@ class RuleInterpreter:
         elif kind == "query_spending":
             out.fields.update(month_fields(text, today, current, "month"))
             for key, label in CATEGORIES.items():
-                if fold(label) in fold(text):
+                # "Tiêu dùng/Mua sắm": khớp từng phần của nhãn ghép.
+                if any(fold(part) in fold(text) for part in label.split("/")):
                     out.fields["category_id"] = key
         return out

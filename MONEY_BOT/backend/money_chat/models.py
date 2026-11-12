@@ -59,10 +59,11 @@ def validate(intent, fields, today):
     if intent == "record_expense":
         try:
             d = date.fromisoformat(fields.get("date", ""))
-            if d > today or d.isoformat() != fields.get("date"):
+            # Cùng mốc năm 2000 với tháng bắt đầu hóa đơn.
+            if d > today or d < date(2000, 1, 1) or d.isoformat() != fields.get("date"):
                 raise ValueError()
         except (ValueError, TypeError):
-            errors["date"] = "Nhập ngày hợp lệ, không ở tương lai (dd/mm/yyyy)."
+            errors["date"] = "Nhập ngày hợp lệ từ năm 2000, không ở tương lai (dd/mm/yyyy)."
         if fields.get("category_id") not in CATEGORIES:
             errors["category_id"] = "Hãy chọn một danh mục cho khoản chi."
     if intent == "create_recurring_bill":

@@ -140,6 +140,13 @@ def kiem_tra_nhac_han(bill, today=None):
     days_left = (due_date - today).days
 
     if cycle_month < start_month:
+        # Chưa bắt đầu: hạn hiển thị là hạn của kỳ đầu tiên, không phải tháng hiện tại.
+        try:
+            first_year, first_month = map(int, start_month.split("-"))
+            due_date = ngay_han_thuc_te(first_year, first_month, due_day)
+            days_left = (due_date - today).days
+        except ValueError:
+            pass
         status, label, notify, msg = "chua_bat_dau", f"Bắt đầu từ {start_month}", False, None
     elif is_paid:
         status, label, notify, msg = "da_thanh_toan", "Đã thanh toán", False, None
@@ -242,9 +249,14 @@ def xac_nhan_thanh_toan(bill, today=None, paid_amount=None):
 if __name__ == "__main__":
     print("Smart Money Bot - thử tạo lịch & nhắc hạn hóa đơn (gõ 'q' để thoát)")
     while True:
-        line = input("\nNhập câu tạo lịch (vd: Tiền mạng 200k hạn ngày 5 mỗi tháng, bắt đầu tháng 12/2026): ").strip()
+        try:
+            line = input("\nNhập câu tạo lịch (vd: Tiền mạng 200k hạn ngày 5 mỗi tháng, bắt đầu tháng 12/2026): ").strip()
+        except (EOFError, KeyboardInterrupt):
+            break  # hết đầu vào (Ctrl+Z/Ctrl+D, pipe) thì thoát êm
         if line.lower() in {"q", "quit", "exit"}:
             break
+        if not line:
+            continue
         draft = tach_lich_hoa_don(line)
         print(f"  Tên hóa đơn  : {draft['name'] or '(thiếu)'}")
         print(f"  Số tiền      : {draft['amount_vnd'] or '(thiếu)'}")

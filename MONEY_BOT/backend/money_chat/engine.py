@@ -65,8 +65,11 @@ class ChatEngine:
         if kind == "unsupported":
             return self.reply(body, HELP)
         draft = body["draft"]
-        # MONEY có thể làm nhận nhầm câu bổ sung cho hóa đơn thành khoản chi.
-        if draft and kind in {"query_spending", "list_due_bills", "create_recurring_bill"} and kind != draft["intent"]:
+        # MONEY có thể làm nhận nhầm câu bổ sung cho hóa đơn thành khoản chi, nên khoản chi
+        # chỉ được coi là yêu cầu mới khi nháp đang là câu hỏi (không có trường tiền để bổ sung).
+        switching = kind in {"query_spending", "list_due_bills", "create_recurring_bill"} or (
+            kind == "record_expense" and draft and draft["intent"] in {"query_spending", "list_due_bills"})
+        if draft and switching and kind != draft["intent"]:
             body["switch_text"] = text
             return self.reply(body, "Bạn đang có bản nháp. Gõ 'hủy và chuyển' để đổi yêu cầu, hoặc 'giữ bản nháp'.")
         if t == "thu lai" and draft:

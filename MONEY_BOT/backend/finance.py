@@ -213,9 +213,15 @@ class FinanceStore(SQLiteStore):
 
     def pay(self, bill_id, month, paid_on, expense_id, today):
         month_check(month)
-        paid_date = date.fromisoformat(paid_on)
-        if paid_date > today or paid_date.isoformat() != paid_on:
+        try:
+            paid_date = date.fromisoformat(paid_on)
+        except (ValueError, TypeError):
+            paid_date = None
+        if paid_date is None or paid_date > today or paid_date.isoformat() != paid_on:
             raise ValueError("Ngày thanh toán phải dạng yyyy-MM-dd và không ở tương lai.")
+        # Cho phép trả trước tối đa từ đầu tháng liền trước kỳ; sớm hơn thì khoản chi rơi sai tháng thống kê.
+        if paid_on < shift_month(month, -1) + "-01":
+            raise ValueError("Ngày thanh toán không được sớm hơn tháng liền trước kỳ hóa đơn.")
         pid = f"{bill_id}:{month}"
         with self.atomic() as db:
             bill = db.execute("SELECT * FROM bills WHERE id=?", (bill_id,)).fetchone()
