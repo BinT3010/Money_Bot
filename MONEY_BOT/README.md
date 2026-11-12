@@ -4,7 +4,7 @@
 
 ## Chạy bản source sau khi tải về
 
-Bản nộp không kèm môi trường cài đặt. Cài Python **3.13 x64**, mở **thư mục MONEY_BOT** trong VS Code, rồi chạy lần lượt trong Terminal PowerShell:
+Bản nộp không kèm môi trường cài đặt. Cài Python **3.12 x64** (hoặc cài `uv`, script sẽ tự tải Python 3.12), mở **thư mục MONEY_BOT** trong VS Code, rồi chạy lần lượt trong Terminal PowerShell:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\SETUP.ps1
@@ -23,7 +23,7 @@ Giữ terminal chạy. Kiểm tra `http://127.0.0.1:8080/api/health`; tài liệ
 
 Lần đầu trên máy khác:
 
-1. Cài Python **3.13 x64**.
+1. Cài Python **3.12 x64** hoặc `uv`. Không dùng 3.13+: thư viện OCR `rapidocr-onnxruntime` chưa hỗ trợ.
 2. Chạy `powershell -ExecutionPolicy Bypass -File .\scripts\SETUP.ps1`.
 3. Chạy `START.ps1` như trên. Internet cần cho cài thư viện; Chat/phân loại/OCR sau cài chạy cục bộ, không cần khóa API AI.
 
