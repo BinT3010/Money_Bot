@@ -96,7 +96,7 @@ public class MainActivity extends Activity {
     }
     void showAlerts(JSONObject overview) throws Exception { UiHelpers.showAlerts(this, overview); }
     void stats() { StatsScreen.stats(this); }
-    void transactionForm(JSONObject row) throws Exception { StatsScreen.transactionForm(this, row); }
+    void transactionForm(JSONObject row) throws Exception { TransactionEditor.transactionForm(this, row); }
     void budget() { BudgetScreen.budget(this); }
     void bills() { BillsScreen.bills(this); }
     void billForm() { BillsScreen.billForm(this); }

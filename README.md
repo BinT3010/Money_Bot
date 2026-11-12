@@ -28,4 +28,6 @@ Không đồng bộ hoặc xóa các nhánh feature/* và experiment/* chỉ vì
 ## Phân công theo nhánh
 
 Agent đọc [hướng dẫn công việc theo nhánh](docs/BRANCH_TASKS.md) sau AGENTS.md.
-Bốn nhánh feature dùng chung tài liệu này; chọn đúng mục theo tên nhánh hiện tại.
+Ba luồng chính: expense-capture, budget, bills; evaluation đo và báo cáo độc lập.
+Xem [quy trình staging](docs/AUTONOMOUS_WORKFLOW.md). Nhánh merchant/OCR cũ được giữ
+làm tham khảo; công việc mới hợp nhất vào expense-capture.
