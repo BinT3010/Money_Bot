@@ -34,8 +34,8 @@ Lần đầu trên máy khác:
 | Chat | Ghi chi, hỏi tổng chi theo tháng, tạo lịch hóa đơn, xem đến hạn. Thiếu trường sẽ hỏi lại; có thể sửa/hủy. |
 | Ảnh/PDF trong Chat | Chọn PNG/JPEG/WEBP/PDF, tối đa 10 MB và PDF 5 trang. OCR tạo bản nháp, chưa ghi tiền. Kiểm tra tổng tiền/ngày/danh mục rồi xác nhận. |
 | Nhập giọng nói | Dùng dịch vụ nhận giọng nói có trên thiết bị Android; nếu máy không hỗ trợ, nhập bàn phím. Dịch vụ của thiết bị có thể cần mạng. |
-| Thống kê | Xem theo tháng, tổng tiền và phân bố sáu danh mục; thêm/sửa/xóa khoản chi. Khoản đã liên kết hóa đơn được khóa sửa/xóa để giữ nhất quán. |
-| Ngân sách | Lưu ngân sách tổng, hạn mức từng danh mục, mốc cảnh báo 1–99%. Để trống hạn mức khác với đặt 0. Đề xuất lấy ba tháng trước và cần xác nhận lưu. |
+| Thống kê | Xem theo tháng, tổng tiền và phân bố sáu danh mục kèm câu cảnh báo của server; biểu đồ cột và bảng 6 tháng gần nhất (tổng, số giao dịch, chi theo danh mục) lấy từ `/api/summary/history`; thêm/sửa/xóa khoản chi rồi màn hình tự làm mới. Khoản đã liên kết hóa đơn được khóa sửa/xóa để giữ nhất quán. |
+| Ngân sách | Lưu ngân sách tổng, hạn mức từng danh mục, mốc cảnh báo 1–99%. Để trống hạn mức khác với đặt 0. Trạng thái từng danh mục (chưa đặt, trong hạn mức, sắp đạt theo mốc, đúng 100%, vượt) và câu thông báo lấy nguyên từ server. Đề xuất lấy ba tháng trước, hiển thị căn cứ (bảng lịch sử, trung bình, A, B, hệ số B/A, phần chưa phân bổ hoặc dữ liệu còn thiếu), chỉ điền vào ô và cần xác nhận lưu. |
 | Hóa đơn | Tạo, sửa, ngừng và tiếp tục lịch hằng tháng; xem các kỳ nợ cũ/hiện tại (50 kỳ mỗi trang, mặc định 12 tháng kỳ đã trả, có nút xem toàn bộ lịch sử); xác nhận trả với số tiền thực trả hoặc liên kết khoản chi Hóa đơn tiện ích đã ghi (không ghi chi lần hai). Đối chiếu hiển thị cửa sổ, từng kỳ đang xét, ngân sách tổng/đã chi/còn lại, thiếu thông tin, và các kỳ tháng trước/tháng sau không cộng vào. Ngày 31 được kẹp cuối tháng ngắn. |
 | Tài khoản | Đổi mật khẩu và đăng xuất. Đổi mật khẩu làm hết hạn các phiên hiện có. |
 
