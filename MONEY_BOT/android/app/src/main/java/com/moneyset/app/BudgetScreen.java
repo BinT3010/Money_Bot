@@ -96,11 +96,14 @@ final class BudgetScreen {
         JSONArray rows=s.getJSONArray("categories");
         for(int i=0;i<rows.length();i++){
             JSONObject row=rows.getJSONObject(i);String level=row.getString("level");
-            String message=row.isNull("message")?row.getString("label")+": chưa đặt hạn mức · đã chi "+host.money(row.getLong("spent"))+"."
-                :row.getString("message");
-            TextView line=host.text(box,host.alert(level)+" · "+message,14);
-            line.setContentDescription("level:"+row.getString("category_id")+":"+level);
-            if(warns(level))UiHelpers.warningStyle(host,line);
+            String compact=row.getString("label")+" · "+host.money(row.getLong("spent"));
+            if(!row.isNull("limit")){
+                compact+=" / "+host.money(row.getLong("limit"));
+                if(!row.isNull("percent"))compact+=" ("+String.format(Locale.ROOT,"%.0f%%",row.getDouble("percent"))+ ")";
+            }
+            TextView line=host.text(box,"●  "+compact,14);
+            line.setTextColor(warns(level)?UiHelpers.EXPENSE_RED:level.equals("UNSET")?UiHelpers.NEUTRAL:UiHelpers.INK);
+            line.setContentDescription((row.isNull("message")?"":row.getString("message"))+" "+level);
             int editIndex=i;
             line.setClickable(true);line.setOnClickListener(v->{edits[editIndex].requestFocus();host.content.requestChildFocus(edits[editIndex],edits[editIndex]);});
             ProgressBar usage=new ProgressBar(host,null,android.R.attr.progressBarStyleHorizontal);usage.setMax(100);
@@ -151,7 +154,9 @@ final class BudgetScreen {
         host.text(box,"Trung bình tổng A: "+average(host,r.getDouble("average_total"))+" · ngân sách B: "+host.money(r.getLong("budget_total"))
             +" · hệ số: "+factor(r.getDouble("factor"))+(r.getDouble("factor")<1?" (đã thu nhỏ theo B/A)":" (giữ nguyên trung bình)"),14);
         host.text(box,"Đã phân bổ: "+host.money(r.getLong("allocated"))+" · chưa phân bổ: "+host.money(r.getLong("unallocated")),14);
-        host.button(box,"Bỏ gợi ý, giữ hạn mức đã lưu",host::load);
+        LinearLayout actions=new LinearLayout(host);actions.setGravity(android.view.Gravity.RIGHT);box.addView(actions);
+        Button discard=host.button(actions,"×",host::load);discard.setTextSize(22);discard.setContentDescription("Bỏ gợi ý, giữ hạn mức đã lưu");
+        discard.setMinWidth(0);discard.setMinimumWidth(0);discard.setLayoutParams(new LinearLayout.LayoutParams(host.dp(44),host.dp(44)));
     }
 
     private static void history(MainActivity host, LinearLayout box, JSONObject r, JSONArray months, JSONObject averages) throws Exception {

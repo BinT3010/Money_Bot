@@ -33,6 +33,11 @@ the Java Android app under `MONEY_BOT/android`.
 - The Bills tab now opens with four compact expandable sections for reminders,
   reconciliation, recurring schedules, and bill periods. Each header summarizes
   the section; all previous detail and actions remain available after expansion.
+- Expand/collapse text labels have been replaced by plus/minus cues. Individual
+  bill periods show name and amount in a green paid or red unpaid card, with dates,
+  status, actual payment, and actions revealed on tap. Budget status rows use
+  concise amounts and color cues; the suggestion discard control is icon-only
+  with an accessibility description.
 - Added accessible labels for chart values and navigation actions.
 
 ## Verification

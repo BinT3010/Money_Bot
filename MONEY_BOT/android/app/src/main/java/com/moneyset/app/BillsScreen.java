@@ -68,18 +68,20 @@ final class BillsScreen {
         LinearLayout card=host.column();card.setPadding(host.dp(8),host.dp(2),host.dp(8),host.dp(2));
         card.setBackground(UiHelpers.shape(host,android.graphics.Color.WHITE,android.graphics.Color.rgb(226,232,240),13));
         LinearLayout.LayoutParams cardParams=new LinearLayout.LayoutParams(-1,-2);cardParams.bottomMargin=host.dp(7);host.content.addView(card,cardParams);
-        String label=(expanded?"Thu gọn · ":"Mở · ")+title+(summary.isEmpty()?"":"  ·  "+summary);
-        Button toggle=host.button(card,label,()->{});toggle.setTextSize(13);toggle.setTextColor(UiHelpers.INK);
-        toggle.setGravity(android.view.Gravity.CENTER_VERTICAL|android.view.Gravity.START);toggle.setPadding(0,0,0,0);
-        toggle.setMinHeight(host.dp(40));toggle.setBackgroundColor(android.graphics.Color.TRANSPARENT);toggle.setElevation(0);
+        LinearLayout toggle=new LinearLayout(host);toggle.setOrientation(LinearLayout.HORIZONTAL);toggle.setGravity(android.view.Gravity.CENTER_VERTICAL);
+        toggle.setMinimumHeight(host.dp(42));toggle.setContentDescription(title+(summary.isEmpty()?"":" · "+summary));
+        TextView heading=host.text(toggle,title,14);heading.setTypeface(null,android.graphics.Typeface.BOLD);
+        heading.setLayoutParams(new LinearLayout.LayoutParams(0,-2,summary.isEmpty()?1:.55f));
+        if(!summary.isEmpty()){TextView detail=host.text(toggle,summary,12);detail.setTextColor(UiHelpers.NEUTRAL);detail.setGravity(android.view.Gravity.RIGHT);
+            LinearLayout.LayoutParams detailParams=new LinearLayout.LayoutParams(0,-2,.45f);detail.setLayoutParams(detailParams);}
+        TextView cue=host.text(toggle,expanded?"−":"+",20);cue.setTextColor(UiHelpers.BRAND);cue.setGravity(android.view.Gravity.CENTER);
+        cue.setLayoutParams(new LinearLayout.LayoutParams(host.dp(32),-1));card.addView(toggle);
         LinearLayout body=host.column();body.setVisibility(expanded?android.view.View.VISIBLE:android.view.View.GONE);card.addView(body);
-        toggle.setOnClickListener(v->{boolean show=body.getVisibility()!=android.view.View.VISIBLE;body.setVisibility(show?android.view.View.VISIBLE:android.view.View.GONE);
-            toggle.setText((show?"Thu gọn · ":"Mở · ")+title+(summary.isEmpty()?"":"  ·  "+summary));});
+        toggle.setOnClickListener(v->{boolean show=body.getVisibility()!=android.view.View.VISIBLE;body.setVisibility(show?android.view.View.VISIBLE:android.view.View.GONE);cue.setText(show?"−":"+");});
         if(expanded){LinearLayout previous=host.content;host.content=body;try{content.render();}finally{host.content=previous;}}
         else {
             // Defer rendering until expanded so large histories do not inflate every view at once.
-            toggle.setOnClickListener(v->{boolean show=body.getVisibility()!=android.view.View.VISIBLE;body.setVisibility(show?android.view.View.VISIBLE:android.view.View.GONE);
-                toggle.setText((show?"Thu gọn · ":"Mở · ")+title+(summary.isEmpty()?"":"  ·  "+summary));
+            toggle.setOnClickListener(v->{boolean show=body.getVisibility()!=android.view.View.VISIBLE;body.setVisibility(show?android.view.View.VISIBLE:android.view.View.GONE);cue.setText(show?"−":"+");
                 if(show&&body.getChildCount()==0){LinearLayout previous=host.content;host.content=body;try{content.render();}catch(Exception e){host.error(e.getMessage());}finally{host.content=previous;}}
             });
         }
@@ -87,7 +89,7 @@ final class BillsScreen {
 
     static void reminders(MainActivity host, JSONArray reminders) throws Exception {
         host.text(host.content,"Nhắc hạn",20);
-        host.text(host.content,"Lời nhắc được tính khi mở hoặc làm mới tab này; ứng dụng không gửi thông báo nền.",13);
+        host.text(host.content,"Cập nhật khi vào tab hoặc làm mới · không có thông báo nền.",12);
         if(reminders.length()==0)host.text(host.content,"Không có hóa đơn chưa trả đến mốc nhắc (còn 3 ngày, 1 ngày hoặc đến hạn hôm nay).",15);
         for(int i=0;i<reminders.length();i++){
             JSONObject n=reminders.getJSONObject(i);int days=n.getInt("days");
@@ -156,14 +158,25 @@ final class BillsScreen {
         if(response.getInt("periods_total")==0)host.text(list,"Chưa có kỳ hóa đơn nào.",15);
         for(int i=0;i<rows.length();i++){
             JSONObject row=rows.getJSONObject(i);String state=row.getString("status");
-            String line=row.getString("name")+" · kỳ "+row.getString("month")+"\n"+host.money(row.getLong("amount_vnd"))+" dự kiến · hạn "+row.getString("due_date")+" · "+status(state);
-            if(state.equals("PAID"))line+="\nĐã trả ngày "+row.getString("paid_on")+": "
-                +(row.isNull("paid_amount")?"không còn khoản chi liên kết":host.money(row.getLong("paid_amount"))
-                  +(row.getLong("paid_amount")!=row.getLong("amount_vnd")?" (khác số dự kiến)":""));
-            TextView period=expenseLine(host,list,line,17,row.getLong("amount_vnd"));
-            if(state.equals("PAID")&&!row.isNull("paid_amount"))period.setText(expenseLabel(host,line,row.getLong("amount_vnd"),row.getLong("paid_amount")));
-            if(state.equals("OVERDUE")||state.equals("DUE_TODAY")||state.equals("DUE_SOON"))UiHelpers.warningStyle(host,period);
-            if(!state.equals("PAID"))host.button(list,"Đánh dấu đã trả / Liên kết khoản chi",()->host.payForm(row));
+            boolean paid=state.equals("PAID");int statusColor=paid?UiHelpers.FUNDS_GREEN:UiHelpers.EXPENSE_RED;
+            LinearLayout card=host.column();card.setPadding(host.dp(10),host.dp(3),host.dp(10),host.dp(5));
+            int fill=paid?android.graphics.Color.rgb(240,253,244):android.graphics.Color.rgb(254,242,242);
+            card.setBackground(UiHelpers.shape(host,fill,paid?android.graphics.Color.rgb(134,239,172):android.graphics.Color.rgb(252,165,165),12));
+            LinearLayout.LayoutParams cardParams=new LinearLayout.LayoutParams(-1,-2);cardParams.bottomMargin=host.dp(6);list.addView(card,cardParams);
+            LinearLayout header=new LinearLayout(host);header.setOrientation(LinearLayout.HORIZONTAL);header.setGravity(android.view.Gravity.CENTER_VERTICAL);
+            TextView name=host.text(header,row.getString("name")+" · "+row.getString("month"),14);name.setTypeface(null,android.graphics.Typeface.BOLD);name.setTextColor(statusColor);
+            name.setLayoutParams(new LinearLayout.LayoutParams(0,-2,1));
+            TextView amount=new TextView(host);amount.setText(host.money(row.getLong("amount_vnd")));amount.setTextSize(14);amount.setTextColor(statusColor);
+            header.addView(amount);TextView cue=host.text(header,"+",18);cue.setGravity(android.view.Gravity.CENTER);cue.setTextColor(statusColor);
+            cue.setLayoutParams(new LinearLayout.LayoutParams(host.dp(28),-1));card.addView(header);
+            LinearLayout detail=host.column();detail.setVisibility(android.view.View.GONE);card.addView(detail);
+            header.setContentDescription(row.getString("name")+" · "+host.money(row.getLong("amount_vnd"))+" · "+status(state));
+            header.setClickable(true);header.setOnClickListener(v->{boolean show=detail.getVisibility()!=android.view.View.VISIBLE;detail.setVisibility(show?android.view.View.VISIBLE:android.view.View.GONE);cue.setText(show?"−":"+");});
+            host.text(detail,"Kỳ "+row.getString("month")+" · hạn "+row.getString("due_date")+" · "+status(state),12);
+            if(paid){
+                host.text(detail,row.isNull("paid_amount")?"Đã trả ngày "+row.getString("paid_on"):
+                    "Đã trả "+host.money(row.getLong("paid_amount"))+" ngày "+row.getString("paid_on"),12);
+            }else host.button(detail,"Đánh dấu đã trả / Liên kết khoản chi",()->host.payForm(row));
         }
         int shown=response.getInt("offset")+rows.length(),total=response.getInt("periods_total");
         if(total>0)host.text(list,"Đang hiển thị "+shown+"/"+total+" kỳ",13);
