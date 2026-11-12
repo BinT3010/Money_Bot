@@ -29,5 +29,7 @@ Không đồng bộ hoặc xóa các nhánh feature/* và experiment/* chỉ vì
 
 Agent đọc [hướng dẫn công việc theo nhánh](docs/BRANCH_TASKS.md) sau AGENTS.md.
 Ba luồng chính: expense-capture, budget, bills; evaluation đo và báo cáo độc lập.
-Xem [quy trình staging](docs/AUTONOMOUS_WORKFLOW.md). Nhánh merchant/OCR cũ được giữ
-làm tham khảo; công việc mới hợp nhất vào expense-capture.
+Xem [quy trình staging](docs/AUTONOMOUS_WORKFLOW.md). Nhánh merchant/OCR cũ đã xóa sau khi giữ toàn bộ commit; công việc mới hợp nhất
+vào expense-capture. Agent bắt đầu theo checklist trong BRANCH_TASKS.md.
+Code nền tảng hiện ở staging (PR #3); cập nhật tài liệu trên main không phải
+phê duyệt merge code của PR đó.

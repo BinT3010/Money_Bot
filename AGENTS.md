@@ -2,7 +2,10 @@
 
 ## Read before editing
 Read this file, README.md, CONTRIBUTING.md, docs/BRANCH_TASKS.md, docs/AUTONOMOUS_WORKFLOW.md, and relevant component documentation.
-Inspect git status and the assigned branch. Preserve unrelated edits. If unexpected
+Inspect git status and the assigned branch. On main, do not start feature work:
+use the matching existing branch from staging. PR #3 carries the staging code
+foundation and still needs final approval; documentation on main is not that approval.
+Preserve unrelated edits. If unexpected
 changes or shared-file conflicts appear, stop the affected work and report them.
 
 ## Supported architecture and task boundaries
@@ -25,8 +28,9 @@ active feature branches from staging without rewriting their history.
 Main remains review-gated: never merge/push main without the user's explicit final
 approval. Branch deletion/renaming, force-pushing feature branches, architecture
 replacement and scope expansion still need explicit authorization.
-Preserve feature/merchant and feature/ocr-receipt as parked references; new expense
-capture work belongs to feature/expense-capture. Do not assign workers to both.
+feature/merchant, feature/ocr-receipt and refactor/feature-workstreams were retired
+after their commits were retained in staging. Do not recreate or dispatch work
+to them. Merchant and OCR belong together on feature/expense-capture.
 Feature PRs target staging; the final release PR targets main. An independent
 review must bind approval to the exact head and staging base commits. Changes to
 acceptance thresholds/labels/held-out answers require explicit separate review.
@@ -48,3 +52,12 @@ Do not alter expected evaluation answers to match observed output. Keep final
 assessment data separate from rule/prompt tuning. Never invent human trials.
 Never commit credentials, runtime databases, environments, or private input data.
 Update affected documentation alongside implementation changes.
+
+## Worker kickoff and handoff
+
+Follow the exact startup checklist and ownership table in docs/BRANCH_TASKS.md.
+Workers implement and push only their assigned flow; only the integrator performs
+staging integration. Workers open PRs to staging, never merge their own work or
+claim independent review of it. Use feature-specific test files and progress notes
+to avoid editing another worker's evidence. The shared assignment/policy/CI files
+are integrator-owned. Do not create a new task merely to report progress.

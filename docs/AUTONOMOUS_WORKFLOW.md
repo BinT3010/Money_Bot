@@ -7,8 +7,8 @@ coding agents. A session/controller must remain active to dispatch workers.
 
 ## Execution order
 
-1. Integrate the foundation PR into staging only after independent review and
-   full verification. Stabilize shared contracts before dispatching feature work.
+1. The foundation is integrated and verified on staging. Start feature workers
+   using docs/BRANCH_TASKS.md. Main approval remains separate (PR #3).
 2. Start expense-capture, budget and bills from staging in separate worktrees.
    Evaluation harness/protocol work can run concurrently. Use existing named
    branches if they have work; merge staging normally, never reset or force-push.
@@ -60,3 +60,12 @@ The owner should require Verify application / verify on staging and main, and
 restrict main merges to the maintainer. Never enable delete-branch-on-merge for
 planned branches. Do not run untrusted PR code in pull_request_target or give the
 verification job write credentials. CI success alone is not review approval.
+
+## Current branch roles
+
+main: approved product; feature work starts on the assigned staging-based branch.
+staging: integrator-owned, tested combined work; final PR to main needs approval.
+feature/expense-capture, feature/budget, feature/bills: three end-to-end workers.
+experiment/evaluation: independent measurement tooling and reporting worker.
+The retired merchant/OCR/foundation branch names must not be recreated. Workers
+can start independently; evaluation final measurements wait for integrated code.

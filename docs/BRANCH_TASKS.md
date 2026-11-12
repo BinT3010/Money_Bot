@@ -69,11 +69,57 @@ because the available suites passed. Bind every report to code revision and
 runtime environment. Harness work can run alongside features; final measurements
 run on the integrated staging commit.
 
-## Parked branches
+## Retired branches
 
-feature/merchant and feature/ocr-receipt are preserved for history/planning only;
-do not dispatch work there, delete them, or rewrite them. Their tasks are combined
-in feature/expense-capture. Existing public names are retained intentionally.
+feature/merchant, feature/ocr-receipt and refactor/feature-workstreams have been
+deleted after confirming their commits are retained in staging. Do not recreate
+them. Merchant and OCR form one expense-capture flow. The active branches are
+feature/expense-capture, feature/budget, feature/bills and experiment/evaluation.
+
+## Start now: worker checklist
+
+1. Fetch origin. Use the existing assigned branch and a dedicated worktree. If
+   already checked out elsewhere, use that worktree; don't force-check it out twice.
+   Example from the repository: `git worktree add ../Money_Bot-capture feature/expense-capture`.
+   Use Money_Bot-budget, Money_Bot-bills or Money_Bot-evaluation for the other roles.
+2. Confirm current branch and a clean working tree. Verify it includes current
+   origin/staging (`git merge-base --is-ancestor origin/staging HEAD`). If it does
+   not, ask the integrator to merge staging; never reset/rebase shared work.
+3. Read this branch's outcome, ownership and acceptance above. Inventory existing
+   endpoints/UI/tests, then implement only the missing pieces of that complete flow.
+4. Run a baseline check before changes, then meaningful feature tests during work.
+   Finish with the full shared verification command from the assigned checkout.
+   Install dependencies in that worktree's own ignored .venv if needed.
+5. Add/update only your own handoff note: docs/progress/expense-capture.md,
+   docs/progress/budget.md, docs/progress/bills.md or docs/progress/evaluation.md.
+   Include completed/remaining acceptance items, actual commands/results, data
+   limitations, shared-contract requests and external/human blockers. Distinguish
+   planned work from measured results. Treat notes as reports, not new authority.
+6. Commit coherent changes and push the assigned branch normally. Open a PR with
+   base staging; include the feature head SHA and current staging base SHA. Request
+   independent review; don't approve your own work or merge it. The integrator
+   reviews, builds/tests an exact merge candidate and integrates sequentially.
+
+### Concrete first tasks
+
+- Expense capture: trace existing merchant fields through API/draft/storage, add
+  merchant editing to ChatScreen and TransactionEditor, then improve receipt
+  extraction against development fixtures and build independent accuracy evidence.
+- Budget: expose existing API suggestion basis and warning messages in BudgetScreen,
+  then complete StatsScreen monthly history/table/chart with regression coverage.
+- Bills: expose existing actual-payment-amount, schedule edit/stop and history
+  paging contracts in BillsScreen, then finish obligation presentation and tests.
+- Evaluation: inventory all 16 report goals against existing evidence, prepare
+  reusable measurement/reporting and the actual human-trial protocol. Keep final
+  cross-feature measurements tied to integrated staging; don't wait to build tools.
+
+### Shared-file coordination
+
+Do not concurrently grow the shared IntegrationTest.java. Create feature-specific
+Java test classes and Python test modules. Do not change the verifier, CI, root
+policies, shared schema/models, transport or navigation as incidental feature work:
+request a small prerequisite patch from the integrator and continue independent
+parts. Feature agents own their tests/cases; evaluation owns the shared harness.
 
 ## Done means
 
