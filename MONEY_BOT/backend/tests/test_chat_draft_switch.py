@@ -56,6 +56,23 @@ class DraftSwitchTests(unittest.TestCase):
         self.assertEqual(("phở", 60000), (self.draft()["fields"]["description"], self.draft()["fields"]["amount_vnd"]))
         self.assertIsNone(self.chat.snapshot()["switch_text"])
 
+    def test_confirming_old_draft_opens_the_waiting_expense(self):
+        self.chat.send("xe bus 3k")
+        d = self.draft()
+        message = self.chat.confirm(d["id"], d["version"])
+        self.assertEqual([(45000, "com tam")], [(r["amount_vnd"], r["description"]) for r in self.store.expenses()])
+        new = self.draft()
+        self.assertEqual(("xe bus", 3000, "transport"),
+                         (new["fields"]["description"], new["fields"]["amount_vnd"], new["fields"]["category_id"]))
+        self.assertIn("Bản nháp: xe bus", message)
+        self.assertIsNone(self.chat.snapshot()["switch_text"])
+
+    def test_bus_alone_is_transport(self):
+        self.chat.send("hủy")
+        self.chat.send("bus 3k")
+        self.assertEqual("transport", self.draft()["fields"]["category_id"])
+        self.assertTrue(self.chat.snapshot()["can_confirm"])
+
 
 if __name__ == "__main__":
     unittest.main()

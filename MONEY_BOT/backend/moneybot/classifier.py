@@ -58,7 +58,7 @@ KEYWORDS = {
     ],
     "Đi lại": [
         "xăng", "đổ xăng", "grab", "gojek", "xe ôm", "taxi", "vé xe", "xe buýt",
-        "xe bus", "buýt", "gửi xe", "giữ xe", "vé tàu", "vé máy bay", "máy bay",
+        "xe bus", "buýt", "bus", "gửi xe", "giữ xe", "vé tàu", "vé máy bay", "máy bay",
         "rửa xe", "bảo dưỡng xe", "thay nhớt", "nhớt", "đặt xe", "grabcar",
         "grabbike", "metro", "phí cầu đường", "đi lại", "di chuyển",
     ],

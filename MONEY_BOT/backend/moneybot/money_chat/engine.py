@@ -96,7 +96,8 @@ class ChatEngine:
                 and parsed.fields.get("amount_vnd") is not None and not re.match(r"(sua|doi)\b", t)):
             body["switch_text"] = text
             return self.reply(body, f"Bạn đang có bản nháp \"{draft['fields']['description']}\" chưa lưu. "
-                                    "Gõ 'hủy và chuyển' để bỏ nháp đó và tạo khoản mới, hoặc 'giữ bản nháp' để tiếp tục sửa/xác nhận.")
+                                    "Bấm Xác nhận lưu để lưu nháp đó rồi tự mở nháp cho khoản mới; gõ 'hủy và chuyển' "
+                                    "để bỏ nháp đó và tạo khoản mới; hoặc 'giữ bản nháp' để tiếp tục sửa.")
         if not draft:
             draft = Draft(intent=parsed.intent).to_dict()
             if parsed.intent == "record_expense":
@@ -218,6 +219,9 @@ class ChatEngine:
 
     # E09: chỉ biên nhận thành công mới được nói 'đã lưu'.
     def complete(self, body, receipt):
+        next_text = body.get("switch_text")
         body.update(draft=None, pending=None, state="idle", last_receipt=receipt, switch_text=None)
         noun = "khoản chi" if receipt["intent"] == "record_expense" else "lịch hóa đơn (chưa ghi chi)"
-        return self.reply(body, f"Đã lưu {noun}: {money(receipt['data']['amount_vnd'])}. Mã: {receipt['id']}.")
+        message = self.reply(body, f"Đã lưu {noun}: {money(receipt['data']['amount_vnd'])}. Mã: {receipt['id']}.")
+        # Lưu nháp cũ trong lúc có yêu cầu mới đang chờ: tiếp tục yêu cầu đó thay vì bỏ mất câu người dùng đã gõ.
+        return self.send(next_text) if next_text else message
