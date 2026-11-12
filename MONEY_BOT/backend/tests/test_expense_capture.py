@@ -98,7 +98,7 @@ def test_merchant_is_not_category_evidence(text):
     assert fields['merchant'] == 'CAFE MINH'
     assert 'category_id' not in fields and not issues
 
-@pytest.mark.parametrize('text', ['TOTAL -45,000\n12/11/2026', 'TOTAL −45,000\n12/11/2026', 'TOTAL 45,000\nTOTAL -45,000\n12/11/2026', 'TOTAL USD 45.00\n12/11/2026', 'TOTAL 45,000\nTOTAL 55,000\n12/11/2026'])
+@pytest.mark.parametrize('text', ['TOTAL (45,000)\n12/11/2026', 'TOTAL 45,000-\n12/11/2026', 'TOTAL -45,000\n12/11/2026', 'TOTAL −45,000\n12/11/2026', 'TOTAL 45,000\nTOTAL -45,000\n12/11/2026', 'TOTAL USD 45.00\n12/11/2026', 'TOTAL 45,000\nTOTAL 55,000\n12/11/2026'])
 def test_unsafe_totals_require_correction(text):
     fields, issues = receipt_fields(text, TODAY)
     assert 'amount_vnd' not in fields and 'amount_vnd' in issues
@@ -112,3 +112,11 @@ def test_iso_receipt_date_and_ambiguous_merchant():
     fields, issues = receipt_fields('Store: An\nMerchant: Binh\nTOTAL 45,000\n2026-11-11', TODAY)
     assert fields['date'] == '2026-11-11'
     assert 'merchant' not in fields and 'merchant' in issues
+
+@pytest.mark.parametrize('merchant', ['thời tiết', 'đã thanh toán', 'hàng tháng', 'tổng chi tháng 11/2026'])
+def test_merchant_metadata_cannot_control_conversation_intent(client, merchant):
+    state = action(client, {'action': 'send', 'text': f'ăn trưa 45k; merchant: {merchant}'})
+    assert state['draft']['intent'] == 'record_expense'
+    assert state['draft']['fields']['merchant'] == merchant
+    assert state['draft']['fields']['category_id'] == 'food'
+    assert rows(client) == []

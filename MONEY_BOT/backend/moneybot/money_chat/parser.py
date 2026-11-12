@@ -17,6 +17,9 @@ DATE = re.compile(r"\b(\d{1,2})/(\d{1,2})/(\d{4})\b")
 MONTH = re.compile(r"(?:tháng|thang)\s*(\d{1,2})(?:\s*[/\-]\s*|\s+năm\s+|\s+nam\s+)(\d{4})", re.I)
 
 
+MERCHANT = re.compile(r"(?:^|[;\n])\s*(?:cửa hàng|cua hang|merchant|store)\s*:\s*([^;\n]*)", re.I)
+
+
 # P02: Decimal tránh sai số tiền do float; đơn vị không rõ thì hỏi.
 def parse_money(text):
     matches = list(MONEY.finditer(text))
@@ -60,6 +63,7 @@ def parse_date(text, today):
 
 # P03: chỉ chọn ý định; thao tác xác nhận/hủy được engine xử lý riêng.
 def detect_intent(text):
+    text = MERCHANT.sub("", text).strip()
     t = fold(text)
     if "da tra" in t or "da thanh toan" in t:
         return "payment_unsupported"
@@ -111,9 +115,6 @@ def description_from(text, intent):
     if not clean or not re.search(r"[^\W\d_]", clean, re.UNICODE) or fold(clean) in {"thanh", "tien", "so tien"}:
         return None
     return clean
-
-
-MERCHANT = re.compile(r"(?:^|[;\n])\s*(?:cửa hàng|cua hang|merchant|store)\s*:\s*([^;\n]*)", re.I)
 
 
 # P06: đầu vào có draft hiện tại để bổ sung trường thay vì tạo giao dịch mới.

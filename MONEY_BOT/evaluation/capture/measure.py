@@ -3,6 +3,8 @@ import argparse
 from collections import Counter
 from datetime import date
 import json
+import platform
+from importlib.metadata import version
 from pathlib import Path
 import subprocess
 import sys
@@ -87,10 +89,15 @@ def measure(manifest, output):
     report = {'revision': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
               'dirty': bool(subprocess.check_output(['git', 'status', '--porcelain'], cwd=ROOT, text=True).strip()),
               'source': data['source'], 'split': data['split'], 'today': data['today'],
+              'environment': {'python': sys.version, 'platform': platform.platform(), 'machine': platform.machine(),
+                              'rapidocr': version('rapidocr-onnxruntime'), 'onnxruntime': version('onnxruntime'),
+                              'transport': 'in-process FastAPI TestClient', 'device_ui_measured': False},
               'metrics': metrics, 'category_confusion': confusion, 'full_ocr_receipts': len(receipt_rows), 'sentences': len(sentence_rows),
               'coverage': coverage, 'sample_requirements_met': sufficient,
               'accuracy_thresholds_met_on_this_sample': accuracy_met, 'latency_met_on_this_sample': latency_met,
-              'report_acceptance_met': sufficient and accuracy_met and latency_met,
+              'field_benchmark_acceptance_met': sufficient and accuracy_met,
+              'report_acceptance_met': False,
+              'unmeasured_by_this_tool': ['1.3 correction/confirmation flows', '1.5 network and Android display latency'],
               'limitations': 'Synthetic fixtures only; not representative real-world accuracy. Objective 1.3 is covered by API/UI regressions, not this field benchmark. In-process API latency excludes Android rendering and network transport.',
               'cases': results}
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -103,7 +110,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('manifest', type=Path)
     parser.add_argument('--out', type=Path, required=True)
-    parser.add_argument('--require-acceptance', action='store_true')
+    parser.add_argument('--require-field-targets', action='store_true')
     args = parser.parse_args()
     report = measure(args.manifest.resolve(), args.out.resolve())
-    raise SystemExit(1 if args.require_acceptance and not report['report_acceptance_met'] else 0)
+    raise SystemExit(1 if args.require_field_targets and not report['field_benchmark_acceptance_met'] else 0)

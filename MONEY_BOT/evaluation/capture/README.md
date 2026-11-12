@@ -27,13 +27,15 @@ expected/actual fields, errors, HTTP status and timings, field metrics and categ
 confusion matrices. Every case uses a separate chat session and real API handlers
 with isolated SQLite storage; the benchmark never confirms or saves expenses.
 
-`--require-acceptance` returns failure unless held-out coverage reaches >=50 real
+`--require-field-targets` returns failure unless held-out coverage reaches >=50 real
 image/PDF receipt inputs and >=20 sentences, at least five receipts and two
 sentences per category, amount/date >=90%, merchant >=80% where provided, category
->=85% separately per source, and each receipt API request <=10 seconds. Here
+>=85% separately per source. API-only receipt latency is reported separately. Here
 "real image/PDF input" distinguishes actual OCR from mocked transcripts, not
 synthetic images from authentic invoices. This starter set intentionally has too
-few samples, so acceptance remains **false**. In-process API timings exclude
+few samples, so field-benchmark acceptance remains **false**. Full `report_acceptance_met` is
+always false for this field-only tool: it does not measure the confirmation flow
+or end-to-end device latency. In-process API timings exclude
 network transport and Android rendering; device-level latency remains unmeasured.
 
 For additional labeled cases, use the same manifest shape with unique IDs,

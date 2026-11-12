@@ -119,7 +119,8 @@ def receipt_fields(text, today):
         normalized = fold(line)
         if re.search(r"\b(tong cong|tong tien|thanh tien|thanh toan|total|amount due)(?=\W|\d|$)", normalized) and not re.search(r"sub\s*total|tam tinh|tien khach|tien thua", normalized):
             for match in re.finditer(r"\d[\d., ]*\d|\d", line):
-                if line[:match.start()].rstrip().endswith(("-", "−")):
+                if (line[:match.start()].rstrip().endswith(("-", "−", "("))
+                        or line[match.end():].lstrip().startswith(("-", "−"))):
                     negative_total = True
                     continue
                 raw = match.group().strip().replace(" ", "")
