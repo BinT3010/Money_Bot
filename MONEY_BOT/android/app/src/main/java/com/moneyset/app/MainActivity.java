@@ -48,14 +48,7 @@ public class MainActivity extends Activity {
     void login() { AuthScreen.login(this); }
     void shell() {
         baseScreen();
-        LinearLayout nav = new LinearLayout(this);
-        HorizontalScrollView horizontal = new HorizontalScrollView(this); horizontal.addView(nav); root.addView(horizontal);
-        for (String name : new String[]{"Chat", "Thống kê", "Ngân sách", "Hóa đơn", "Tài khoản"})
-            button(nav, name, () -> { if(api.isBusy()) { error("Đang xử lý, vui lòng chờ."); return; } tab = name; load(); });
-        button(root, "Kiểm tra yêu cầu đang chờ / Làm mới", () -> {
-            if (api.pending()) api.retry(result -> load(), this::error); else load();
-        });
-        scroll(); load();
+        scroll(); UiHelpers.navigation(this); load();
     }
     void load() {
         if(api.isBusy()) { error("Đang xử lý, vui lòng chờ."); return; }

@@ -10,19 +10,18 @@ All feature PRs target staging. Each worker uses its own worktree.
 | feature/expense-capture | Text/manual/image/PDF -> editable transaction draft including merchant -> explicit confirmation -> durable record | Java ChatScreen, TransactionEditor; backend routes/chat.py, routes/transactions.py, ocr.py, classification.py, classifier.py, money_chat/parser.py; capture tests/cases/data |
 | feature/budget | History -> totals/charts -> suggestions with basis -> editable limits -> warnings | Java BudgetScreen, StatsScreen; backend budget.py, routes/budget.py; budget/statistics tests/cases |
 | feature/bills | Schedule -> reminders -> payment/linking -> period history and budget reconciliation | Java BillsScreen; backend bills.py, routes/bills.py; bill tests/cases |
-| feature/ui | General Android visual polish across completed flows; parked until a concrete task is assigned | Android presentation only; focused UI tests/docs; shared UiHelpers/navigation/theme changes require an integrator prerequisite patch |
+| feature/ui | General Android visual polish across completed flows | Android presentation, shared presentation helpers/navigation, focused UI tests/docs |
 | experiment/evaluation | Reproducible independent acceptance evidence and cross-feature checks | evaluation harness, summary tooling, cross-feature test modules, human-trial protocol |
 
 ## General UI polish acceptance
 
-This branch is parked until the maintainer assigns a concrete UI task. Basic
-feature flows are already implemented; do not invent product behavior or start
-broad visual changes without that direction. When assigned, keep work to Android
-presentation and usability: spacing, hierarchy, readability, consistent states,
-and accessibility. Preserve existing flows, API contracts, financial
-calculations, confirmation steps, and user data. Do not add dependencies or edit
-backend/domain code. Shared `UiHelpers`, navigation, themes, or common components
-require a small integrator-owned prerequisite patch. Add focused UI regression
+Basic feature flows are implemented; this branch owns Android presentation and
+usability: spacing, hierarchy, readability, consistent states, accessibility,
+charts, and clear screen separation. Preserve existing flows, API contracts,
+financial calculations, confirmation steps, and user data. Do not add
+dependencies or edit backend/domain code. Shared `UiHelpers`, navigation, themes,
+or common components are in scope for this branch. Keep API clients, data models,
+backend behavior, and persistence contracts unchanged. Add focused UI regression
 coverage for assigned behavior, then run full verification.
 
 ## Shared contracts (foundation/integrator ownership)
@@ -33,6 +32,9 @@ shared draft models, app dependencies, and CI stable. A feature needing one of
 these changes sends a small prerequisite patch to the integrator first, rather
 than each worker editing shared foundations independently. Do not create duplicate
 financial databases or client-side sources of financial truth.
+The assigned feature/ui branch may update only the visual presentation and
+navigation layout in MainActivity and UiHelpers; it must preserve navigation
+destinations, API behavior, state, and storage contracts.
 TransactionEditor owns manual creation/edit/delete; StatsScreen only opens it.
 ChatScreen owns expense draft editing and receipt/text entry. Keep existing API
 URLs, fields and error semantics. One store transaction owns each confirmed write.
@@ -87,8 +89,8 @@ run on the integrated staging commit.
 feature/merchant, feature/ocr-receipt and refactor/feature-workstreams were
 deleted earlier. The completed feature/expense-capture, feature/budget and
 feature/bills branches were deleted after integration into main. Current work
-branches are feature/ui and experiment/evaluation. Keep feature/ui parked until
-the maintainer assigns a specific UI task.
+branches are feature/ui and experiment/evaluation. The UI branch now owns general
+Android polish while preserving the existing feature flows.
 
 ## Start now: worker checklist
 
