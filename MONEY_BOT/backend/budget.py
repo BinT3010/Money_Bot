@@ -1,9 +1,34 @@
 """Ngân sách tháng, hạn mức danh mục, cảnh báo ngưỡng và gợi ý hạn mức (G2)."""
 import json
+from decimal import Decimal, ROUND_HALF_UP
 
 from common import month_check, shift_month, integer
 from money_chat.models import CATEGORIES, money
 from money_chat.storage import encode
+
+
+def percent_of(spent, limit):
+    """Tỷ lệ sử dụng (%) làm tròn 2 chữ số, tính bằng Decimal để không lệch do float."""
+    return (Decimal(spent) * 100 / Decimal(limit)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+
+
+def percent_text(value):
+    text = f"{value:.2f}".rstrip("0").rstrip(".")
+    return text.replace(".", ",") + "%"
+
+
+def usage_message(label, spent, limit, percent, month):
+    """Câu Ou4 theo mẫu đặc tả: "Ăn uống đã dùng 1.605.000/2.000.000đ (80,25%), còn 395.000đ trong hạn mức tháng 10." """
+    if limit is None:
+        return None
+    m = int(month[5:7])
+    if limit == 0:
+        return (f"{label}: hạn mức 0đ nhưng đã chi {money(spent)} trong tháng {m}, vượt hạn mức." if spent
+                else f"{label}: hạn mức 0đ, chưa chi trong tháng {m}.")
+    used = f"{label} đã dùng {money(spent).removesuffix('đ')}/{money(limit)} ({percent_text(percent)})"
+    if spent <= limit:
+        return f"{used}, còn {money(limit - spent)} trong hạn mức tháng {m}."
+    return f"{used}, vượt {money(spent - limit)} so với hạn mức tháng {m}."
 
 
 def money_text(value):
@@ -49,9 +74,25 @@ class BudgetMixin:
                 level = ("OVER" if spent > 0 else "NORMAL") if limit == 0 else (
                     "OVER" if spent > limit else "REACHED" if spent == limit else
                     "WARNING" if spent * 100 >= limit * b["threshold"] else "NORMAL")
+            percent = percent_of(spent, limit) if limit else None
             rows.append({"category_id": cid, "label": label, "spent": spent, "limit": limit,
-                         "level": level, "ratio": spent / limit if limit else None})
+                         "level": level, "ratio": spent / limit if limit else None,
+                         "percent": float(percent) if percent is not None else None,
+                         "remaining": limit - spent if limit is not None else None,
+                         "message": usage_message(label, spent, limit, percent, month)})
         return {**s, "budget": b, "remaining": b["total"] - s["total"] if b["total"] is not None else None, "categories": rows}
+
+    def history(self, month, count=6):
+        """Ou2: chi theo danh mục của `count` tháng kết thúc ở `month` (cũ -> mới), cho biểu đồ theo tháng."""
+        month_check(month)
+        integer(count, 1, 24)
+        result = []
+        for offset in range(count - 1, -1, -1):
+            m = shift_month(month, -offset)
+            s = self.summary(m)
+            result.append({"month": m, "total": s["total"], "count": s["count"],
+                           "by_category": {k: s["by_category"].get(k, 0) for k in CATEGORIES}})
+        return result
 
     def suggest(self, month, today):
         b = self.budget(month)

@@ -18,6 +18,11 @@ def register(app, d):
         with s.atomic():
             return s.overview(month_check(month))
 
+    @app.get("/api/summary/history")
+    def summary_history(month: str, months: int = 6, s: FinanceStore = Depends(d.store)):
+        with s.atomic():
+            return s.history(month, months)
+
     @app.get("/api/budgets/{month}")
     def budget(month: str, s: FinanceStore = Depends(d.store)):
         return s.budget(month)
