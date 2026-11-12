@@ -22,7 +22,7 @@ final class BudgetScreen {
             TextView thresholdValue=host.text(host.content,"Cảnh báo từ "+b.getInt("threshold")+"%",13);
             SeekBar thresholdSlider=new SeekBar(host);styleBudgetSlider(host,thresholdSlider,UiHelpers.BRAND);
             thresholdSlider.setMax(98);thresholdSlider.setProgress(Math.max(0,Math.min(98,b.getInt("threshold")-1)));
-            host.content.addView(thresholdSlider,new LinearLayout.LayoutParams(-1,host.dp(56)));
+            host.content.addView(thresholdSlider,new LinearLayout.LayoutParams(-1,host.dp(48)));
             thresholdSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
                 @Override public void onProgressChanged(SeekBar seekBar,int progress,boolean fromUser){if(fromUser){int value=progress+1;threshold.setText(String.valueOf(value));thresholdValue.setText("Cảnh báo từ "+value+"%");}}
                 @Override public void onStartTrackingTouch(SeekBar seekBar){}
@@ -68,7 +68,7 @@ final class BudgetScreen {
                 limitSlider.setProgress(cap>0?(int)Math.max(0,Math.min(100,saved*100/cap)):0);
                 limitSlider.setEnabled(cap>0);limitSlider.setProgressTintList(android.content.res.ColorStateList.valueOf(UiHelpers.BRAND));
                 limitSlider.setContentDescription(host.labels[i]+" · kéo để chỉnh hạn mức trong tổng ngân sách");
-                host.content.addView(limitSlider,new LinearLayout.LayoutParams(-1,host.dp(56)));
+                host.content.addView(limitSlider,new LinearLayout.LayoutParams(-1,host.dp(48)));
                 limitSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
                     @Override public void onProgressChanged(SeekBar bar,int progress,boolean fromUser){
                         long currentCap=amountOrZero(host.value(total));
@@ -234,20 +234,25 @@ final class BudgetScreen {
         android.graphics.drawable.GradientDrawable track=new android.graphics.drawable.GradientDrawable();
         track.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
         track.setColor(android.graphics.Color.rgb(30,41,59));
-        track.setCornerRadius(host.dp(9));track.setStroke(host.dp(2),android.graphics.Color.rgb(71,85,105));
-        track.setSize(host.dp(1),host.dp(14));
+        track.setCornerRadius(host.dp(4));track.setStroke(host.dp(1),android.graphics.Color.rgb(71,85,105));
+        track.setSize(host.dp(1),host.dp(7));
         android.graphics.drawable.GradientDrawable fill=new android.graphics.drawable.GradientDrawable();
         fill.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
-        fill.setColor(progressColor);fill.setCornerRadius(host.dp(9));fill.setSize(host.dp(1),host.dp(14));
+        fill.setColor(progressColor);fill.setCornerRadius(host.dp(4));fill.setSize(host.dp(1),host.dp(7));
         android.graphics.drawable.ClipDrawable clipped=new android.graphics.drawable.ClipDrawable(fill,android.view.Gravity.LEFT,android.graphics.drawable.ClipDrawable.HORIZONTAL);
         android.graphics.drawable.LayerDrawable progress=new android.graphics.drawable.LayerDrawable(new android.graphics.drawable.Drawable[]{track,clipped});
         progress.setId(0,android.R.id.background);progress.setId(1,android.R.id.progress);slider.setProgressDrawable(progress);
+        for(int i=0;i<2;i++){
+            progress.setLayerHeight(i,host.dp(7));
+            progress.setLayerGravity(i,android.view.Gravity.FILL_HORIZONTAL|android.view.Gravity.CENTER_VERTICAL);
+        }
         android.graphics.drawable.GradientDrawable thumb=new android.graphics.drawable.GradientDrawable();
-        thumb.setShape(android.graphics.drawable.GradientDrawable.OVAL);
-        thumb.setColor(android.graphics.Color.rgb(15,23,42));
-        thumb.setStroke(host.dp(4),UiHelpers.EXPENSE_RED);thumb.setSize(host.dp(32),host.dp(32));
-        slider.setThumb(thumb);slider.setThumbOffset(host.dp(16));
-        slider.setMinimumHeight(host.dp(50));slider.setPadding(host.dp(8),host.dp(10),host.dp(8),host.dp(10));
+        thumb.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
+        thumb.setColor(android.graphics.Color.WHITE);
+        thumb.setCornerRadius(host.dp(8));
+        thumb.setStroke(host.dp(2),UiHelpers.BRAND);thumb.setSize(host.dp(24),host.dp(16));
+        slider.setThumb(thumb);slider.setThumbOffset(host.dp(8));
+        slider.setMinimumHeight(host.dp(40));slider.setPadding(host.dp(8),host.dp(8),host.dp(8),host.dp(8));
         slider.setProgressTintList(android.content.res.ColorStateList.valueOf(progressColor));
     }
 

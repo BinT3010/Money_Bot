@@ -34,9 +34,9 @@ the Java Android app under `MONEY_BOT/android`.
   range from zero to 50% of the total budget. The editable allocation is blue
   inside that band and pulses red above it. The bounds are a UI-only placeholder;
   `feature/budget-range-feedback` will replace them with backend-provided ranges.
-- The threshold and category sliders use 14dp dark tracks, 32dp thumbs with a
-  red ring, and 56dp touch rows. Out-of-range category progress and its thumb
-  pulse red.
+- The threshold and category sliders use 7dp dark tracks, 24×16dp rounded
+  capsule thumbs, and 48dp touch rows. Out-of-range category progress and its
+  thumb pulse red.
 - With no saved category limits, the budget form starts with an unsaved base case:
   20% each for food, shopping, transport, utilities and entertainment; Other is
   0%. Entering or changing the total updates this untouched base case. Editing a
