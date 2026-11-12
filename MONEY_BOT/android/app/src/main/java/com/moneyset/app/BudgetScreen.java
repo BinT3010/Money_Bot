@@ -25,6 +25,16 @@ final class BudgetScreen {
                 @Override public void onStartTrackingTouch(SeekBar seekBar){}
                 @Override public void onStopTrackingTouch(SeekBar seekBar){}
             });
+            threshold.addTextChangedListener(new android.text.TextWatcher(){
+                @Override public void beforeTextChanged(CharSequence text,int start,int count,int after){}
+                @Override public void onTextChanged(CharSequence text,int start,int before,int count){
+                    try { int value=Integer.parseInt(text.toString().replace(",", ""));
+                        thresholdSlider.setProgress(Math.max(0,Math.min(98,value-1)));
+                        thresholdValue.setText("Cảnh báo từ "+value+"%");
+                    } catch(NumberFormatException ignored) { }
+                }
+                @Override public void afterTextChanged(android.text.Editable text){}
+            });
             EditText[] edits=new EditText[6];SeekBar[] limitSliders=new SeekBar[6];
             host.text(host.content,"Để trống: chưa đặt hạn mức. Nhập 0: không dành ngân sách cho danh mục.",14);
             for(int i=0;i<6;i++){
@@ -43,6 +53,15 @@ final class BudgetScreen {
                     }
                     @Override public void onStartTrackingTouch(SeekBar bar){}
                     @Override public void onStopTrackingTouch(SeekBar bar){}
+                });
+                edits[i].addTextChangedListener(new android.text.TextWatcher(){
+                    @Override public void beforeTextChanged(CharSequence text,int start,int count,int after){}
+                    @Override public void onTextChanged(CharSequence text,int start,int before,int count){
+                        long currentCap=amountOrZero(host.value(total));
+                        long value=amountOrZero(text.toString());
+                        limitSlider.setProgress(currentCap>0?(int)Math.max(0,Math.min(100,value*100/currentCap)):0);
+                    }
+                    @Override public void afterTextChanged(android.text.Editable text){}
                 });
             }
             total.addTextChangedListener(new android.text.TextWatcher(){

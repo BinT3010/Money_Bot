@@ -46,10 +46,12 @@ final class StatsScreen {
                     ValueAnimator pulse=ValueAnimator.ofFloat(.45f,1f);pulse.setDuration(650);pulse.setRepeatCount(ValueAnimator.INFINITE);pulse.setRepeatMode(ValueAnimator.REVERSE);
                     pulse.addUpdateListener(animation->bar.setAlpha((Float)animation.getAnimatedValue()));
                     bar.setTag(pulse);
-                    bar.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener(){
+                View.OnAttachStateChangeListener pulseLifecycle=new View.OnAttachStateChangeListener(){
                         @Override public void onViewAttachedToWindow(View view){pulse.start();}
                         @Override public void onViewDetachedFromWindow(View view){pulse.cancel();view.setAlpha(1f);}
-                    });
+                    };
+                bar.addOnAttachStateChangeListener(pulseLifecycle);
+                if(bar.isAttachedToWindow())pulse.start();
                 }
             }
             CategoryChart categoryChart=new CategoryChart(host,categoryNames,categoryAmounts,s.getLong("total"));

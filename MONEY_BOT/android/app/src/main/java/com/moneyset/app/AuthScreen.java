@@ -19,7 +19,7 @@ final class AuthScreen {
                 if (!host.value(server).equals(host.api.base())) host.api.base(host.value(server));
                 UiHelpers.status(host, "Đang kết nối…");
                 host.api.call("POST", "/auth/" + operation, new JSONObject().put("email", host.value(email)).put("password", host.value(password)),
-                    result -> { host.api.login((JSONObject) result); host.tab = "Chat"; host.shell(); }, host::error);
+                    result -> { host.api.login((JSONObject) result); host.tab = "Thêm khoản chi"; host.shell(); }, host::error);
             });
         }
     }
