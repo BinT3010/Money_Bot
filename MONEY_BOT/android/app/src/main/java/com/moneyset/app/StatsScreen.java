@@ -4,6 +4,8 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.animation.ValueAnimator;
+import android.content.res.ColorStateList;
 import android.graphics.RectF;
 import android.view.View;
 import android.widget.*;
@@ -29,14 +31,26 @@ final class StatsScreen {
                 JSONObject row=cats.getJSONObject(i);
                 categoryAmounts[i]=row.getLong("spent"); categoryNames[i]=row.getString("label");
                 TextView category=host.text(host.content,"",16);
-                category.setText(UiHelpers.moneyLabel(host,row.getString("label")+": ",row.getLong("spent")," · "+host.alert(row.getString("level")),true));
+                category.setText(UiHelpers.moneyLabel(host,row.getString("label")+": ",row.getLong("spent"),"",true));
                 String level=row.getString("level");
-                if(BudgetScreen.warns(level)){
-                    UiHelpers.warningStyle(host,category);
-                    if(!row.isNull("message"))UiHelpers.warning(host,host.content,row.getString("message"),14);
+                ProgressBar bar=new ProgressBar(host,null,android.R.attr.progressBarStyleHorizontal);
+                bar.setMax(100); bar.setProgress((int)Math.min(100,s.getLong("total")==0?0:100.0*row.getLong("spent")/s.getLong("total")));
+                boolean warning=BudgetScreen.warns(level);
+                int color=warning?UiHelpers.EXPENSE_RED:UiHelpers.CHART_COLORS[i%UiHelpers.CHART_COLORS.length];
+                bar.setProgressTintList(ColorStateList.valueOf(color));
+                bar.setProgressBackgroundTintList(ColorStateList.valueOf(android.graphics.Color.rgb(226,232,240)));
+                bar.setContentDescription(row.getString("label")+": "+row.getString("level"));
+                LinearLayout.LayoutParams barLayout=new LinearLayout.LayoutParams(-1,host.dp(18));
+                barLayout.topMargin=host.dp(3);barLayout.bottomMargin=host.dp(12);host.content.addView(bar,barLayout);
+                if(warning){
+                    ValueAnimator pulse=ValueAnimator.ofFloat(.45f,1f);pulse.setDuration(650);pulse.setRepeatCount(ValueAnimator.INFINITE);pulse.setRepeatMode(ValueAnimator.REVERSE);
+                    pulse.addUpdateListener(animation->bar.setAlpha((Float)animation.getAnimatedValue()));
+                    bar.setTag(pulse);
+                    bar.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener(){
+                        @Override public void onViewAttachedToWindow(View view){pulse.start();}
+                        @Override public void onViewDetachedFromWindow(View view){pulse.cancel();view.setAlpha(1f);}
+                    });
                 }
-                ProgressBar bar=new ProgressBar(host,null,android.R.attr.progressBarStyleHorizontal);bar.setMax(100);
-                bar.setProgress((int)Math.min(100,s.getLong("total")==0?0:100.0*row.getLong("spent")/s.getLong("total")));host.content.addView(bar);
             }
             CategoryChart categoryChart=new CategoryChart(host,categoryNames,categoryAmounts,s.getLong("total"));
             categoryChart.setContentDescription(categoryDescription(host,categoryNames,categoryAmounts));
