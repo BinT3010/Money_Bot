@@ -6,6 +6,7 @@ import android.os.Looper;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import org.json.JSONObject;
 import org.junit.Before;
@@ -199,6 +200,33 @@ public class BudgetStatsTest {
         assertEquals(791208, saved.getLong("transport"));
         assertEquals(26373, saved.getLong("other"));
         assertEquals(0, saved.getLong("shopping"));
+        a.finish();
+    }
+
+    @Test public void suggestedAllocationTurnsRedOutsidePlaceholderRange() throws Exception {
+        for(YearMonth past:new YearMonth[]{month.minusMonths(3),month.minusMonths(2),month.minusMonths(1)})
+            spend("Ăn",2000000,"food",past.atDay(5));
+        request("PUT","/budgets/"+month,new JSONObject().put("total",5000000).put("limits",new JSONObject()));
+        MainActivity a=open("Ngân sách");View root=a.getWindow().getDecorView();
+        click(root,"Gợi ý từ 3 tháng trước");idle(a);
+
+        String inRange="Hạn mức trong khoảng thử nghiệm 80–120% mức gợi ý · xanh dương";
+        String outOfRange="Hạn mức ngoài khoảng thử nghiệm 80–120% mức gợi ý · cảnh báo đỏ";
+        SeekBar slider=described(root,inRange,SeekBar.class);
+        assertNotNull("Missing in-range allocation slider",slider);
+        assertEquals(UiHelpers.BRAND,slider.getProgressTintList().getDefaultColor());
+
+        field(root,"Ăn uống").setText("1000000");
+        assertEquals(outOfRange,slider.getContentDescription().toString());
+        assertNotEquals(UiHelpers.BRAND,slider.getProgressTintList().getDefaultColor());
+
+        field(root,"Ăn uống").setText("1800000");
+        assertEquals(inRange,slider.getContentDescription().toString());
+        assertEquals(UiHelpers.BRAND,slider.getProgressTintList().getDefaultColor());
+
+        field(root,"Ăn uống").setText("2500000");
+        assertEquals(outOfRange,slider.getContentDescription().toString());
+        assertNotEquals(UiHelpers.BRAND,slider.getProgressTintList().getDefaultColor());
         a.finish();
     }
 

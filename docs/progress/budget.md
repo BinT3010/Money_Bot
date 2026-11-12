@@ -63,3 +63,23 @@ BudgetStatsTest (real screens, real server, expected values worked out by hand f
   backend tests and the 1.4 and 2.1–2.4 evaluation suites.
 - The chart shows monthly totals only. The per-category split per month is in the table, not stacked bars.
 - Needs independent review. Not yet integrated into staging.
+
+## Current UI follow-up
+
+The current `feature/ui` follow-up adds aggregate allocation feedback. Android
+previews the sum against the total and caps slider/typed increases so the user
+does not routinely hit the backend's existing aggregate validation. The server
+remains authoritative and rejects over-allocation in `BudgetMixin.set_budget`.
+The full verifier on staging `ff23bc2` failed 11 Android UI tests that retain
+pre-redesign labels/controls; backend tests and strict evaluation passed, and
+`assembleDebug`/`lintDebug` passed. On current `feature/ui` work, the focused
+`BudgetStatsTest.suggestedAllocationTurnsRedOutsidePlaceholderRange` passed;
+`assembleDebug` and `lintDebug` passed. The full Java suite is still pending
+because it contains old screen assumptions.
+
+The red/blue necessary-expense band currently uses a **temporary 80–120% of
+suggestion** placeholder in Android. It is not a backend rule. The next vertical
+feature, `feature/budget-range-feedback`, will have the backend calculate and
+return each necessary category's lower and upper bounds plus their basis; Android
+will consume those fields and remove the placeholder. See
+`docs/FRONTEND_BACKEND_BOUNDARY.md` and `docs/BRANCH_TASKS.md`.

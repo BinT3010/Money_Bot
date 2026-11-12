@@ -11,6 +11,7 @@ All feature PRs target staging. Each worker uses its own worktree.
 | feature/budget | History -> totals/charts -> suggestions with basis -> editable limits -> warnings | Java BudgetScreen, StatsScreen; backend budget.py, routes/budget.py; budget/statistics tests/cases |
 | feature/bills | Schedule -> reminders -> payment/linking -> period history and budget reconciliation | Java BillsScreen; backend bills.py, routes/bills.py; bill tests/cases |
 | feature/ui | General Android visual polish across completed flows | Android presentation, shared presentation helpers/navigation, focused UI tests/docs |
+| feature/budget-range-feedback | Backend-defined acceptable allocation ranges for necessary expenses, with Android feedback | Java BudgetScreen; backend budget.py, routes/budget.py; isolated backend and Java tests |
 | experiment/evaluation | Reproducible independent acceptance evidence and cross-feature checks | evaluation harness, summary tooling, cross-feature test modules, human-trial protocol |
 
 ## General UI polish acceptance
@@ -64,6 +65,20 @@ transaction edits/deletes via the shared transaction contract; do not edit
 TransactionEditor for chart work. Cover 1.4 and 2.1–2.4 with independent expected
 values, plus Java flow tests.
 
+## Budget range feedback acceptance
+
+The backend owns the acceptable allocation interval `[a, b]` for each necessary
+category; Android must consume, not derive, these bounds. The UI branch uses a
+temporary 80–120% band around the backend suggestion so the interaction can be
+reviewed; the budget-range branch replaces it with explicit server-provided
+bounds and basis metadata. Show blue for `a <= x <= b`, red for values below `a`
+or above `b`. Categories without enough history or without a necessary range
+must be unclassified, not assigned a fabricated zero-width band. The backend
+already rejects saved limits whose sum exceeds the total budget; retain that
+invariant. Add independent tests for interval boundaries, missing history and
+multiple categories, and verify Android uses returned bounds without rebuilding
+the rule. This branch owns the additive API contract and both sides of the flow.
+
 ## Bills acceptance
 
 Expose existing edit/stop/resume, actual paid amount and paging/history contracts.
@@ -89,8 +104,10 @@ run on the integrated staging commit.
 feature/merchant, feature/ocr-receipt and refactor/feature-workstreams were
 deleted earlier. The completed feature/expense-capture, feature/budget and
 feature/bills branches were deleted after integration into main. Current work
-branches are feature/ui and experiment/evaluation. The UI branch now owns general
-Android polish while preserving the existing feature flows.
+branches are feature/ui, feature/budget-range-feedback and experiment/evaluation.
+The UI branch owns general Android polish while preserving existing feature flows.
+The budget-range branch owns backend-defined necessary-expense bounds and the
+Android feedback that consumes them.
 
 ## Start now: worker checklist
 

@@ -30,6 +30,10 @@ the Java Android app under `MONEY_BOT/android`.
   sliders bounded by the current total budget. Edits stay local until the existing
   save action; warning levels and usage bars continue to come from the server.
   Tapping a category usage row focuses its limit field.
+- Budget allocation editors show a blue recommendation bar and a provisional
+  80–120% range around the suggested amount. The editable allocation is blue
+  inside that band and pulses red outside it. The bounds are a UI-only placeholder;
+  `feature/budget-range-feedback` will replace them with backend-provided ranges.
 - Numeric inputs group thousands with commas while editing, and money displays
   use comma grouping with decimal points for fractional averages. Grouping commas
   are stripped before integer VND values are sent to the backend.
@@ -56,4 +60,16 @@ the Java Android app under `MONEY_BOT/android`.
 
 ## Remaining
 
-- Run Java unit tests and the full verifier before requesting review.
+- Update old Java UI tests to the redesigned screens and grouped number inputs;
+  staging's full verifier currently fails those stale assertions. Then rerun the
+  full verifier before requesting review.
+
+## Latest budget-slider verification
+
+- `testDebugUnitTest --tests com.moneyset.app.BudgetStatsTest.suggestedAllocationTurnsRedOutsidePlaceholderRange --rerun-tasks --console=plain`
+  with an isolated FastAPI test database: BUILD SUCCESSFUL. The test checks the
+  slider is blue at an in-range value and pulses red below and above the
+  temporary 80–120% band.
+- `assembleDebug lintDebug --console=plain`: BUILD SUCCESSFUL.
+- Installed the resulting APK on emulator `emulator-5556` and restarted
+  `com.moneyset.app`.
