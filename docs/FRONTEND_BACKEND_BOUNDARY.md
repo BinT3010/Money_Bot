@@ -20,6 +20,9 @@ The backend already enforces the aggregate invariant in
 budget. The slider cap, typed-value cap, and allocation summary on Android are
 immediate editing feedback; they mirror that invariant to avoid an avoidable
 save rejection. The API check remains the final authority.
+When no saved limits exist, Android also pre-fills an unsaved 20% share for each
+of the five core categories and 0% for Other; it is not persisted until explicit
+confirmation.
 
 The additional “reasonable necessary expense” rule is different. The current UI
 uses the requested temporary band `a = 0`, `b = 50%` of the total budget. This

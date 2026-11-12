@@ -203,22 +203,23 @@ public class BudgetStatsTest {
         a.finish();
     }
 
-    @Test public void suggestedAllocationTurnsRedOutsidePlaceholderRange() throws Exception {
-        for(YearMonth past:new YearMonth[]{month.minusMonths(3),month.minusMonths(2),month.minusMonths(1)})
-            spend("Ăn",2000000,"food",past.atDay(5));
-        request("PUT","/budgets/"+month,new JSONObject().put("total",5000000).put("limits",new JSONObject()));
+    @Test public void baseCaseAllocatesFiveWaysAndCategorySliderTurnsRedOverHalfBudget() throws Exception {
         MainActivity a=open("Ngân sách");View root=a.getWindow().getDecorView();
-        click(root,"Gợi ý từ 3 tháng trước");idle(a);
+        field(root,"Ngân sách tổng VND").setText("5000000");
 
         String inRange="Hạn mức trong khoảng thử nghiệm 0–50% ngân sách tổng · xanh dương";
         String outOfRange="Hạn mức ngoài khoảng thử nghiệm 0–50% ngân sách tổng · cảnh báo đỏ";
+        for(String category:new String[]{"Ăn uống","Tiêu dùng/Mua sắm","Đi lại","Hóa đơn tiện ích","Giải trí"})
+            assertEquals("1,000,000",field(root,category).getText().toString());
+        assertEquals("0",field(root,"Khác").getText().toString());
+        assertEquals(0,((JSONObject)request("GET","/budgets/"+month,null)).getJSONObject("limits").length());
+
         SeekBar slider=described(root,inRange,SeekBar.class);
-        assertNotNull("Missing in-range allocation slider",slider);
+        assertNotNull("Missing in-range category slider before requesting a suggestion",slider);
         assertEquals(UiHelpers.BRAND,slider.getProgressTintList().getDefaultColor());
 
-        field(root,"Ăn uống").setText("0");
-        assertEquals(inRange,slider.getContentDescription().toString());
-        assertEquals(UiHelpers.BRAND,slider.getProgressTintList().getDefaultColor());
+        for(String category:new String[]{"Tiêu dùng/Mua sắm","Đi lại","Hóa đơn tiện ích","Giải trí"})
+            field(root,category).setText("0");
 
         field(root,"Ăn uống").setText("2600000");
         assertEquals(outOfRange,slider.getContentDescription().toString());

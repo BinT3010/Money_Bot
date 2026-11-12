@@ -42,9 +42,11 @@ final class BudgetScreen {
             long[] lastAllocation=new long[6];
             TextView[] recommendationLabels=new TextView[6];ProgressBar[] recommendationBars=new ProgressBar[6];
             long[] recommended=new long[6],rangeMinimum=new long[6],rangeMaximum=new long[6];
-            boolean[] hasRecommendation=new boolean[6];
+            boolean[] hasRecommendation=new boolean[6],hasRange=new boolean[6];
+            boolean[] baseCaseActive={limits.length()==0},applyingBaseCase={false};
             android.animation.ValueAnimator[] warningPulses=new android.animation.ValueAnimator[6];
             host.text(host.content,"Để trống: chưa đặt hạn mức. Nhập 0: không dành ngân sách cho danh mục.",14);
+            host.text(host.content,"Mặc định cơ bản: 20% cho năm danh mục chính, 0% cho Khác. Mỗi danh mục tối đa 50% tổng ngân sách.",12);
             TextView allocationSummary=host.text(host.content,"",13);
             for(int i=0;i<6;i++){
                 final int index=i;edits[i]=host.input(host.content,host.labels[i],limits.optString(host.categories[i]),true);
@@ -61,6 +63,7 @@ final class BudgetScreen {
                 host.content.addView(recommendationBars[i],recommendationParams);
                 SeekBar limitSlider=new SeekBar(host);limitSliders[i]=limitSlider;limitSlider.setMax(100);
                 long cap=b.isNull("total")?0:b.getLong("total");
+                hasRange[i]=cap>0;rangeMinimum[i]=0;rangeMaximum[i]=cap*PLACEHOLDER_RANGE_MAX_BUDGET_PERCENT/100;
                 boolean configured=limits.has(host.categories[i]);long saved=configured?limits.getLong(host.categories[i]):0;
                 limitSlider.setProgress(cap>0?(int)Math.max(0,Math.min(100,saved*100/cap)):0);
                 limitSlider.setEnabled(cap>0);limitSlider.setProgressTintList(android.content.res.ColorStateList.valueOf(UiHelpers.BRAND));
@@ -82,6 +85,7 @@ final class BudgetScreen {
                 edits[i].addTextChangedListener(new android.text.TextWatcher(){
                     @Override public void beforeTextChanged(CharSequence text,int start,int count,int after){}
                     @Override public void onTextChanged(CharSequence text,int start,int before,int count){
+                        if(!applyingBaseCase[0])baseCaseActive[0]=false;
                         long currentCap=amountOrZero(host.value(total));
                         long value=amountOrZero(text.toString());
                         long available=availableAllocation(host,edits,index,currentCap);
@@ -91,11 +95,12 @@ final class BudgetScreen {
                         }
                         lastAllocation[index]=value;
                         limitSlider.setProgress(currentCap>0?(int)Math.max(0,Math.min(100,value*100/currentCap)):0);
+                        if(hasRange[index])
+                            setAllocationWarning(limitSlider,warningPulses,index,outsideRange(value,rangeMinimum[index],rangeMaximum[index]));
                         if(hasRecommendation[index]){
                             int recommendationProgress=currentCap>0?(int)Math.max(0,Math.min(100,recommended[index]*100/currentCap)):0;
                             recommendationBars[index].setProgress(recommendationProgress);
                             recommendationLabels[index].setText("Mức gợi ý · "+host.money(recommended[index]));
-                            setAllocationWarning(limitSlider,warningPulses,index,outsideRange(value,rangeMinimum[index],rangeMaximum[index]));
                         }
                         updateAllocationSummary(host,total,edits,allocationSummary);
                     }
@@ -103,33 +108,39 @@ final class BudgetScreen {
                 });
                 limitSlider.addOnAttachStateChangeListener(new android.view.View.OnAttachStateChangeListener(){
                     @Override public void onViewAttachedToWindow(android.view.View view){
-                        if(hasRecommendation[index]&&outsideRange(amountOrZero(host.value(edits[index])),rangeMinimum[index],rangeMaximum[index]))
-                            setAllocationWarning(limitSlider,warningPulses,index,true);
+                        if(hasRange[index])setAllocationWarning(limitSlider,warningPulses,index,
+                            outsideRange(amountOrZero(host.value(edits[index])),rangeMinimum[index],rangeMaximum[index]));
                     }
                     @Override public void onViewDetachedFromWindow(android.view.View view){
                         if(warningPulses[index]!=null)warningPulses[index].cancel();
                     }
                 });
+                if(hasRange[i])setAllocationWarning(limitSlider,warningPulses,i,
+                    outsideRange(saved,rangeMinimum[i],rangeMaximum[i]));
             }
             total.addTextChangedListener(new android.text.TextWatcher(){
                 @Override public void beforeTextChanged(CharSequence text,int start,int count,int after){}
                 @Override public void onTextChanged(CharSequence text,int start,int before,int count){
                     long cap=amountOrZero(text.toString());
+                    if(baseCaseActive[0]&&cap>0)fillBaseCase(cap,edits,applyingBaseCase);
                     for(int i=0;i<limitSliders.length;i++){
                         limitSliders[i].setEnabled(cap>0);
                         long value=amountOrZero(host.value(edits[i]));
+                        hasRange[i]=cap>0;rangeMinimum[i]=0;
+                        rangeMaximum[i]=cap*PLACEHOLDER_RANGE_MAX_BUDGET_PERCENT/100;
                         limitSliders[i].setProgress(cap>0?(int)Math.max(0,Math.min(100,value*100/cap)):0);
+                        setAllocationWarning(limitSliders[i],warningPulses,i,
+                            hasRange[i]&&outsideRange(value,rangeMinimum[i],rangeMaximum[i]));
                         if(hasRecommendation[i]){
                             recommendationBars[i].setProgress(cap>0?(int)Math.max(0,Math.min(100,recommended[i]*100/cap)):0);
-                            rangeMaximum[i]=cap*PLACEHOLDER_RANGE_MAX_BUDGET_PERCENT/100;
-                            setAllocationWarning(limitSliders[i],warningPulses,i,
-                                outsideRange(value,rangeMinimum[i],rangeMaximum[i]));
                         }
                     }
                     updateAllocationSummary(host,total,edits,allocationSummary);
                 }
                 @Override public void afterTextChanged(android.text.Editable text){}
             });
+            long initialCap=amountOrZero(host.value(total));
+            if(baseCaseActive[0]&&initialCap>0)fillBaseCase(initialCap,edits,applyingBaseCase);
             updateAllocationSummary(host,total,edits,allocationSummary);
             host.button(host.content,"Xác nhận lưu ngân sách",()->{
                 long cap=amountOrZero(host.value(total));
@@ -151,9 +162,7 @@ final class BudgetScreen {
                     long currentCap=amountOrZero(host.value(total));
                     for(int i=0;i<6;i++){
                         recommended[i]=suggested.getLong(host.categories[i]);hasRecommendation[i]=true;
-                        rangeMinimum[i]=0;
-                        rangeMaximum[i]=currentCap*PLACEHOLDER_RANGE_MAX_BUDGET_PERCENT/100;
-                        recommendationLabels[i].setText("Mức gợi ý · "+host.money(recommended[i])+" · khoảng thử 0–"+PLACEHOLDER_RANGE_MAX_BUDGET_PERCENT+"% ngân sách tổng");
+                        recommendationLabels[i].setText("Mức gợi ý · "+host.money(recommended[i]));
                         recommendationLabels[i].setVisibility(android.view.View.VISIBLE);
                         recommendationBars[i].setProgress(currentCap>0?(int)Math.max(0,Math.min(100,recommended[i]*100/currentCap)):0);
                         recommendationBars[i].setVisibility(android.view.View.VISIBLE);
@@ -165,7 +174,6 @@ final class BudgetScreen {
                         hasRecommendation[i]=false;
                         recommendationLabels[i].setVisibility(android.view.View.GONE);
                         recommendationBars[i].setVisibility(android.view.View.GONE);
-                        setAllocationWarning(limitSliders[i],warningPulses,i,false);
                     }
                     UiHelpers.warningStatus(host,"Chưa có gợi ý; hãy nhập hạn mức thủ công.");
                 }
@@ -221,6 +229,15 @@ final class BudgetScreen {
     private static long amountOrZero(String value){try{return Long.parseLong(value.replace(",",""));}catch(NumberFormatException ignored){return 0;}}
 
     private static boolean outsideRange(long value,long minimum,long maximum){return value<minimum||value>maximum;}
+
+    private static void fillBaseCase(long total,EditText[] edits,boolean[] applying){
+        applying[0]=true;
+        try{
+            String share=String.valueOf(total/5);
+            for(int i=0;i<5;i++)edits[i].setText(share);
+            edits[5].setText("0");
+        }finally{applying[0]=false;}
+    }
 
     private static long sumAllocations(MainActivity host,EditText[] edits){
         long total=0;

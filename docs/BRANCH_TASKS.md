@@ -64,6 +64,9 @@ no new dependency or independent Android financial totals. Test refresh after
 transaction edits/deletes via the shared transaction contract; do not edit
 TransactionEditor for chart work. Cover 1.4 and 2.1–2.4 with independent expected
 values, plus Java flow tests.
+When no category limits are saved, show an unsaved base case of 20% each for
+food, shopping, transport, utilities and entertainment, with Other at 0%. Do not
+persist it until the user confirms the budget.
 
 ## Budget range feedback acceptance
 

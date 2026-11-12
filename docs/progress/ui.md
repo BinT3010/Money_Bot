@@ -34,6 +34,10 @@ the Java Android app under `MONEY_BOT/android`.
   range from zero to 50% of the total budget. The editable allocation is blue
   inside that band and pulses red above it. The bounds are a UI-only placeholder;
   `feature/budget-range-feedback` will replace them with backend-provided ranges.
+- With no saved category limits, the budget form starts with an unsaved base case:
+  20% each for food, shopping, transport, utilities and entertainment; Other is
+  0%. Entering or changing the total updates this untouched base case. Editing a
+  category switches to a user allocation; nothing persists until Save.
 - Numeric inputs group thousands with commas while editing, and money displays
   use comma grouping with decimal points for fractional averages. Grouping commas
   are stripped before integer VND values are sent to the backend.
@@ -66,10 +70,10 @@ the Java Android app under `MONEY_BOT/android`.
 
 ## Latest budget-slider verification
 
-- `testDebugUnitTest --tests com.moneyset.app.BudgetStatsTest.suggestedAllocationTurnsRedOutsidePlaceholderRange --rerun-tasks --console=plain`
-  with an isolated FastAPI test database: BUILD SUCCESSFUL. The test checks the
-  slider is blue at zero and at the 50% total-budget boundary, and pulses red
-  above that temporary boundary.
+- `testDebugUnitTest --tests com.moneyset.app.BudgetStatsTest.baseCaseAllocatesFiveWaysAndCategorySliderTurnsRedOverHalfBudget --rerun-tasks --console=plain`
+  with an isolated FastAPI test database: BUILD SUCCESSFUL. It checks the
+  unsaved 20/20/20/20/20 base case and category slider blue at 50%, red above it,
+  without requesting a recommendation.
 - `assembleDebug lintDebug --console=plain`: BUILD SUCCESSFUL.
 - Installed the resulting APK on emulator `emulator-5556` and restarted
   `com.moneyset.app`.

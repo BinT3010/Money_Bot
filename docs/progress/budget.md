@@ -70,10 +70,13 @@ The current `feature/ui` follow-up adds aggregate allocation feedback. Android
 previews the sum against the total and caps slider/typed increases so the user
 does not routinely hit the backend's existing aggregate validation. The server
 remains authoritative and rejects over-allocation in `BudgetMixin.set_budget`.
+When no category limits are saved, the form now starts with an unsaved base case:
+20% each for food, shopping, transport, utilities and entertainment; Other is
+0%. It tracks changes to the total until the user edits an allocation.
 The full verifier on staging `ff23bc2` failed 11 Android UI tests that retain
 pre-redesign labels/controls; backend tests and strict evaluation passed, and
 `assembleDebug`/`lintDebug` passed. On current `feature/ui` work, the focused
-`BudgetStatsTest.suggestedAllocationTurnsRedOutsidePlaceholderRange` passed;
+`BudgetStatsTest.baseCaseAllocatesFiveWaysAndCategorySliderTurnsRedOverHalfBudget` passed;
 `assembleDebug` and `lintDebug` passed. The full Java suite is still pending
 because it contains old screen assumptions.
 
