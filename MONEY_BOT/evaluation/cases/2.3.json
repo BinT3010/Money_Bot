@@ -1,0 +1,83 @@
+{
+  "suite": "2.3",
+  "title": "Cảnh báo khi đạt 80% và khi đạt/vượt 100% hạn mức danh mục",
+  "threshold": {"min_cases": 10, "pass_rate": 1.0},
+  "today": "2026-11-12",
+  "cases": [
+    {"id": "2.3-01", "desc": "50% hạn mức: bình thường",
+     "steps": [
+       {"req": "PUT /budgets/2026-11", "body": {"total": 5000000, "limits": {"food": 1000000}}},
+       {"req": "POST /transactions", "body": {"amount_vnd": 500000, "description": "Ăn uống", "category_id": "food", "date": "2026-11-05"}},
+       {"req": "GET /summary?month=2026-11", "expect": {"categories": {"$contains": [{"category_id": "food", "level": "NORMAL", "percent": 50.0}]}}}]},
+    {"id": "2.3-02", "desc": "Sát mốc 79,9999%: chưa cảnh báo",
+     "steps": [
+       {"req": "PUT /budgets/2026-11", "body": {"total": 5000000, "limits": {"food": 1000000}}},
+       {"req": "POST /transactions", "body": {"amount_vnd": 799999, "description": "Ăn uống", "category_id": "food", "date": "2026-11-05"}},
+       {"req": "GET /summary?month=2026-11", "expect": {"categories": {"$contains": [{"category_id": "food", "level": "NORMAL"}]}}}]},
+    {"id": "2.3-03", "desc": "Đúng 80%: cảnh báo sớm, câu thông báo có tỷ lệ",
+     "steps": [
+       {"req": "PUT /budgets/2026-11", "body": {"total": 5000000, "limits": {"food": 1000000}}},
+       {"req": "POST /transactions", "body": {"amount_vnd": 800000, "description": "Ăn uống", "category_id": "food", "date": "2026-11-05"}},
+       {"req": "GET /summary?month=2026-11", "expect": {"categories": {"$contains": [{"category_id": "food", "level": "WARNING",
+         "message": "Ăn uống đã dùng 800.000/1.000.000đ (80%), còn 200.000đ trong hạn mức tháng 11."}]}}}]},
+    {"id": "2.3-04", "desc": "Đúng 100%: đã đạt hạn mức",
+     "steps": [
+       {"req": "PUT /budgets/2026-11", "body": {"total": 5000000, "limits": {"food": 1000000}}},
+       {"req": "POST /transactions", "body": {"amount_vnd": 1000000, "description": "Ăn uống", "category_id": "food", "date": "2026-11-05"}},
+       {"req": "GET /summary?month=2026-11", "expect": {"categories": {"$contains": [{"category_id": "food", "level": "REACHED", "remaining": 0}]}}}]},
+    {"id": "2.3-05", "desc": "Vượt 1đ: vượt hạn mức",
+     "steps": [
+       {"req": "PUT /budgets/2026-11", "body": {"total": 5000000, "limits": {"food": 1000000}}},
+       {"req": "POST /transactions", "body": {"amount_vnd": 1000001, "description": "Ăn uống", "category_id": "food", "date": "2026-11-05"}},
+       {"req": "GET /summary?month=2026-11", "expect": {"categories": {"$contains": [{"category_id": "food", "level": "OVER", "remaining": -1}]}}}]},
+    {"id": "2.3-06", "desc": "Một khoản chi vượt cả hai mốc (50% -> 120%): chỉ hiện mức nghiêm trọng hơn",
+     "steps": [
+       {"req": "PUT /budgets/2026-11", "body": {"total": 5000000, "limits": {"food": 1000000}}},
+       {"req": "POST /transactions", "body": {"amount_vnd": 500000, "description": "Ăn uống", "category_id": "food", "date": "2026-11-05"}},
+       {"req": "GET /summary?month=2026-11", "expect": {"categories": {"$contains": [{"category_id": "food", "level": "NORMAL"}]}}},
+       {"req": "POST /transactions", "body": {"amount_vnd": 700000, "description": "Liên hoan", "category_id": "food", "date": "2026-11-06"}},
+       {"req": "GET /summary?month=2026-11", "expect": {"categories": {"$len": 6}}},
+       {"req": "GET /summary?month=2026-11", "expect": {"categories": {"$contains": [{"category_id": "food", "level": "OVER", "percent": 120.0,
+         "message": "Ăn uống đã dùng 1.200.000/1.000.000đ (120%), vượt 200.000đ so với hạn mức tháng 11."}]}}}]},
+    {"id": "2.3-07", "desc": "Sửa giao dịch làm giảm từ vượt xuống cảnh báo",
+     "steps": [
+       {"req": "PUT /budgets/2026-11", "body": {"total": 5000000, "limits": {"food": 1000000}}},
+       {"req": "POST /transactions", "body": {"amount_vnd": 1200000, "description": "Ăn uống", "category_id": "food", "date": "2026-11-05"}, "save": {"tx": "id"}},
+       {"req": "PUT /transactions/{tx}", "body": {"amount_vnd": 850000, "description": "Ăn uống", "category_id": "food", "date": "2026-11-05"}},
+       {"req": "GET /summary?month=2026-11", "expect": {"categories": {"$contains": [{"category_id": "food", "level": "WARNING", "percent": 85.0}]}}}]},
+    {"id": "2.3-08", "desc": "Xóa giao dịch: cảnh báo được tính lại",
+     "steps": [
+       {"req": "PUT /budgets/2026-11", "body": {"total": 5000000, "limits": {"food": 1000000}}},
+       {"req": "POST /transactions", "body": {"amount_vnd": 300000, "description": "Ăn uống", "category_id": "food", "date": "2026-11-04"}},
+       {"req": "POST /transactions", "body": {"amount_vnd": 800000, "description": "Ăn uống", "category_id": "food", "date": "2026-11-05"}, "save": {"tx": "id"}},
+       {"req": "GET /summary?month=2026-11", "expect": {"categories": {"$contains": [{"category_id": "food", "level": "OVER"}]}}},
+       {"req": "DELETE /transactions/{tx}"},
+       {"req": "GET /summary?month=2026-11", "expect": {"categories": {"$contains": [{"category_id": "food", "level": "NORMAL", "spent": 300000}]}}}]},
+    {"id": "2.3-09", "desc": "Đổi danh mục giao dịch: cảnh báo chuyển sang danh mục mới",
+     "steps": [
+       {"req": "PUT /budgets/2026-11", "body": {"total": 5000000, "limits": {"food": 1000000, "shopping": 1000000}}},
+       {"req": "POST /transactions", "body": {"amount_vnd": 900000, "description": "Ăn uống", "category_id": "food", "date": "2026-11-05"}, "save": {"tx": "id"}},
+       {"req": "PUT /transactions/{tx}", "body": {"amount_vnd": 900000, "description": "Áo khoác", "category_id": "shopping", "date": "2026-11-05"}},
+       {"req": "GET /summary?month=2026-11", "expect": {"categories": {"$contains": [
+         {"category_id": "food", "level": "NORMAL", "spent": 0}, {"category_id": "shopping", "level": "WARNING", "spent": 900000}]}}}]},
+    {"id": "2.3-10", "desc": "Hạn mức 0đ kèm chi dương: vượt hạn mức, không chia cho 0",
+     "steps": [
+       {"req": "PUT /budgets/2026-11", "body": {"total": 5000000, "limits": {"entertainment": 0}}},
+       {"req": "POST /transactions", "body": {"amount_vnd": 50000, "description": "Xem phim", "category_id": "entertainment", "date": "2026-11-05"}},
+       {"req": "GET /summary?month=2026-11", "expect": {"categories": {"$contains": [{"category_id": "entertainment", "level": "OVER", "ratio": null, "percent": null}]}}}]},
+    {"id": "2.3-11", "desc": "Nâng hạn mức: trạng thái tính lại từ vượt về bình thường",
+     "steps": [
+       {"req": "PUT /budgets/2026-11", "body": {"total": 5000000, "limits": {"food": 1000000}}},
+       {"req": "POST /transactions", "body": {"amount_vnd": 1100000, "description": "Ăn uống", "category_id": "food", "date": "2026-11-05"}},
+       {"req": "PUT /budgets/2026-11", "body": {"total": 5000000, "limits": {"food": 2000000}}},
+       {"req": "GET /summary?month=2026-11", "expect": {"categories": {"$contains": [{"category_id": "food", "level": "NORMAL", "percent": 55.0}]}}}]},
+    {"id": "2.3-12", "desc": "Chi tháng khác không tính vào hạn mức tháng này; làm mới nhiều lần cho cùng kết quả",
+     "steps": [
+       {"req": "PUT /budgets/2026-11", "body": {"total": 5000000, "limits": {"food": 1000000}}},
+       {"req": "POST /transactions", "body": {"amount_vnd": 900000, "description": "Ăn uống", "category_id": "food", "date": "2026-10-31"}},
+       {"req": "POST /transactions", "body": {"amount_vnd": 100000, "description": "Ăn uống", "category_id": "food", "date": "2026-11-01"}},
+       {"req": "GET /summary?month=2026-11", "expect": {"categories": {"$contains": [{"category_id": "food", "level": "NORMAL", "spent": 100000}]}}},
+       {"req": "GET /summary?month=2026-11", "expect": {"count": 1, "categories": {"$len": 6}}},
+       {"req": "GET /summary?month=2026-11", "expect": {"count": 1, "categories": {"$contains": [{"category_id": "food", "spent": 100000}]}}}]}
+  ]
+}

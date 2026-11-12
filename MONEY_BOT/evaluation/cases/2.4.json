@@ -1,0 +1,45 @@
+{
+  "suite": "2.4",
+  "title": "Thay đổi mốc nhắc sớm và cập nhật cảnh báo",
+  "threshold": {"min_cases": 3, "pass_rate": 1.0},
+  "today": "2026-11-12",
+  "cases": [
+    {"id": "2.4-01", "desc": "Hạ mốc 80% -> 70%: 75% chuyển từ bình thường sang cảnh báo",
+     "steps": [
+       {"req": "PUT /budgets/2026-11", "body": {"total": 5000000, "limits": {"food": 1000000}, "threshold": 80}},
+       {"req": "POST /transactions", "body": {"amount_vnd": 750000, "description": "Ăn uống", "category_id": "food", "date": "2026-11-05"}},
+       {"req": "GET /summary?month=2026-11", "expect": {"categories": {"$contains": [{"category_id": "food", "level": "NORMAL"}]}}},
+       {"req": "PUT /budgets/2026-11", "body": {"total": 5000000, "limits": {"food": 1000000}, "threshold": 70}},
+       {"req": "GET /summary?month=2026-11", "expect": {"budget": {"threshold": 70}, "categories": {"$contains": [{"category_id": "food", "level": "WARNING"}]}}}]},
+    {"id": "2.4-02", "desc": "Nâng mốc 80% -> 90%: 85% trở về bình thường",
+     "steps": [
+       {"req": "PUT /budgets/2026-11", "body": {"total": 5000000, "limits": {"food": 1000000}}},
+       {"req": "POST /transactions", "body": {"amount_vnd": 850000, "description": "Ăn uống", "category_id": "food", "date": "2026-11-05"}},
+       {"req": "GET /summary?month=2026-11", "expect": {"categories": {"$contains": [{"category_id": "food", "level": "WARNING"}]}}},
+       {"req": "PUT /budgets/2026-11", "body": {"total": 5000000, "limits": {"food": 1000000}, "threshold": 90}},
+       {"req": "GET /summary?month=2026-11", "expect": {"categories": {"$contains": [{"category_id": "food", "level": "NORMAL"}]}}}]},
+    {"id": "2.4-03", "desc": "Mốc ngoài (0%, 100%): từ chối, giữ mốc cũ",
+     "steps": [
+       {"req": "PUT /budgets/2026-11", "body": {"total": 5000000, "limits": {"food": 1000000}, "threshold": 75}},
+       {"req": "PUT /budgets/2026-11", "body": {"total": 5000000, "limits": {"food": 1000000}, "threshold": 0}, "status": 400},
+       {"req": "PUT /budgets/2026-11", "body": {"total": 5000000, "limits": {"food": 1000000}, "threshold": 100}, "status": 400},
+       {"req": "PUT /budgets/2026-11", "body": {"total": 5000000, "limits": {"food": 1000000}, "threshold": 150}, "status": 400},
+       {"req": "PUT /budgets/2026-11", "body": {"total": 5000000, "limits": {"food": 1000000}, "threshold": 80.5}, "status": 422},
+       {"req": "GET /budgets/2026-11", "expect": {"threshold": 75}}]},
+    {"id": "2.4-04", "desc": "Mốc 99%: 98% bình thường, 99% cảnh báo; mốc vượt hạn mức vẫn là 100%",
+     "steps": [
+       {"req": "PUT /budgets/2026-11", "body": {"total": 5000000, "limits": {"food": 1000000}, "threshold": 99}},
+       {"req": "POST /transactions", "body": {"amount_vnd": 980000, "description": "Ăn uống", "category_id": "food", "date": "2026-11-05"}},
+       {"req": "GET /summary?month=2026-11", "expect": {"categories": {"$contains": [{"category_id": "food", "level": "NORMAL"}]}}},
+       {"req": "POST /transactions", "body": {"amount_vnd": 10000, "description": "Nước", "category_id": "food", "date": "2026-11-06"}},
+       {"req": "GET /summary?month=2026-11", "expect": {"categories": {"$contains": [{"category_id": "food", "level": "WARNING"}]}}},
+       {"req": "POST /transactions", "body": {"amount_vnd": 10000, "description": "Nước", "category_id": "food", "date": "2026-11-07"}},
+       {"req": "GET /summary?month=2026-11", "expect": {"categories": {"$contains": [{"category_id": "food", "level": "REACHED"}]}}}]},
+    {"id": "2.4-05", "desc": "Mốc 1%: chi nhỏ đã cảnh báo; mốc mặc định khi chưa đặt là 80%",
+     "steps": [
+       {"req": "GET /budgets/2026-11", "expect": {"threshold": 80}},
+       {"req": "PUT /budgets/2026-11", "body": {"total": 5000000, "limits": {"food": 1000000}, "threshold": 1}},
+       {"req": "POST /transactions", "body": {"amount_vnd": 10000, "description": "Nước", "category_id": "food", "date": "2026-11-05"}},
+       {"req": "GET /summary?month=2026-11", "expect": {"categories": {"$contains": [{"category_id": "food", "level": "WARNING"}]}}}]}
+  ]
+}

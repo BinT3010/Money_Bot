@@ -1,0 +1,350 @@
+{
+  "suite": "2.1",
+  "title": "Gợi ý hạn mức từ 3 tháng lịch sử và ngân sách tổng, có căn cứ",
+  "threshold": {
+    "min_cases": 7,
+    "pass_rate": 1.0
+  },
+  "cases": 7,
+  "passed": 7,
+  "pass_rate": 1.0,
+  "met": true,
+  "max_ms": 5000,
+  "results": [
+    {
+      "id": "2.1-h1",
+      "desc": "3 tháng đủ 6 danh mục, ngân sách lớn hơn trung bình (hệ số 1)",
+      "input": {
+        "dataset": "h1.json",
+        "budget": {
+          "month": "2026-11",
+          "total": 6000000
+        }
+      },
+      "expected": {
+        "limits": {
+          "food": 1500000,
+          "shopping": 600000,
+          "transport": 300000,
+          "utilities": 900000,
+          "entertainment": 150000,
+          "other": 100000
+        },
+        "factor": 1.0,
+        "allocated": 3550000,
+        "unallocated": 2450000
+      },
+      "actual": {
+        "limits": {
+          "food": 1500000,
+          "shopping": 600000,
+          "transport": 300000,
+          "utilities": 900000,
+          "entertainment": 150000,
+          "other": 100000
+        },
+        "factor": 1.0,
+        "allocated": 3550000,
+        "unallocated": 2450000,
+        "reason": "Trung bình 3 tháng 2026-08 – 2026-10 (tháng không chi tính 0). Tổng trung bình A = 3.550.000đ không vượt ngân sách B = 6.000.000đ, nên giữ nguyên trung bình (hệ số 1) và làm tròn xuống. Phần chưa phân bổ: 2.450.000đ. Dữ liệu nhập được giả định đầy đủ."
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "req": "GET /budgets/2026-11/suggestions",
+          "status": 200,
+          "ms": 8.5
+        }
+      ]
+    },
+    {
+      "id": "2.1-h2",
+      "desc": "4 tháng, nhiều khoản cùng danh mục, danh mục trống; ngân sách nhỏ hơn trung bình (hệ số 0,75)",
+      "input": {
+        "dataset": "h2.json",
+        "budget": {
+          "month": "2026-11",
+          "total": 1400000
+        }
+      },
+      "expected": {
+        "limits": {
+          "food": 675000,
+          "shopping": 375000,
+          "transport": 0,
+          "utilities": 200000,
+          "entertainment": 150000,
+          "other": 0
+        },
+        "factor": 0.75,
+        "allocated": 1400000,
+        "unallocated": 0
+      },
+      "actual": {
+        "limits": {
+          "food": 675000,
+          "shopping": 375000,
+          "transport": 0,
+          "utilities": 200000,
+          "entertainment": 150000,
+          "other": 0
+        },
+        "factor": 0.75,
+        "allocated": 1400000,
+        "unallocated": 0,
+        "reason": "Trung bình 3 tháng 2026-08 – 2026-10 (tháng không chi tính 0). Tổng trung bình A = 1.866.666,67đ vượt ngân sách B = 1.400.000đ, nên mỗi danh mục nhân hệ số B/A = 0,75 và làm tròn xuống. Phần chưa phân bổ: 0đ. Dữ liệu nhập được giả định đầy đủ."
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "req": "GET /budgets/2026-11/suggestions",
+          "status": 200,
+          "ms": 18.6
+        }
+      ]
+    },
+    {
+      "id": "2.1-h3",
+      "desc": "Tháng giữa không chi (tính 0); sửa ngày chuyển khoản chi sang tháng khác",
+      "input": {
+        "dataset": "h3.json",
+        "budget": {
+          "month": "2026-11",
+          "total": 1000000
+        }
+      },
+      "expected": {
+        "limits": {
+          "food": 250000,
+          "shopping": 250000,
+          "transport": 50000,
+          "utilities": 0,
+          "entertainment": 0,
+          "other": 100000
+        },
+        "factor": 1.0,
+        "allocated": 650000,
+        "unallocated": 350000
+      },
+      "actual": {
+        "limits": {
+          "food": 250000,
+          "shopping": 250000,
+          "transport": 50000,
+          "utilities": 0,
+          "entertainment": 0,
+          "other": 100000
+        },
+        "factor": 1.0,
+        "allocated": 650000,
+        "unallocated": 350000,
+        "reason": "Trung bình 3 tháng 2026-08 – 2026-10 (tháng không chi tính 0). Tổng trung bình A = 650.000đ không vượt ngân sách B = 1.000.000đ, nên giữ nguyên trung bình (hệ số 1) và làm tròn xuống. Phần chưa phân bổ: 350.000đ. Dữ liệu nhập được giả định đầy đủ."
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "req": "GET /budgets/2026-11/suggestions",
+          "status": 200,
+          "ms": 5.7
+        }
+      ]
+    },
+    {
+      "id": "2.1-h4",
+      "desc": "Qua năm (11/2025–01/2026), ngày 1 và 31; hệ số lẻ 2.400.000/2.966.666,67",
+      "input": {
+        "dataset": "h4.json",
+        "budget": {
+          "month": "2026-02",
+          "total": 2400000
+        }
+      },
+      "expected": {
+        "limits": {
+          "food": 970786,
+          "shopping": 539325,
+          "transport": 80898,
+          "utilities": 647191,
+          "entertainment": 161797,
+          "other": 0
+        },
+        "factor": 0.808989,
+        "allocated": 2399997,
+        "unallocated": 3
+      },
+      "actual": {
+        "limits": {
+          "food": 970786,
+          "shopping": 539325,
+          "transport": 80898,
+          "utilities": 647191,
+          "entertainment": 161797,
+          "other": 0
+        },
+        "factor": 0.808989,
+        "allocated": 2399997,
+        "unallocated": 3,
+        "reason": "Trung bình 3 tháng 2025-11 – 2026-01 (tháng không chi tính 0). Tổng trung bình A = 2.966.666,67đ vượt ngân sách B = 2.400.000đ, nên mỗi danh mục nhân hệ số B/A = 0,809 và làm tròn xuống. Phần chưa phân bổ: 3đ. Dữ liệu nhập được giả định đầy đủ."
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "req": "GET /budgets/2026-02/suggestions",
+          "status": 200,
+          "ms": 12.3
+        }
+      ]
+    },
+    {
+      "id": "2.1-h5",
+      "desc": "Số lẻ không chia hết, khoản 1đ, ngày đầu/cuối tháng; hệ số 300.000/500.001",
+      "input": {
+        "dataset": "h5.json",
+        "budget": {
+          "month": "2026-11",
+          "total": 100000
+        }
+      },
+      "expected": {
+        "limits": {
+          "food": 89999,
+          "shopping": 3333,
+          "transport": 0,
+          "utilities": 0,
+          "entertainment": 0,
+          "other": 6666
+        },
+        "factor": 0.599999,
+        "allocated": 99998,
+        "unallocated": 2
+      },
+      "actual": {
+        "limits": {
+          "food": 89999,
+          "shopping": 3333,
+          "transport": 0,
+          "utilities": 0,
+          "entertainment": 0,
+          "other": 6666
+        },
+        "factor": 0.599999,
+        "allocated": 99998,
+        "unallocated": 2,
+        "reason": "Trung bình 3 tháng 2026-08 – 2026-10 (tháng không chi tính 0). Tổng trung bình A = 166.667đ vượt ngân sách B = 100.000đ, nên mỗi danh mục nhân hệ số B/A = 0,6 và làm tròn xuống. Phần chưa phân bổ: 2đ. Dữ liệu nhập được giả định đầy đủ."
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "req": "GET /budgets/2026-11/suggestions",
+          "status": 200,
+          "ms": 37.1
+        }
+      ]
+    },
+    {
+      "id": "2.1-thieu-lich-su",
+      "desc": "Có ngân sách nhưng lịch sử chỉ có 2 tháng",
+      "input": {
+        "transactions": [
+          [
+            "2026-09-05",
+            500000
+          ],
+          [
+            "2026-10-05",
+            500000
+          ]
+        ],
+        "budget": 2000000
+      },
+      "expected": {
+        "available": false,
+        "missing": [
+          "history"
+        ],
+        "limits": {
+          "$absent": true
+        }
+      },
+      "actual": {
+        "available": false,
+        "months": [
+          "2026-08",
+          "2026-09",
+          "2026-10"
+        ],
+        "missing": [
+          "history"
+        ],
+        "budget_total": 2000000,
+        "reason": "Cần ngân sách tổng và lịch sử bắt đầu ít nhất ba tháng trước; hãy nhập hạn mức thủ công."
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "req": "GET /budgets/2026-11/suggestions",
+          "status": 200,
+          "ms": 29.2
+        }
+      ]
+    },
+    {
+      "id": "2.1-thieu-ngan-sach",
+      "desc": "Đủ 3 tháng lịch sử nhưng chưa nhập ngân sách tổng",
+      "input": {
+        "transactions": [
+          [
+            "2026-08-05",
+            500000
+          ],
+          [
+            "2026-09-05",
+            500000
+          ],
+          [
+            "2026-10-05",
+            500000
+          ]
+        ],
+        "budget": null
+      },
+      "expected": {
+        "available": false,
+        "missing": [
+          "budget"
+        ],
+        "limits": {
+          "$absent": true
+        }
+      },
+      "actual": {
+        "available": false,
+        "months": [
+          "2026-08",
+          "2026-09",
+          "2026-10"
+        ],
+        "missing": [
+          "budget"
+        ],
+        "budget_total": null,
+        "reason": "Cần ngân sách tổng và lịch sử bắt đầu ít nhất ba tháng trước; hãy nhập hạn mức thủ công."
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "req": "GET /budgets/2026-11/suggestions",
+          "status": 200,
+          "ms": 33.1
+        }
+      ]
+    }
+  ]
+}

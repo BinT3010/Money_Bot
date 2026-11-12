@@ -1,0 +1,707 @@
+{
+  "suite": "2.2",
+  "title": "Nhập ngân sách tổng, sửa hạn mức, phát hiện tổng hạn mức vượt ngân sách",
+  "threshold": {
+    "min_cases": 5,
+    "pass_rate": 1.0
+  },
+  "cases": 10,
+  "passed": 10,
+  "pass_rate": 1.0,
+  "met": true,
+  "results": [
+    {
+      "id": "2.2-01",
+      "desc": "Tổng hạn mức dưới ngân sách: lưu đúng giá trị",
+      "input": [
+        {
+          "req": "PUT /budgets/2026-11",
+          "body": {
+            "total": 3000000,
+            "limits": {
+              "food": 1500000,
+              "transport": 1000000
+            },
+            "threshold": 80
+          }
+        },
+        {
+          "req": "GET /budgets/2026-11",
+          "expect": {
+            "total": 3000000,
+            "limits": {
+              "food": 1500000,
+              "transport": 1000000
+            },
+            "threshold": 80
+          }
+        }
+      ],
+      "expected": [
+        {
+          "req": "GET /budgets/2026-11",
+          "expect": {
+            "total": 3000000,
+            "limits": {
+              "food": 1500000,
+              "transport": 1000000
+            },
+            "threshold": 80
+          }
+        }
+      ],
+      "actual": {
+        "month": "2026-11",
+        "total": 3000000,
+        "limits": {
+          "food": 1500000,
+          "transport": 1000000
+        },
+        "threshold": 80
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "step": 1,
+          "req": "PUT /budgets/2026-11",
+          "status": 200,
+          "ms": 97.0
+        },
+        {
+          "step": 2,
+          "req": "GET /budgets/2026-11",
+          "status": 200,
+          "ms": 19.2
+        }
+      ]
+    },
+    {
+      "id": "2.2-02",
+      "desc": "Tổng hạn mức bằng ngân sách: được lưu",
+      "input": [
+        {
+          "req": "PUT /budgets/2026-11",
+          "body": {
+            "total": 3000000,
+            "limits": {
+              "food": 2000000,
+              "transport": 1000000
+            }
+          }
+        },
+        {
+          "req": "GET /budgets/2026-11",
+          "expect": {
+            "total": 3000000,
+            "limits": {
+              "food": 2000000,
+              "transport": 1000000
+            }
+          }
+        }
+      ],
+      "expected": [
+        {
+          "req": "GET /budgets/2026-11",
+          "expect": {
+            "total": 3000000,
+            "limits": {
+              "food": 2000000,
+              "transport": 1000000
+            }
+          }
+        }
+      ],
+      "actual": {
+        "month": "2026-11",
+        "total": 3000000,
+        "limits": {
+          "food": 2000000,
+          "transport": 1000000
+        },
+        "threshold": 80
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "step": 1,
+          "req": "PUT /budgets/2026-11",
+          "status": 200,
+          "ms": 111.2
+        },
+        {
+          "step": 2,
+          "req": "GET /budgets/2026-11",
+          "status": 200,
+          "ms": 17.2
+        }
+      ]
+    },
+    {
+      "id": "2.2-03",
+      "desc": "Tổng hạn mức vượt ngân sách: từ chối, không lưu",
+      "input": [
+        {
+          "req": "PUT /budgets/2026-11",
+          "body": {
+            "total": 3000000,
+            "limits": {
+              "food": 2000000,
+              "transport": 1000001
+            }
+          },
+          "status": 400,
+          "expect": {
+            "message": "Tổng hạn mức danh mục vượt ngân sách tổng."
+          }
+        },
+        {
+          "req": "GET /budgets/2026-11",
+          "expect": {
+            "total": null,
+            "limits": {}
+          }
+        }
+      ],
+      "expected": [
+        {
+          "req": "PUT /budgets/2026-11",
+          "status": 400,
+          "expect": {
+            "message": "Tổng hạn mức danh mục vượt ngân sách tổng."
+          }
+        },
+        {
+          "req": "GET /budgets/2026-11",
+          "expect": {
+            "total": null,
+            "limits": {}
+          }
+        }
+      ],
+      "actual": {
+        "month": "2026-11",
+        "total": null,
+        "limits": {},
+        "threshold": 80
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "step": 1,
+          "req": "PUT /budgets/2026-11",
+          "status": 400,
+          "ms": 119.0
+        },
+        {
+          "step": 2,
+          "req": "GET /budgets/2026-11",
+          "status": 200,
+          "ms": 15.7
+        }
+      ]
+    },
+    {
+      "id": "2.2-04",
+      "desc": "Sửa hạn mức sau khi đã lưu làm vượt ngân sách: từ chối, giữ giá trị cũ",
+      "input": [
+        {
+          "req": "PUT /budgets/2026-11",
+          "body": {
+            "total": 3000000,
+            "limits": {
+              "food": 1500000
+            }
+          }
+        },
+        {
+          "req": "PUT /budgets/2026-11",
+          "body": {
+            "total": 3000000,
+            "limits": {
+              "food": 1500000,
+              "shopping": 1600000
+            }
+          },
+          "status": 400
+        },
+        {
+          "req": "GET /budgets/2026-11",
+          "expect": {
+            "total": 3000000,
+            "limits": {
+              "food": 1500000
+            }
+          }
+        }
+      ],
+      "expected": [
+        {
+          "req": "PUT /budgets/2026-11",
+          "status": 400
+        },
+        {
+          "req": "GET /budgets/2026-11",
+          "expect": {
+            "total": 3000000,
+            "limits": {
+              "food": 1500000
+            }
+          }
+        }
+      ],
+      "actual": {
+        "month": "2026-11",
+        "total": 3000000,
+        "limits": {
+          "food": 1500000
+        },
+        "threshold": 80
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "step": 1,
+          "req": "PUT /budgets/2026-11",
+          "status": 200,
+          "ms": 103.6
+        },
+        {
+          "step": 2,
+          "req": "PUT /budgets/2026-11",
+          "status": 400,
+          "ms": 17.4
+        },
+        {
+          "step": 3,
+          "req": "GET /budgets/2026-11",
+          "status": 200,
+          "ms": 12.2
+        }
+      ]
+    },
+    {
+      "id": "2.2-05",
+      "desc": "Giảm ngân sách tổng xuống dưới tổng hạn mức đã có: từ chối",
+      "input": [
+        {
+          "req": "PUT /budgets/2026-11",
+          "body": {
+            "total": 3000000,
+            "limits": {
+              "food": 2500000
+            }
+          }
+        },
+        {
+          "req": "PUT /budgets/2026-11",
+          "body": {
+            "total": 2000000,
+            "limits": {
+              "food": 2500000
+            }
+          },
+          "status": 400
+        },
+        {
+          "req": "GET /budgets/2026-11",
+          "expect": {
+            "total": 3000000
+          }
+        }
+      ],
+      "expected": [
+        {
+          "req": "PUT /budgets/2026-11",
+          "status": 400
+        },
+        {
+          "req": "GET /budgets/2026-11",
+          "expect": {
+            "total": 3000000
+          }
+        }
+      ],
+      "actual": {
+        "month": "2026-11",
+        "total": 3000000,
+        "limits": {
+          "food": 2500000
+        },
+        "threshold": 80
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "step": 1,
+          "req": "PUT /budgets/2026-11",
+          "status": 200,
+          "ms": 120.7
+        },
+        {
+          "step": 2,
+          "req": "PUT /budgets/2026-11",
+          "status": 400,
+          "ms": 16.7
+        },
+        {
+          "step": 3,
+          "req": "GET /budgets/2026-11",
+          "status": 200,
+          "ms": 10.6
+        }
+      ]
+    },
+    {
+      "id": "2.2-06",
+      "desc": "Hạn mức âm: từ chối",
+      "input": [
+        {
+          "req": "PUT /budgets/2026-11",
+          "body": {
+            "total": 3000000,
+            "limits": {
+              "food": -1
+            }
+          },
+          "status": 400
+        }
+      ],
+      "expected": [
+        {
+          "req": "PUT /budgets/2026-11",
+          "status": 400
+        }
+      ],
+      "actual": {
+        "message": "Giá trị phải là số nguyên từ 0 đến 1000000000000."
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "step": 1,
+          "req": "PUT /budgets/2026-11",
+          "status": 400,
+          "ms": 130.6
+        }
+      ]
+    },
+    {
+      "id": "2.2-07",
+      "desc": "Ngân sách tổng bằng 0 hoặc âm: từ chối",
+      "input": [
+        {
+          "req": "PUT /budgets/2026-11",
+          "body": {
+            "total": 0,
+            "limits": {}
+          },
+          "status": 400
+        },
+        {
+          "req": "PUT /budgets/2026-11",
+          "body": {
+            "total": -5,
+            "limits": {}
+          },
+          "status": 400
+        }
+      ],
+      "expected": [
+        {
+          "req": "PUT /budgets/2026-11",
+          "status": 400
+        },
+        {
+          "req": "PUT /budgets/2026-11",
+          "status": 400
+        }
+      ],
+      "actual": {
+        "message": "Giá trị phải là số nguyên từ 1 đến 1000000000000."
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "step": 1,
+          "req": "PUT /budgets/2026-11",
+          "status": 400,
+          "ms": 166.4
+        },
+        {
+          "step": 2,
+          "req": "PUT /budgets/2026-11",
+          "status": 400,
+          "ms": 35.7
+        }
+      ]
+    },
+    {
+      "id": "2.2-08",
+      "desc": "Giá trị không phải số nguyên hoặc danh mục lạ: từ chối",
+      "input": [
+        {
+          "req": "PUT /budgets/2026-11",
+          "body": {
+            "total": 3000000,
+            "limits": {
+              "food": "1000"
+            }
+          },
+          "status": 422
+        },
+        {
+          "req": "PUT /budgets/2026-11",
+          "body": {
+            "total": 3000000.5,
+            "limits": {}
+          },
+          "status": 422
+        },
+        {
+          "req": "PUT /budgets/2026-11",
+          "body": {
+            "total": 3000000,
+            "limits": {
+              "bills": 1000
+            }
+          },
+          "status": 400
+        }
+      ],
+      "expected": [
+        {
+          "req": "PUT /budgets/2026-11",
+          "status": 422
+        },
+        {
+          "req": "PUT /budgets/2026-11",
+          "status": 422
+        },
+        {
+          "req": "PUT /budgets/2026-11",
+          "status": 400
+        }
+      ],
+      "actual": {
+        "message": "Danh mục không hợp lệ."
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "step": 1,
+          "req": "PUT /budgets/2026-11",
+          "status": 422,
+          "ms": 93.7
+        },
+        {
+          "step": 2,
+          "req": "PUT /budgets/2026-11",
+          "status": 422,
+          "ms": 6.3
+        },
+        {
+          "step": 3,
+          "req": "PUT /budgets/2026-11",
+          "status": 400,
+          "ms": 4.9
+        }
+      ]
+    },
+    {
+      "id": "2.2-09",
+      "desc": "Để trống khác đặt 0: chỉ danh mục có giá trị mới có hạn mức",
+      "input": [
+        {
+          "req": "PUT /budgets/2026-11",
+          "body": {
+            "total": 3000000,
+            "limits": {
+              "entertainment": 0
+            }
+          }
+        },
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "categories": {
+              "$contains": [
+                {
+                  "category_id": "entertainment",
+                  "limit": 0,
+                  "level": "NORMAL"
+                },
+                {
+                  "category_id": "food",
+                  "limit": null,
+                  "level": "UNSET"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "expected": [
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "categories": {
+              "$contains": [
+                {
+                  "category_id": "entertainment",
+                  "limit": 0,
+                  "level": "NORMAL"
+                },
+                {
+                  "category_id": "food",
+                  "limit": null,
+                  "level": "UNSET"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "actual": {
+        "month": "2026-11",
+        "total": 0,
+        "count": 0,
+        "by_category": {},
+        "budget": {
+          "month": "2026-11",
+          "total": 3000000,
+          "limits": {
+            "entertainment": 0
+          },
+          "threshold": 80
+        },
+        "remaining": 3000000,
+        "categories": [
+          {
+            "category_id": "food",
+            "label": "Ăn uống",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "shopping",
+            "label": "Tiêu dùng/Mua sắm",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "transport",
+            "label": "Đi lại",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "utilities",
+            "label": "Hóa đơn tiện ích",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "entertainment",
+            "label": "Giải trí",
+            "spent": 0,
+            "limit": 0,
+            "level": "NORMAL",
+            "ratio": null,
+            "percent": null,
+            "remaining": 0,
+            "message": "Giải trí: hạn mức 0đ, chưa chi trong tháng 11."
+          },
+          {
+            "category_id": "other",
+            "label": "Khác",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          }
+        ]
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "step": 1,
+          "req": "PUT /budgets/2026-11",
+          "status": 200,
+          "ms": 109.6
+        },
+        {
+          "step": 2,
+          "req": "GET /summary?month=2026-11",
+          "status": 200,
+          "ms": 5.7
+        }
+      ]
+    },
+    {
+      "id": "2.2-10",
+      "desc": "Tháng không hợp lệ: từ chối",
+      "input": [
+        {
+          "req": "PUT /budgets/2026-13",
+          "body": {
+            "total": 3000000,
+            "limits": {}
+          },
+          "status": 400
+        }
+      ],
+      "expected": [
+        {
+          "req": "PUT /budgets/2026-13",
+          "status": 400
+        }
+      ],
+      "actual": {
+        "message": "Tháng phải có dạng yyyy-MM."
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "step": 1,
+          "req": "PUT /budgets/2026-13",
+          "status": 400,
+          "ms": 120.7
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,2212 @@
+{
+  "suite": "2.3",
+  "title": "Cảnh báo khi đạt 80% và khi đạt/vượt 100% hạn mức danh mục",
+  "threshold": {
+    "min_cases": 10,
+    "pass_rate": 1.0
+  },
+  "cases": 12,
+  "passed": 12,
+  "pass_rate": 1.0,
+  "met": true,
+  "results": [
+    {
+      "id": "2.3-01",
+      "desc": "50% hạn mức: bình thường",
+      "input": [
+        {
+          "req": "PUT /budgets/2026-11",
+          "body": {
+            "total": 5000000,
+            "limits": {
+              "food": 1000000
+            }
+          }
+        },
+        {
+          "req": "POST /transactions",
+          "body": {
+            "amount_vnd": 500000,
+            "description": "Ăn uống",
+            "category_id": "food",
+            "date": "2026-11-05"
+          }
+        },
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "categories": {
+              "$contains": [
+                {
+                  "category_id": "food",
+                  "level": "NORMAL",
+                  "percent": 50.0
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "expected": [
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "categories": {
+              "$contains": [
+                {
+                  "category_id": "food",
+                  "level": "NORMAL",
+                  "percent": 50.0
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "actual": {
+        "month": "2026-11",
+        "total": 500000,
+        "count": 1,
+        "by_category": {
+          "food": 500000
+        },
+        "budget": {
+          "month": "2026-11",
+          "total": 5000000,
+          "limits": {
+            "food": 1000000
+          },
+          "threshold": 80
+        },
+        "remaining": 4500000,
+        "categories": [
+          {
+            "category_id": "food",
+            "label": "Ăn uống",
+            "spent": 500000,
+            "limit": 1000000,
+            "level": "NORMAL",
+            "ratio": 0.5,
+            "percent": 50.0,
+            "remaining": 500000,
+            "message": "Ăn uống đã dùng 500.000/1.000.000đ (50%), còn 500.000đ trong hạn mức tháng 11."
+          },
+          {
+            "category_id": "shopping",
+            "label": "Tiêu dùng/Mua sắm",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "transport",
+            "label": "Đi lại",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "utilities",
+            "label": "Hóa đơn tiện ích",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "entertainment",
+            "label": "Giải trí",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "other",
+            "label": "Khác",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          }
+        ]
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "step": 1,
+          "req": "PUT /budgets/2026-11",
+          "status": 200,
+          "ms": 193.3
+        },
+        {
+          "step": 2,
+          "req": "POST /transactions",
+          "status": 200,
+          "ms": 38.7
+        },
+        {
+          "step": 3,
+          "req": "GET /summary?month=2026-11",
+          "status": 200,
+          "ms": 17.3
+        }
+      ]
+    },
+    {
+      "id": "2.3-02",
+      "desc": "Sát mốc 79,9999%: chưa cảnh báo",
+      "input": [
+        {
+          "req": "PUT /budgets/2026-11",
+          "body": {
+            "total": 5000000,
+            "limits": {
+              "food": 1000000
+            }
+          }
+        },
+        {
+          "req": "POST /transactions",
+          "body": {
+            "amount_vnd": 799999,
+            "description": "Ăn uống",
+            "category_id": "food",
+            "date": "2026-11-05"
+          }
+        },
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "categories": {
+              "$contains": [
+                {
+                  "category_id": "food",
+                  "level": "NORMAL"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "expected": [
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "categories": {
+              "$contains": [
+                {
+                  "category_id": "food",
+                  "level": "NORMAL"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "actual": {
+        "month": "2026-11",
+        "total": 799999,
+        "count": 1,
+        "by_category": {
+          "food": 799999
+        },
+        "budget": {
+          "month": "2026-11",
+          "total": 5000000,
+          "limits": {
+            "food": 1000000
+          },
+          "threshold": 80
+        },
+        "remaining": 4200001,
+        "categories": [
+          {
+            "category_id": "food",
+            "label": "Ăn uống",
+            "spent": 799999,
+            "limit": 1000000,
+            "level": "NORMAL",
+            "ratio": 0.799999,
+            "percent": 80.0,
+            "remaining": 200001,
+            "message": "Ăn uống đã dùng 799.999/1.000.000đ (80%), còn 200.001đ trong hạn mức tháng 11."
+          },
+          {
+            "category_id": "shopping",
+            "label": "Tiêu dùng/Mua sắm",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "transport",
+            "label": "Đi lại",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "utilities",
+            "label": "Hóa đơn tiện ích",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "entertainment",
+            "label": "Giải trí",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "other",
+            "label": "Khác",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          }
+        ]
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "step": 1,
+          "req": "PUT /budgets/2026-11",
+          "status": 200,
+          "ms": 194.0
+        },
+        {
+          "step": 2,
+          "req": "POST /transactions",
+          "status": 200,
+          "ms": 33.2
+        },
+        {
+          "step": 3,
+          "req": "GET /summary?month=2026-11",
+          "status": 200,
+          "ms": 16.6
+        }
+      ]
+    },
+    {
+      "id": "2.3-03",
+      "desc": "Đúng 80%: cảnh báo sớm, câu thông báo có tỷ lệ",
+      "input": [
+        {
+          "req": "PUT /budgets/2026-11",
+          "body": {
+            "total": 5000000,
+            "limits": {
+              "food": 1000000
+            }
+          }
+        },
+        {
+          "req": "POST /transactions",
+          "body": {
+            "amount_vnd": 800000,
+            "description": "Ăn uống",
+            "category_id": "food",
+            "date": "2026-11-05"
+          }
+        },
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "categories": {
+              "$contains": [
+                {
+                  "category_id": "food",
+                  "level": "WARNING",
+                  "message": "Ăn uống đã dùng 800.000/1.000.000đ (80%), còn 200.000đ trong hạn mức tháng 11."
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "expected": [
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "categories": {
+              "$contains": [
+                {
+                  "category_id": "food",
+                  "level": "WARNING",
+                  "message": "Ăn uống đã dùng 800.000/1.000.000đ (80%), còn 200.000đ trong hạn mức tháng 11."
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "actual": {
+        "month": "2026-11",
+        "total": 800000,
+        "count": 1,
+        "by_category": {
+          "food": 800000
+        },
+        "budget": {
+          "month": "2026-11",
+          "total": 5000000,
+          "limits": {
+            "food": 1000000
+          },
+          "threshold": 80
+        },
+        "remaining": 4200000,
+        "categories": [
+          {
+            "category_id": "food",
+            "label": "Ăn uống",
+            "spent": 800000,
+            "limit": 1000000,
+            "level": "WARNING",
+            "ratio": 0.8,
+            "percent": 80.0,
+            "remaining": 200000,
+            "message": "Ăn uống đã dùng 800.000/1.000.000đ (80%), còn 200.000đ trong hạn mức tháng 11."
+          },
+          {
+            "category_id": "shopping",
+            "label": "Tiêu dùng/Mua sắm",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "transport",
+            "label": "Đi lại",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "utilities",
+            "label": "Hóa đơn tiện ích",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "entertainment",
+            "label": "Giải trí",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "other",
+            "label": "Khác",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          }
+        ]
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "step": 1,
+          "req": "PUT /budgets/2026-11",
+          "status": 200,
+          "ms": 199.7
+        },
+        {
+          "step": 2,
+          "req": "POST /transactions",
+          "status": 200,
+          "ms": 38.0
+        },
+        {
+          "step": 3,
+          "req": "GET /summary?month=2026-11",
+          "status": 200,
+          "ms": 22.9
+        }
+      ]
+    },
+    {
+      "id": "2.3-04",
+      "desc": "Đúng 100%: đã đạt hạn mức",
+      "input": [
+        {
+          "req": "PUT /budgets/2026-11",
+          "body": {
+            "total": 5000000,
+            "limits": {
+              "food": 1000000
+            }
+          }
+        },
+        {
+          "req": "POST /transactions",
+          "body": {
+            "amount_vnd": 1000000,
+            "description": "Ăn uống",
+            "category_id": "food",
+            "date": "2026-11-05"
+          }
+        },
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "categories": {
+              "$contains": [
+                {
+                  "category_id": "food",
+                  "level": "REACHED",
+                  "remaining": 0
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "expected": [
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "categories": {
+              "$contains": [
+                {
+                  "category_id": "food",
+                  "level": "REACHED",
+                  "remaining": 0
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "actual": {
+        "month": "2026-11",
+        "total": 1000000,
+        "count": 1,
+        "by_category": {
+          "food": 1000000
+        },
+        "budget": {
+          "month": "2026-11",
+          "total": 5000000,
+          "limits": {
+            "food": 1000000
+          },
+          "threshold": 80
+        },
+        "remaining": 4000000,
+        "categories": [
+          {
+            "category_id": "food",
+            "label": "Ăn uống",
+            "spent": 1000000,
+            "limit": 1000000,
+            "level": "REACHED",
+            "ratio": 1.0,
+            "percent": 100.0,
+            "remaining": 0,
+            "message": "Ăn uống đã dùng 1.000.000/1.000.000đ (100%), còn 0đ trong hạn mức tháng 11."
+          },
+          {
+            "category_id": "shopping",
+            "label": "Tiêu dùng/Mua sắm",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "transport",
+            "label": "Đi lại",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "utilities",
+            "label": "Hóa đơn tiện ích",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "entertainment",
+            "label": "Giải trí",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "other",
+            "label": "Khác",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          }
+        ]
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "step": 1,
+          "req": "PUT /budgets/2026-11",
+          "status": 200,
+          "ms": 177.7
+        },
+        {
+          "step": 2,
+          "req": "POST /transactions",
+          "status": 200,
+          "ms": 47.5
+        },
+        {
+          "step": 3,
+          "req": "GET /summary?month=2026-11",
+          "status": 200,
+          "ms": 36.6
+        }
+      ]
+    },
+    {
+      "id": "2.3-05",
+      "desc": "Vượt 1đ: vượt hạn mức",
+      "input": [
+        {
+          "req": "PUT /budgets/2026-11",
+          "body": {
+            "total": 5000000,
+            "limits": {
+              "food": 1000000
+            }
+          }
+        },
+        {
+          "req": "POST /transactions",
+          "body": {
+            "amount_vnd": 1000001,
+            "description": "Ăn uống",
+            "category_id": "food",
+            "date": "2026-11-05"
+          }
+        },
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "categories": {
+              "$contains": [
+                {
+                  "category_id": "food",
+                  "level": "OVER",
+                  "remaining": -1
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "expected": [
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "categories": {
+              "$contains": [
+                {
+                  "category_id": "food",
+                  "level": "OVER",
+                  "remaining": -1
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "actual": {
+        "month": "2026-11",
+        "total": 1000001,
+        "count": 1,
+        "by_category": {
+          "food": 1000001
+        },
+        "budget": {
+          "month": "2026-11",
+          "total": 5000000,
+          "limits": {
+            "food": 1000000
+          },
+          "threshold": 80
+        },
+        "remaining": 3999999,
+        "categories": [
+          {
+            "category_id": "food",
+            "label": "Ăn uống",
+            "spent": 1000001,
+            "limit": 1000000,
+            "level": "OVER",
+            "ratio": 1.000001,
+            "percent": 100.0,
+            "remaining": -1,
+            "message": "Ăn uống đã dùng 1.000.001/1.000.000đ (100%), vượt 1đ so với hạn mức tháng 11."
+          },
+          {
+            "category_id": "shopping",
+            "label": "Tiêu dùng/Mua sắm",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "transport",
+            "label": "Đi lại",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "utilities",
+            "label": "Hóa đơn tiện ích",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "entertainment",
+            "label": "Giải trí",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "other",
+            "label": "Khác",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          }
+        ]
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "step": 1,
+          "req": "PUT /budgets/2026-11",
+          "status": 200,
+          "ms": 166.9
+        },
+        {
+          "step": 2,
+          "req": "POST /transactions",
+          "status": 200,
+          "ms": 45.9
+        },
+        {
+          "step": 3,
+          "req": "GET /summary?month=2026-11",
+          "status": 200,
+          "ms": 41.0
+        }
+      ]
+    },
+    {
+      "id": "2.3-06",
+      "desc": "Một khoản chi vượt cả hai mốc (50% -> 120%): chỉ hiện mức nghiêm trọng hơn",
+      "input": [
+        {
+          "req": "PUT /budgets/2026-11",
+          "body": {
+            "total": 5000000,
+            "limits": {
+              "food": 1000000
+            }
+          }
+        },
+        {
+          "req": "POST /transactions",
+          "body": {
+            "amount_vnd": 500000,
+            "description": "Ăn uống",
+            "category_id": "food",
+            "date": "2026-11-05"
+          }
+        },
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "categories": {
+              "$contains": [
+                {
+                  "category_id": "food",
+                  "level": "NORMAL"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "req": "POST /transactions",
+          "body": {
+            "amount_vnd": 700000,
+            "description": "Liên hoan",
+            "category_id": "food",
+            "date": "2026-11-06"
+          }
+        },
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "categories": {
+              "$len": 6
+            }
+          }
+        },
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "categories": {
+              "$contains": [
+                {
+                  "category_id": "food",
+                  "level": "OVER",
+                  "percent": 120.0,
+                  "message": "Ăn uống đã dùng 1.200.000/1.000.000đ (120%), vượt 200.000đ so với hạn mức tháng 11."
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "expected": [
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "categories": {
+              "$contains": [
+                {
+                  "category_id": "food",
+                  "level": "NORMAL"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "categories": {
+              "$len": 6
+            }
+          }
+        },
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "categories": {
+              "$contains": [
+                {
+                  "category_id": "food",
+                  "level": "OVER",
+                  "percent": 120.0,
+                  "message": "Ăn uống đã dùng 1.200.000/1.000.000đ (120%), vượt 200.000đ so với hạn mức tháng 11."
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "actual": {
+        "month": "2026-11",
+        "total": 1200000,
+        "count": 2,
+        "by_category": {
+          "food": 1200000
+        },
+        "budget": {
+          "month": "2026-11",
+          "total": 5000000,
+          "limits": {
+            "food": 1000000
+          },
+          "threshold": 80
+        },
+        "remaining": 3800000,
+        "categories": [
+          {
+            "category_id": "food",
+            "label": "Ăn uống",
+            "spent": 1200000,
+            "limit": 1000000,
+            "level": "OVER",
+            "ratio": 1.2,
+            "percent": 120.0,
+            "remaining": -200000,
+            "message": "Ăn uống đã dùng 1.200.000/1.000.000đ (120%), vượt 200.000đ so với hạn mức tháng 11."
+          },
+          {
+            "category_id": "shopping",
+            "label": "Tiêu dùng/Mua sắm",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "transport",
+            "label": "Đi lại",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "utilities",
+            "label": "Hóa đơn tiện ích",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "entertainment",
+            "label": "Giải trí",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "other",
+            "label": "Khác",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          }
+        ]
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "step": 1,
+          "req": "PUT /budgets/2026-11",
+          "status": 200,
+          "ms": 168.4
+        },
+        {
+          "step": 2,
+          "req": "POST /transactions",
+          "status": 200,
+          "ms": 42.1
+        },
+        {
+          "step": 3,
+          "req": "GET /summary?month=2026-11",
+          "status": 200,
+          "ms": 34.9
+        },
+        {
+          "step": 4,
+          "req": "POST /transactions",
+          "status": 200,
+          "ms": 44.3
+        },
+        {
+          "step": 5,
+          "req": "GET /summary?month=2026-11",
+          "status": 200,
+          "ms": 34.5
+        },
+        {
+          "step": 6,
+          "req": "GET /summary?month=2026-11",
+          "status": 200,
+          "ms": 29.4
+        }
+      ]
+    },
+    {
+      "id": "2.3-07",
+      "desc": "Sửa giao dịch làm giảm từ vượt xuống cảnh báo",
+      "input": [
+        {
+          "req": "PUT /budgets/2026-11",
+          "body": {
+            "total": 5000000,
+            "limits": {
+              "food": 1000000
+            }
+          }
+        },
+        {
+          "req": "POST /transactions",
+          "body": {
+            "amount_vnd": 1200000,
+            "description": "Ăn uống",
+            "category_id": "food",
+            "date": "2026-11-05"
+          },
+          "save": {
+            "tx": "id"
+          }
+        },
+        {
+          "req": "PUT /transactions/{tx}",
+          "body": {
+            "amount_vnd": 850000,
+            "description": "Ăn uống",
+            "category_id": "food",
+            "date": "2026-11-05"
+          }
+        },
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "categories": {
+              "$contains": [
+                {
+                  "category_id": "food",
+                  "level": "WARNING",
+                  "percent": 85.0
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "expected": [
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "categories": {
+              "$contains": [
+                {
+                  "category_id": "food",
+                  "level": "WARNING",
+                  "percent": 85.0
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "actual": {
+        "month": "2026-11",
+        "total": 850000,
+        "count": 1,
+        "by_category": {
+          "food": 850000
+        },
+        "budget": {
+          "month": "2026-11",
+          "total": 5000000,
+          "limits": {
+            "food": 1000000
+          },
+          "threshold": 80
+        },
+        "remaining": 4150000,
+        "categories": [
+          {
+            "category_id": "food",
+            "label": "Ăn uống",
+            "spent": 850000,
+            "limit": 1000000,
+            "level": "WARNING",
+            "ratio": 0.85,
+            "percent": 85.0,
+            "remaining": 150000,
+            "message": "Ăn uống đã dùng 850.000/1.000.000đ (85%), còn 150.000đ trong hạn mức tháng 11."
+          },
+          {
+            "category_id": "shopping",
+            "label": "Tiêu dùng/Mua sắm",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "transport",
+            "label": "Đi lại",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "utilities",
+            "label": "Hóa đơn tiện ích",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "entertainment",
+            "label": "Giải trí",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "other",
+            "label": "Khác",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          }
+        ]
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "step": 1,
+          "req": "PUT /budgets/2026-11",
+          "status": 200,
+          "ms": 167.9
+        },
+        {
+          "step": 2,
+          "req": "POST /transactions",
+          "status": 200,
+          "ms": 56.9
+        },
+        {
+          "step": 3,
+          "req": "PUT /transactions/0bc758fd79f3455f801382c64d09967f",
+          "status": 200,
+          "ms": 53.2
+        },
+        {
+          "step": 4,
+          "req": "GET /summary?month=2026-11",
+          "status": 200,
+          "ms": 37.1
+        }
+      ]
+    },
+    {
+      "id": "2.3-08",
+      "desc": "Xóa giao dịch: cảnh báo được tính lại",
+      "input": [
+        {
+          "req": "PUT /budgets/2026-11",
+          "body": {
+            "total": 5000000,
+            "limits": {
+              "food": 1000000
+            }
+          }
+        },
+        {
+          "req": "POST /transactions",
+          "body": {
+            "amount_vnd": 300000,
+            "description": "Ăn uống",
+            "category_id": "food",
+            "date": "2026-11-04"
+          }
+        },
+        {
+          "req": "POST /transactions",
+          "body": {
+            "amount_vnd": 800000,
+            "description": "Ăn uống",
+            "category_id": "food",
+            "date": "2026-11-05"
+          },
+          "save": {
+            "tx": "id"
+          }
+        },
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "categories": {
+              "$contains": [
+                {
+                  "category_id": "food",
+                  "level": "OVER"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "req": "DELETE /transactions/{tx}"
+        },
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "categories": {
+              "$contains": [
+                {
+                  "category_id": "food",
+                  "level": "NORMAL",
+                  "spent": 300000
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "expected": [
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "categories": {
+              "$contains": [
+                {
+                  "category_id": "food",
+                  "level": "OVER"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "categories": {
+              "$contains": [
+                {
+                  "category_id": "food",
+                  "level": "NORMAL",
+                  "spent": 300000
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "actual": {
+        "month": "2026-11",
+        "total": 300000,
+        "count": 1,
+        "by_category": {
+          "food": 300000
+        },
+        "budget": {
+          "month": "2026-11",
+          "total": 5000000,
+          "limits": {
+            "food": 1000000
+          },
+          "threshold": 80
+        },
+        "remaining": 4700000,
+        "categories": [
+          {
+            "category_id": "food",
+            "label": "Ăn uống",
+            "spent": 300000,
+            "limit": 1000000,
+            "level": "NORMAL",
+            "ratio": 0.3,
+            "percent": 30.0,
+            "remaining": 700000,
+            "message": "Ăn uống đã dùng 300.000/1.000.000đ (30%), còn 700.000đ trong hạn mức tháng 11."
+          },
+          {
+            "category_id": "shopping",
+            "label": "Tiêu dùng/Mua sắm",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "transport",
+            "label": "Đi lại",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "utilities",
+            "label": "Hóa đơn tiện ích",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "entertainment",
+            "label": "Giải trí",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "other",
+            "label": "Khác",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          }
+        ]
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "step": 1,
+          "req": "PUT /budgets/2026-11",
+          "status": 200,
+          "ms": 168.0
+        },
+        {
+          "step": 2,
+          "req": "POST /transactions",
+          "status": 200,
+          "ms": 51.8
+        },
+        {
+          "step": 3,
+          "req": "POST /transactions",
+          "status": 200,
+          "ms": 52.2
+        },
+        {
+          "step": 4,
+          "req": "GET /summary?month=2026-11",
+          "status": 200,
+          "ms": 44.7
+        },
+        {
+          "step": 5,
+          "req": "DELETE /transactions/456d831457c04d40b5a4056b5f8596c3",
+          "status": 200,
+          "ms": 50.0
+        },
+        {
+          "step": 6,
+          "req": "GET /summary?month=2026-11",
+          "status": 200,
+          "ms": 36.0
+        }
+      ]
+    },
+    {
+      "id": "2.3-09",
+      "desc": "Đổi danh mục giao dịch: cảnh báo chuyển sang danh mục mới",
+      "input": [
+        {
+          "req": "PUT /budgets/2026-11",
+          "body": {
+            "total": 5000000,
+            "limits": {
+              "food": 1000000,
+              "shopping": 1000000
+            }
+          }
+        },
+        {
+          "req": "POST /transactions",
+          "body": {
+            "amount_vnd": 900000,
+            "description": "Ăn uống",
+            "category_id": "food",
+            "date": "2026-11-05"
+          },
+          "save": {
+            "tx": "id"
+          }
+        },
+        {
+          "req": "PUT /transactions/{tx}",
+          "body": {
+            "amount_vnd": 900000,
+            "description": "Áo khoác",
+            "category_id": "shopping",
+            "date": "2026-11-05"
+          }
+        },
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "categories": {
+              "$contains": [
+                {
+                  "category_id": "food",
+                  "level": "NORMAL",
+                  "spent": 0
+                },
+                {
+                  "category_id": "shopping",
+                  "level": "WARNING",
+                  "spent": 900000
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "expected": [
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "categories": {
+              "$contains": [
+                {
+                  "category_id": "food",
+                  "level": "NORMAL",
+                  "spent": 0
+                },
+                {
+                  "category_id": "shopping",
+                  "level": "WARNING",
+                  "spent": 900000
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "actual": {
+        "month": "2026-11",
+        "total": 900000,
+        "count": 1,
+        "by_category": {
+          "shopping": 900000
+        },
+        "budget": {
+          "month": "2026-11",
+          "total": 5000000,
+          "limits": {
+            "food": 1000000,
+            "shopping": 1000000
+          },
+          "threshold": 80
+        },
+        "remaining": 4100000,
+        "categories": [
+          {
+            "category_id": "food",
+            "label": "Ăn uống",
+            "spent": 0,
+            "limit": 1000000,
+            "level": "NORMAL",
+            "ratio": 0.0,
+            "percent": 0.0,
+            "remaining": 1000000,
+            "message": "Ăn uống đã dùng 0/1.000.000đ (0%), còn 1.000.000đ trong hạn mức tháng 11."
+          },
+          {
+            "category_id": "shopping",
+            "label": "Tiêu dùng/Mua sắm",
+            "spent": 900000,
+            "limit": 1000000,
+            "level": "WARNING",
+            "ratio": 0.9,
+            "percent": 90.0,
+            "remaining": 100000,
+            "message": "Tiêu dùng/Mua sắm đã dùng 900.000/1.000.000đ (90%), còn 100.000đ trong hạn mức tháng 11."
+          },
+          {
+            "category_id": "transport",
+            "label": "Đi lại",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "utilities",
+            "label": "Hóa đơn tiện ích",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "entertainment",
+            "label": "Giải trí",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "other",
+            "label": "Khác",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          }
+        ]
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "step": 1,
+          "req": "PUT /budgets/2026-11",
+          "status": 200,
+          "ms": 144.8
+        },
+        {
+          "step": 2,
+          "req": "POST /transactions",
+          "status": 200,
+          "ms": 48.5
+        },
+        {
+          "step": 3,
+          "req": "PUT /transactions/79b9dfa0531f459b8a1bdef7c3db82b2",
+          "status": 200,
+          "ms": 37.1
+        },
+        {
+          "step": 4,
+          "req": "GET /summary?month=2026-11",
+          "status": 200,
+          "ms": 30.4
+        }
+      ]
+    },
+    {
+      "id": "2.3-10",
+      "desc": "Hạn mức 0đ kèm chi dương: vượt hạn mức, không chia cho 0",
+      "input": [
+        {
+          "req": "PUT /budgets/2026-11",
+          "body": {
+            "total": 5000000,
+            "limits": {
+              "entertainment": 0
+            }
+          }
+        },
+        {
+          "req": "POST /transactions",
+          "body": {
+            "amount_vnd": 50000,
+            "description": "Xem phim",
+            "category_id": "entertainment",
+            "date": "2026-11-05"
+          }
+        },
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "categories": {
+              "$contains": [
+                {
+                  "category_id": "entertainment",
+                  "level": "OVER",
+                  "ratio": null,
+                  "percent": null
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "expected": [
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "categories": {
+              "$contains": [
+                {
+                  "category_id": "entertainment",
+                  "level": "OVER",
+                  "ratio": null,
+                  "percent": null
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "actual": {
+        "month": "2026-11",
+        "total": 50000,
+        "count": 1,
+        "by_category": {
+          "entertainment": 50000
+        },
+        "budget": {
+          "month": "2026-11",
+          "total": 5000000,
+          "limits": {
+            "entertainment": 0
+          },
+          "threshold": 80
+        },
+        "remaining": 4950000,
+        "categories": [
+          {
+            "category_id": "food",
+            "label": "Ăn uống",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "shopping",
+            "label": "Tiêu dùng/Mua sắm",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "transport",
+            "label": "Đi lại",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "utilities",
+            "label": "Hóa đơn tiện ích",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "entertainment",
+            "label": "Giải trí",
+            "spent": 50000,
+            "limit": 0,
+            "level": "OVER",
+            "ratio": null,
+            "percent": null,
+            "remaining": -50000,
+            "message": "Giải trí: hạn mức 0đ nhưng đã chi 50.000đ trong tháng 11, vượt hạn mức."
+          },
+          {
+            "category_id": "other",
+            "label": "Khác",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          }
+        ]
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "step": 1,
+          "req": "PUT /budgets/2026-11",
+          "status": 200,
+          "ms": 188.5
+        },
+        {
+          "step": 2,
+          "req": "POST /transactions",
+          "status": 200,
+          "ms": 50.1
+        },
+        {
+          "step": 3,
+          "req": "GET /summary?month=2026-11",
+          "status": 200,
+          "ms": 33.2
+        }
+      ]
+    },
+    {
+      "id": "2.3-11",
+      "desc": "Nâng hạn mức: trạng thái tính lại từ vượt về bình thường",
+      "input": [
+        {
+          "req": "PUT /budgets/2026-11",
+          "body": {
+            "total": 5000000,
+            "limits": {
+              "food": 1000000
+            }
+          }
+        },
+        {
+          "req": "POST /transactions",
+          "body": {
+            "amount_vnd": 1100000,
+            "description": "Ăn uống",
+            "category_id": "food",
+            "date": "2026-11-05"
+          }
+        },
+        {
+          "req": "PUT /budgets/2026-11",
+          "body": {
+            "total": 5000000,
+            "limits": {
+              "food": 2000000
+            }
+          }
+        },
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "categories": {
+              "$contains": [
+                {
+                  "category_id": "food",
+                  "level": "NORMAL",
+                  "percent": 55.0
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "expected": [
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "categories": {
+              "$contains": [
+                {
+                  "category_id": "food",
+                  "level": "NORMAL",
+                  "percent": 55.0
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "actual": {
+        "month": "2026-11",
+        "total": 1100000,
+        "count": 1,
+        "by_category": {
+          "food": 1100000
+        },
+        "budget": {
+          "month": "2026-11",
+          "total": 5000000,
+          "limits": {
+            "food": 2000000
+          },
+          "threshold": 80
+        },
+        "remaining": 3900000,
+        "categories": [
+          {
+            "category_id": "food",
+            "label": "Ăn uống",
+            "spent": 1100000,
+            "limit": 2000000,
+            "level": "NORMAL",
+            "ratio": 0.55,
+            "percent": 55.0,
+            "remaining": 900000,
+            "message": "Ăn uống đã dùng 1.100.000/2.000.000đ (55%), còn 900.000đ trong hạn mức tháng 11."
+          },
+          {
+            "category_id": "shopping",
+            "label": "Tiêu dùng/Mua sắm",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "transport",
+            "label": "Đi lại",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "utilities",
+            "label": "Hóa đơn tiện ích",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "entertainment",
+            "label": "Giải trí",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "other",
+            "label": "Khác",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          }
+        ]
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "step": 1,
+          "req": "PUT /budgets/2026-11",
+          "status": 200,
+          "ms": 174.8
+        },
+        {
+          "step": 2,
+          "req": "POST /transactions",
+          "status": 200,
+          "ms": 50.5
+        },
+        {
+          "step": 3,
+          "req": "PUT /budgets/2026-11",
+          "status": 200,
+          "ms": 41.1
+        },
+        {
+          "step": 4,
+          "req": "GET /summary?month=2026-11",
+          "status": 200,
+          "ms": 21.7
+        }
+      ]
+    },
+    {
+      "id": "2.3-12",
+      "desc": "Chi tháng khác không tính vào hạn mức tháng này; làm mới nhiều lần cho cùng kết quả",
+      "input": [
+        {
+          "req": "PUT /budgets/2026-11",
+          "body": {
+            "total": 5000000,
+            "limits": {
+              "food": 1000000
+            }
+          }
+        },
+        {
+          "req": "POST /transactions",
+          "body": {
+            "amount_vnd": 900000,
+            "description": "Ăn uống",
+            "category_id": "food",
+            "date": "2026-10-31"
+          }
+        },
+        {
+          "req": "POST /transactions",
+          "body": {
+            "amount_vnd": 100000,
+            "description": "Ăn uống",
+            "category_id": "food",
+            "date": "2026-11-01"
+          }
+        },
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "categories": {
+              "$contains": [
+                {
+                  "category_id": "food",
+                  "level": "NORMAL",
+                  "spent": 100000
+                }
+              ]
+            }
+          }
+        },
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "count": 1,
+            "categories": {
+              "$len": 6
+            }
+          }
+        },
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "count": 1,
+            "categories": {
+              "$contains": [
+                {
+                  "category_id": "food",
+                  "spent": 100000
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "expected": [
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "categories": {
+              "$contains": [
+                {
+                  "category_id": "food",
+                  "level": "NORMAL",
+                  "spent": 100000
+                }
+              ]
+            }
+          }
+        },
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "count": 1,
+            "categories": {
+              "$len": 6
+            }
+          }
+        },
+        {
+          "req": "GET /summary?month=2026-11",
+          "expect": {
+            "count": 1,
+            "categories": {
+              "$contains": [
+                {
+                  "category_id": "food",
+                  "spent": 100000
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "actual": {
+        "month": "2026-11",
+        "total": 100000,
+        "count": 1,
+        "by_category": {
+          "food": 100000
+        },
+        "budget": {
+          "month": "2026-11",
+          "total": 5000000,
+          "limits": {
+            "food": 1000000
+          },
+          "threshold": 80
+        },
+        "remaining": 4900000,
+        "categories": [
+          {
+            "category_id": "food",
+            "label": "Ăn uống",
+            "spent": 100000,
+            "limit": 1000000,
+            "level": "NORMAL",
+            "ratio": 0.1,
+            "percent": 10.0,
+            "remaining": 900000,
+            "message": "Ăn uống đã dùng 100.000/1.000.000đ (10%), còn 900.000đ trong hạn mức tháng 11."
+          },
+          {
+            "category_id": "shopping",
+            "label": "Tiêu dùng/Mua sắm",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "transport",
+            "label": "Đi lại",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "utilities",
+            "label": "Hóa đơn tiện ích",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "entertainment",
+            "label": "Giải trí",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          },
+          {
+            "category_id": "other",
+            "label": "Khác",
+            "spent": 0,
+            "limit": null,
+            "level": "UNSET",
+            "ratio": null,
+            "percent": null,
+            "remaining": null,
+            "message": null
+          }
+        ]
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "step": 1,
+          "req": "PUT /budgets/2026-11",
+          "status": 200,
+          "ms": 165.9
+        },
+        {
+          "step": 2,
+          "req": "POST /transactions",
+          "status": 200,
+          "ms": 53.7
+        },
+        {
+          "step": 3,
+          "req": "POST /transactions",
+          "status": 200,
+          "ms": 47.1
+        },
+        {
+          "step": 4,
+          "req": "GET /summary?month=2026-11",
+          "status": 200,
+          "ms": 23.2
+        },
+        {
+          "step": 5,
+          "req": "GET /summary?month=2026-11",
+          "status": 200,
+          "ms": 29.7
+        },
+        {
+          "step": 6,
+          "req": "GET /summary?month=2026-11",
+          "status": 200,
+          "ms": 31.3
+        }
+      ]
+    }
+  ]
+}
