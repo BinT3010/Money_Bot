@@ -9,8 +9,7 @@ import java.util.Locale;
  * Every amount, percentage, level and message shown here comes from the API; the screen computes no totals. */
 final class BudgetScreen {
     // Temporary UI range until the backend returns category-specific bounds.
-    private static final int PLACEHOLDER_RANGE_MIN_PERCENT=80;
-    private static final int PLACEHOLDER_RANGE_MAX_PERCENT=120;
+    private static final int PLACEHOLDER_RANGE_MAX_BUDGET_PERCENT=50;
 
     static void budget(MainActivity host) {
         host.monthPicker();
@@ -120,7 +119,12 @@ final class BudgetScreen {
                         limitSliders[i].setEnabled(cap>0);
                         long value=amountOrZero(host.value(edits[i]));
                         limitSliders[i].setProgress(cap>0?(int)Math.max(0,Math.min(100,value*100/cap)):0);
-                        if(hasRecommendation[i])recommendationBars[i].setProgress(cap>0?(int)Math.max(0,Math.min(100,recommended[i]*100/cap)):0);
+                        if(hasRecommendation[i]){
+                            recommendationBars[i].setProgress(cap>0?(int)Math.max(0,Math.min(100,recommended[i]*100/cap)):0);
+                            rangeMaximum[i]=cap*PLACEHOLDER_RANGE_MAX_BUDGET_PERCENT/100;
+                            setAllocationWarning(limitSliders[i],warningPulses,i,
+                                outsideRange(value,rangeMinimum[i],rangeMaximum[i]));
+                        }
                     }
                     updateAllocationSummary(host,total,edits,allocationSummary);
                 }
@@ -147,9 +151,9 @@ final class BudgetScreen {
                     long currentCap=amountOrZero(host.value(total));
                     for(int i=0;i<6;i++){
                         recommended[i]=suggested.getLong(host.categories[i]);hasRecommendation[i]=true;
-                        rangeMinimum[i]=recommended[i]*PLACEHOLDER_RANGE_MIN_PERCENT/100;
-                        rangeMaximum[i]=(recommended[i]*PLACEHOLDER_RANGE_MAX_PERCENT+99)/100;
-                        recommendationLabels[i].setText("Mức gợi ý · "+host.money(recommended[i])+" · khoảng thử "+PLACEHOLDER_RANGE_MIN_PERCENT+"–"+PLACEHOLDER_RANGE_MAX_PERCENT+"%");
+                        rangeMinimum[i]=0;
+                        rangeMaximum[i]=currentCap*PLACEHOLDER_RANGE_MAX_BUDGET_PERCENT/100;
+                        recommendationLabels[i].setText("Mức gợi ý · "+host.money(recommended[i])+" · khoảng thử 0–"+PLACEHOLDER_RANGE_MAX_BUDGET_PERCENT+"% ngân sách tổng");
                         recommendationLabels[i].setVisibility(android.view.View.VISIBLE);
                         recommendationBars[i].setProgress(currentCap>0?(int)Math.max(0,Math.min(100,recommended[i]*100/currentCap)):0);
                         recommendationBars[i].setVisibility(android.view.View.VISIBLE);
@@ -243,8 +247,8 @@ final class BudgetScreen {
 
     private static void setAllocationWarning(SeekBar slider,android.animation.ValueAnimator[] pulses,int index,boolean unreasonable){
         slider.setContentDescription(unreasonable
-            ?"Hạn mức ngoài khoảng thử nghiệm "+PLACEHOLDER_RANGE_MIN_PERCENT+"–"+PLACEHOLDER_RANGE_MAX_PERCENT+"% mức gợi ý · cảnh báo đỏ"
-            :"Hạn mức trong khoảng thử nghiệm "+PLACEHOLDER_RANGE_MIN_PERCENT+"–"+PLACEHOLDER_RANGE_MAX_PERCENT+"% mức gợi ý · xanh dương");
+            ?"Hạn mức ngoài khoảng thử nghiệm 0–"+PLACEHOLDER_RANGE_MAX_BUDGET_PERCENT+"% ngân sách tổng · cảnh báo đỏ"
+            :"Hạn mức trong khoảng thử nghiệm 0–"+PLACEHOLDER_RANGE_MAX_BUDGET_PERCENT+"% ngân sách tổng · xanh dương");
         if(unreasonable){
             if(pulses[index]==null){
                 android.animation.ValueAnimator pulse=android.animation.ValueAnimator.ofFloat(0f,1f);

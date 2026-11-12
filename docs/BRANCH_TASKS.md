@@ -68,12 +68,12 @@ values, plus Java flow tests.
 ## Budget range feedback acceptance
 
 The backend owns the acceptable allocation interval `[a, b]` for each necessary
-category; Android must consume, not derive, these bounds. The UI branch uses a
-temporary 80–120% band around the backend suggestion so the interaction can be
-reviewed; the budget-range branch replaces it with explicit server-provided
-bounds and basis metadata. Show blue for `a <= x <= b`, red for values below `a`
-or above `b`. Categories without enough history or without a necessary range
-must be unclassified, not assigned a fabricated zero-width band. The backend
+category; Android must consume, not derive, these bounds. The UI branch uses the
+temporary `a = 0`, `b = 50%` of total budget so the interaction can be reviewed;
+the budget-range branch replaces this with explicit server-provided bounds and
+basis metadata. Show blue for `a <= x <= b`, red for values below `a` or above
+`b`. Categories without enough history or without a necessary range must be
+unclassified, not assigned a fabricated zero-width band. The backend
 already rejects saved limits whose sum exceeds the total budget; retain that
 invariant. Add independent tests for interval boundaries, missing history and
 multiple categories, and verify Android uses returned bounds without rebuilding

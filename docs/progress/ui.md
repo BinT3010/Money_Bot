@@ -31,8 +31,8 @@ the Java Android app under `MONEY_BOT/android`.
   save action; warning levels and usage bars continue to come from the server.
   Tapping a category usage row focuses its limit field.
 - Budget allocation editors show a blue recommendation bar and a provisional
-  80–120% range around the suggested amount. The editable allocation is blue
-  inside that band and pulses red outside it. The bounds are a UI-only placeholder;
+  range from zero to 50% of the total budget. The editable allocation is blue
+  inside that band and pulses red above it. The bounds are a UI-only placeholder;
   `feature/budget-range-feedback` will replace them with backend-provided ranges.
 - Numeric inputs group thousands with commas while editing, and money displays
   use comma grouping with decimal points for fractional averages. Grouping commas
@@ -68,8 +68,8 @@ the Java Android app under `MONEY_BOT/android`.
 
 - `testDebugUnitTest --tests com.moneyset.app.BudgetStatsTest.suggestedAllocationTurnsRedOutsidePlaceholderRange --rerun-tasks --console=plain`
   with an isolated FastAPI test database: BUILD SUCCESSFUL. The test checks the
-  slider is blue at an in-range value and pulses red below and above the
-  temporary 80–120% band.
+  slider is blue at zero and at the 50% total-budget boundary, and pulses red
+  above that temporary boundary.
 - `assembleDebug lintDebug --console=plain`: BUILD SUCCESSFUL.
 - Installed the resulting APK on emulator `emulator-5556` and restarted
   `com.moneyset.app`.

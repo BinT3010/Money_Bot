@@ -22,13 +22,13 @@ immediate editing feedback; they mirror that invariant to avoid an avoidable
 save rejection. The API check remains the final authority.
 
 The additional “reasonable necessary expense” rule is different. The current UI
-uses a temporary band of 80–120% around the backend suggestion. This is only a
-visual placeholder so users can see blue in-range and red out-of-range behavior.
-The next backend feature must define which categories are necessary, calculate
-their lower and upper bounds from server-side data/policy, and return those
-bounds with their basis. Android must then consume the returned bounds and stop
-calculating them. Missing history or a category without a range should not be
-represented as a numeric zero range.
+uses the requested temporary band `a = 0`, `b = 50%` of the total budget. This
+lets users see blue in-range and red over-range behavior. It is a placeholder,
+not the eventual policy. The next backend feature must define which categories
+are necessary, calculate their lower and upper bounds from server-side data or
+policy, and return those bounds with their basis. Android must then consume the
+returned bounds and stop calculating them. Missing history or a category without
+a range should not be represented as a numeric zero range.
 
 ## Next vertical feature
 
@@ -36,4 +36,4 @@ represented as a numeric zero range.
 response, Android slider display, and isolated backend/Java regression coverage.
 Its acceptance and branch instructions are in `docs/BRANCH_TASKS.md`. The exact
 range formula and necessary-category set belong to backend code and tests; the
-80–120% UI placeholder is not a product rule or an acceptance threshold.
+0–50% UI placeholder is not a product rule or an acceptance threshold.

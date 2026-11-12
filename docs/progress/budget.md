@@ -77,9 +77,9 @@ pre-redesign labels/controls; backend tests and strict evaluation passed, and
 `assembleDebug` and `lintDebug` passed. The full Java suite is still pending
 because it contains old screen assumptions.
 
-The red/blue necessary-expense band currently uses a **temporary 80–120% of
-suggestion** placeholder in Android. It is not a backend rule. The next vertical
-feature, `feature/budget-range-feedback`, will have the backend calculate and
-return each necessary category's lower and upper bounds plus their basis; Android
-will consume those fields and remove the placeholder. See
+The red/blue necessary-expense band currently uses the requested **temporary
+range `0` to `50%` of total budget** in Android. It is not a backend rule. The
+next vertical feature, `feature/budget-range-feedback`, will have the backend
+calculate and return each necessary category's lower and upper bounds plus their
+basis; Android will consume those fields and remove the placeholder. See
 `docs/FRONTEND_BACKEND_BOUNDARY.md` and `docs/BRANCH_TASKS.md`.
