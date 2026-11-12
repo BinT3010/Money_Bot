@@ -5,7 +5,7 @@ Reference directories remain available for learning and attribution; do not main
 parallel implementations by copying fixes into them.
 
 1. Read AGENTS.md and agree on one task and its affected components.
-2. Fetch current main before creating a new task branch. Continue on an assigned
+2. Fetch current staging before creating a new task branch. Continue on an assigned
    branch when one exists. Preserve the planned feature/* and experiment/* branches.
 3. Make cohesive commits, retaining API behavior and documenting actual checks.
 4. Push only the assigned task branch. Prepare a PR targeting staging with the template.
