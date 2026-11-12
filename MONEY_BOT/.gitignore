@@ -1,0 +1,16 @@
+.venv/
+.tools/
+__pycache__/
+.pytest_cache/
+*.pyc
+backend/data/
+*.sqlite3
+*.sqlite3-*
+.env
+android/local.properties
+android/.gradle/
+**/build/
+*.log
+dist/*
+!dist/MoneyBot-debug.apk
+.DS_Store
