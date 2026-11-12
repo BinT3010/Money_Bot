@@ -36,9 +36,25 @@ final class BudgetScreen {
                 @Override public void afterTextChanged(android.text.Editable text){}
             });
             EditText[] edits=new EditText[6];SeekBar[] limitSliders=new SeekBar[6];
+            long[] lastAllocation=new long[6];
+            TextView[] recommendationLabels=new TextView[6];ProgressBar[] recommendationBars=new ProgressBar[6];
+            long[] recommended=new long[6];boolean[] hasRecommendation=new boolean[6];
+            android.animation.ValueAnimator[] warningPulses=new android.animation.ValueAnimator[6];
             host.text(host.content,"Để trống: chưa đặt hạn mức. Nhập 0: không dành ngân sách cho danh mục.",14);
+            TextView allocationSummary=host.text(host.content,"",13);
             for(int i=0;i<6;i++){
                 final int index=i;edits[i]=host.input(host.content,host.labels[i],limits.optString(host.categories[i]),true);
+                lastAllocation[i]=amountOrZero(host.value(edits[i]));
+                recommendationLabels[i]=host.text(host.content,"",12);
+                recommendationLabels[i].setVisibility(android.view.View.GONE);
+                recommendationBars[i]=new ProgressBar(host,null,android.R.attr.progressBarStyleHorizontal);
+                recommendationBars[i].setMax(100);
+                recommendationBars[i].setProgressTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.rgb(14,165,233)));
+                recommendationBars[i].setProgressBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.rgb(224,242,254)));
+                recommendationBars[i].setVisibility(android.view.View.GONE);
+                LinearLayout.LayoutParams recommendationParams=new LinearLayout.LayoutParams(-1,host.dp(7));
+                recommendationParams.bottomMargin=host.dp(2);
+                host.content.addView(recommendationBars[i],recommendationParams);
                 SeekBar limitSlider=new SeekBar(host);limitSliders[i]=limitSlider;limitSlider.setMax(100);
                 long cap=b.isNull("total")?0:b.getLong("total");
                 boolean configured=limits.has(host.categories[i]);long saved=configured?limits.getLong(host.categories[i]):0;
@@ -49,7 +65,12 @@ final class BudgetScreen {
                 limitSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
                     @Override public void onProgressChanged(SeekBar bar,int progress,boolean fromUser){
                         long currentCap=amountOrZero(host.value(total));
-                        if(fromUser&&currentCap>0){long value=currentCap*progress/100;edits[index].setText(String.valueOf(value));}
+                        if(fromUser&&currentCap>0){
+                            long value=currentCap*progress/100;
+                            long available=availableAllocation(host,edits,index,currentCap);
+                            if(value>lastAllocation[index])value=Math.min(value,available);
+                            edits[index].setText(String.valueOf(value));
+                        }
                     }
                     @Override public void onStartTrackingTouch(SeekBar bar){}
                     @Override public void onStopTrackingTouch(SeekBar bar){}
@@ -59,9 +80,31 @@ final class BudgetScreen {
                     @Override public void onTextChanged(CharSequence text,int start,int before,int count){
                         long currentCap=amountOrZero(host.value(total));
                         long value=amountOrZero(text.toString());
+                        long available=availableAllocation(host,edits,index,currentCap);
+                        if(value>lastAllocation[index]&&value>available){
+                            edits[index].setText(String.valueOf(available));
+                            return;
+                        }
+                        lastAllocation[index]=value;
                         limitSlider.setProgress(currentCap>0?(int)Math.max(0,Math.min(100,value*100/currentCap)):0);
+                        if(hasRecommendation[index]){
+                            int recommendationProgress=currentCap>0?(int)Math.max(0,Math.min(100,recommended[index]*100/currentCap)):0;
+                            recommendationBars[index].setProgress(recommendationProgress);
+                            recommendationLabels[index].setText("Mức gợi ý · "+host.money(recommended[index]));
+                            setAllocationWarning(limitSlider,warningPulses,index,value>recommended[index]);
+                        }
+                        updateAllocationSummary(host,total,edits,allocationSummary);
                     }
                     @Override public void afterTextChanged(android.text.Editable text){}
+                });
+                limitSlider.addOnAttachStateChangeListener(new android.view.View.OnAttachStateChangeListener(){
+                    @Override public void onViewAttachedToWindow(android.view.View view){
+                        if(hasRecommendation[index]&&amountOrZero(host.value(edits[index]))>recommended[index])
+                            setAllocationWarning(limitSlider,warningPulses,index,true);
+                    }
+                    @Override public void onViewDetachedFromWindow(android.view.View view){
+                        if(warningPulses[index]!=null)warningPulses[index].cancel();
+                    }
                 });
             }
             total.addTextChangedListener(new android.text.TextWatcher(){
@@ -72,11 +115,19 @@ final class BudgetScreen {
                         limitSliders[i].setEnabled(cap>0);
                         long value=amountOrZero(host.value(edits[i]));
                         limitSliders[i].setProgress(cap>0?(int)Math.max(0,Math.min(100,value*100/cap)):0);
+                        if(hasRecommendation[i])recommendationBars[i].setProgress(cap>0?(int)Math.max(0,Math.min(100,recommended[i]*100/cap)):0);
                     }
+                    updateAllocationSummary(host,total,edits,allocationSummary);
                 }
                 @Override public void afterTextChanged(android.text.Editable text){}
             });
+            updateAllocationSummary(host,total,edits,allocationSummary);
             host.button(host.content,"Xác nhận lưu ngân sách",()->{
+                long cap=amountOrZero(host.value(total));
+                if(sumAllocations(host,edits)>cap){
+                    UiHelpers.warningStatus(host,"Tổng hạn mức danh mục vượt ngân sách tổng. Giảm một hoặc nhiều khoản trước khi lưu.");
+                    return;
+                }
                 JSONObject values=new JSONObject();for(int i=0;i<6;i++)if(!host.value(edits[i]).isEmpty())values.put(host.categories[i],host.amount(edits[i]));
                 host.api.call("PUT","/budgets/"+host.month,new JSONObject().put("total",host.amount(total)).put("threshold",Integer.parseInt(host.value(threshold))).put("limits",values),v->{
                     host.load(); UiHelpers.status(host,"Đã lưu ngân sách tháng "+host.month+".");
@@ -88,9 +139,25 @@ final class BudgetScreen {
                 boolean available=result.optBoolean("available");
                 if(available){
                     JSONObject suggested=result.getJSONObject("limits");
-                    for(int i=0;i<6;i++)edits[i].setText(suggested.getString(host.categories[i]));
+                    long currentCap=amountOrZero(host.value(total));
+                    for(int i=0;i<6;i++){
+                        recommended[i]=suggested.getLong(host.categories[i]);hasRecommendation[i]=true;
+                        recommendationLabels[i].setText("Mức gợi ý · "+host.money(recommended[i]));
+                        recommendationLabels[i].setVisibility(android.view.View.VISIBLE);
+                        recommendationBars[i].setProgress(currentCap>0?(int)Math.max(0,Math.min(100,recommended[i]*100/currentCap)):0);
+                        recommendationBars[i].setVisibility(android.view.View.VISIBLE);
+                        edits[i].setText(suggested.getString(host.categories[i]));
+                    }
                     UiHelpers.status(host,"Đã điền hạn mức gợi ý. Chưa lưu; kiểm tra rồi bấm Xác nhận lưu ngân sách.");
-                } else UiHelpers.warningStatus(host,"Chưa có gợi ý; hãy nhập hạn mức thủ công.");
+                } else {
+                    for(int i=0;i<6;i++){
+                        hasRecommendation[i]=false;
+                        recommendationLabels[i].setVisibility(android.view.View.GONE);
+                        recommendationBars[i].setVisibility(android.view.View.GONE);
+                        setAllocationWarning(limitSliders[i],warningPulses,i,false);
+                    }
+                    UiHelpers.warningStatus(host,"Chưa có gợi ý; hãy nhập hạn mức thủ công.");
+                }
                 suggestion(host,basis,result);
             },host::error));
             host.content.addView(basis);
@@ -141,6 +208,57 @@ final class BudgetScreen {
     static boolean warns(String level) { return level.equals("WARNING")||level.equals("REACHED")||level.equals("OVER"); }
 
     private static long amountOrZero(String value){try{return Long.parseLong(value.replace(",",""));}catch(NumberFormatException ignored){return 0;}}
+
+    private static long sumAllocations(MainActivity host,EditText[] edits){
+        long total=0;
+        for(EditText edit:edits){long value=amountOrZero(host.value(edit));if(value>0)total+=value;}
+        return total;
+    }
+
+    private static long availableAllocation(MainActivity host,EditText[] edits,int excluded,long cap){
+        long other=0;
+        for(int i=0;i<edits.length;i++)if(i!=excluded){long value=amountOrZero(host.value(edits[i]));if(value>0)other+=value;}
+        return Math.max(0,cap-other);
+    }
+
+    private static void updateAllocationSummary(MainActivity host,EditText total,EditText[] edits,TextView summary){
+        long cap=amountOrZero(host.value(total)),allocated=sumAllocations(host,edits);
+        if(allocated>cap){
+            summary.setText("Đã phân bổ "+host.money(allocated)+" / "+host.money(cap)+" · vượt ngân sách");
+            summary.setTextColor(UiHelpers.EXPENSE_RED);
+        }else{
+            summary.setText("Đã phân bổ "+host.money(allocated)+" / "+host.money(cap)+" · còn "+host.money(cap-allocated));
+            summary.setTextColor(UiHelpers.FUNDS_GREEN);
+        }
+    }
+
+    private static void setAllocationWarning(SeekBar slider,android.animation.ValueAnimator[] pulses,int index,boolean unreasonable){
+        if(unreasonable){
+            if(pulses[index]==null){
+                android.animation.ValueAnimator pulse=android.animation.ValueAnimator.ofFloat(0f,1f);
+                pulse.setDuration(700);pulse.setRepeatCount(android.animation.ValueAnimator.INFINITE);pulse.setRepeatMode(android.animation.ValueAnimator.REVERSE);
+                pulse.addUpdateListener(animation->{
+                    float t=(Float)animation.getAnimatedValue();
+                    int red=android.graphics.Color.rgb(185,28,28),bright=android.graphics.Color.rgb(239,68,68);
+                    slider.setProgressTintList(android.content.res.ColorStateList.valueOf(blend(red,bright,t)));
+                    slider.setThumbTintList(android.content.res.ColorStateList.valueOf(blend(red,bright,t)));
+                });
+                pulses[index]=pulse;
+            }
+            if(!pulses[index].isStarted())pulses[index].start();
+        }else{
+            if(pulses[index]!=null)pulses[index].cancel();
+            slider.setProgressTintList(android.content.res.ColorStateList.valueOf(UiHelpers.BRAND));
+            slider.setThumbTintList(android.content.res.ColorStateList.valueOf(UiHelpers.BRAND));
+        }
+    }
+
+    private static int blend(int from,int to,float fraction){
+        int red=Math.round(android.graphics.Color.red(from)+(android.graphics.Color.red(to)-android.graphics.Color.red(from))*fraction);
+        int green=Math.round(android.graphics.Color.green(from)+(android.graphics.Color.green(to)-android.graphics.Color.green(from))*fraction);
+        int blue=Math.round(android.graphics.Color.blue(from)+(android.graphics.Color.blue(to)-android.graphics.Color.blue(from))*fraction);
+        return android.graphics.Color.rgb(red,green,blue);
+    }
 
     private static TextView row(MainActivity host, CharSequence value) {
         TextView v=new TextView(host); v.setText(value); v.setTextSize(14); return v;
