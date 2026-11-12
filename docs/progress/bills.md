@@ -69,3 +69,4 @@ feature/expense-capture, so the integrator should check it against that branch w
 - Follow-up (d568005): confirming the open draft while a new expense is waiting now opens that expense as the
   next draft instead of dropping it, and `classifier.py` adds the whole-word keyword "bus" for Đi lại.
   The module now has 7 tests. Full backend run: 169 passed. Strict evaluation passes.
+- Follow-up 2: re-typing the open expense (same description and amount) updates that draft instead of asking to switch. The switch prompt offers Xác nhận lưu only when the draft can be saved. The module now has 9 tests. Full backend run: 171 passed. Strict evaluation passes.

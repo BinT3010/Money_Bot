@@ -73,6 +73,25 @@ class DraftSwitchTests(unittest.TestCase):
         self.assertEqual("transport", self.draft()["fields"]["category_id"])
         self.assertTrue(self.chat.snapshot()["can_confirm"])
 
+    def test_retyping_the_same_expense_updates_the_draft(self):
+        self.chat.send("hủy")
+        self.chat.send("bus 3k")
+        d = self.draft()
+        d["fields"].pop("category_id"); d["fields"].pop("category_source")  # nháp tạo trước khi có từ khóa
+        body = self.store.load_session("test"); body["draft"] = d; self.store.save_session("test", body)
+        message = self.chat.send("bus 3k")
+        self.assertNotIn("hủy và chuyển", message)
+        self.assertIsNone(self.chat.snapshot()["switch_text"])
+        self.assertEqual("transport", self.draft()["fields"]["category_id"])
+        self.assertTrue(self.chat.snapshot()["can_confirm"])
+
+    def test_unsavable_draft_prompt_does_not_offer_confirm(self):
+        self.chat.send("hủy")
+        self.chat.send("mua sach 80k")  # chưa có danh mục, không lưu được
+        message = self.chat.send("do xang 50k")
+        self.assertIn("chưa lưu được", message)
+        self.assertNotIn("Xác nhận lưu", message)
+
 
 if __name__ == "__main__":
     unittest.main()
