@@ -4,7 +4,8 @@ from datetime import date, timedelta
 from uuid import uuid4
 
 from common import integer, month_check, shift_month
-from money_chat.storage import insert_record
+from money_chat.models import validate
+from money_chat.storage import insert_record, write_fields
 
 
 class BillsMixin:
@@ -22,7 +23,8 @@ class BillsMixin:
         current = today.strftime("%Y-%m")
         for bill in bills:
             m = bill["start_month"]
-            while m <= current:
+            last = min(current, bill["end_month"]) if bill["end_month"] else current  # lịch đã ngừng
+            while m <= last:
                 y, n = map(int, m.split("-"))
                 due = date(y, n, min(bill["due_day"], calendar.monthrange(y, n)[1]))
                 pid = f"{bill['id']}:{m}"
@@ -34,6 +36,58 @@ class BillsMixin:
                                "paid_amount": paid.get(pid, {}).get("paid_amount")})
                 m = shift_month(m, 1)
         return sorted(result, key=lambda r: (r["due_date"], r["id"]))
+
+    @staticmethod
+    def _paid_months(db, bill_id):
+        return sorted(r[0].rsplit(":", 1)[1] for r in db.execute(
+            "SELECT period_id FROM payments WHERE substr(period_id, 1, ?) = ?", (len(bill_id) + 1, bill_id + ":")))
+
+    def update_bill(self, bill_id, fields, today):
+        """Sửa lịch (tên, tiền dự kiến, ngày lặp, tháng bắt đầu, tháng kết thúc). Kỳ đã trả phải còn nằm trong lịch.
+        Sửa ngày lặp thì các kỳ chưa trả và lời nhắc tính lại theo ngày mới."""
+        data = write_fields("create_recurring_bill", fields)
+        errors = validate("create_recurring_bill", data, today)
+        if errors:
+            raise ValueError(" ".join(errors.values()))
+        end_month = fields.get("end_month")
+        if end_month is not None:
+            month_check(end_month)
+            if end_month < data["start_month"]:
+                raise ValueError("Tháng kết thúc phải từ tháng bắt đầu trở đi.")
+        with self.atomic() as db:
+            if not db.execute("SELECT 1 FROM bills WHERE id=?", (bill_id,)).fetchone():
+                raise ValueError("Không tìm thấy lịch hóa đơn.")
+            paid = self._paid_months(db, bill_id)
+            if paid and (data["start_month"] > paid[0] or (end_month is not None and end_month < paid[-1])):
+                raise ValueError(f"Thay đổi làm mất kỳ đã thanh toán ({paid[0]} – {paid[-1]}). "
+                                 "Giữ tháng bắt đầu không sau và tháng kết thúc không trước các kỳ đó.")
+            db.execute("UPDATE bills SET name=?, amount_vnd=?, due_day=?, start_month=?, end_month=? WHERE id=?",
+                       (data["name"], data["amount_vnd"], data["due_day"], data["start_month"], end_month, bill_id))
+            return dict(db.execute("SELECT * FROM bills WHERE id=?", (bill_id,)).fetchone())
+
+    def stop_bill(self, bill_id, today, end_month=None):
+        """Ngừng lịch. Chưa có kỳ nào trả: xóa hẳn. Đã có: đặt end_month để giữ lịch sử.
+        Mặc định kết thúc ở tháng hiện tại nếu kỳ này đã trả, ngược lại ở tháng trước;
+        không bao giờ trước kỳ đã trả cuối cùng. Kỳ chưa trả trước tháng kết thúc vẫn hiển thị là nợ."""
+        if end_month is not None:
+            month_check(end_month)
+        current = today.strftime("%Y-%m")
+        with self.atomic() as db:
+            bill = db.execute("SELECT * FROM bills WHERE id=?", (bill_id,)).fetchone()
+            if not bill:
+                raise ValueError("Không tìm thấy lịch hóa đơn.")
+            paid = self._paid_months(db, bill_id)
+            if not paid:
+                db.execute("DELETE FROM bills WHERE id=?", (bill_id,))
+                db.execute("DELETE FROM paid_periods WHERE substr(period_id, 1, ?) = ?", (len(bill_id) + 1, bill_id + ":"))
+                return {"id": bill_id, "deleted": True, "end_month": None}
+            if end_month is None:
+                default = current if current in paid else shift_month(current, -1)
+                end_month = max(default, paid[-1])  # kỳ trả trước (tháng sau) vẫn nằm trong lịch
+            elif end_month < paid[-1]:
+                raise ValueError(f"Tháng kết thúc không được trước kỳ đã thanh toán {paid[-1]}.")
+            db.execute("UPDATE bills SET end_month=? WHERE id=?", (end_month, bill_id))
+            return {"id": bill_id, "deleted": False, "end_month": end_month}
 
     def pay(self, bill_id, month, paid_on, expense_id, today, amount_vnd=None):
         """Xác nhận trả một kỳ. Liên kết khoản chi đã ghi (tiền thực trả = tiền khoản chi đó),
@@ -53,7 +107,8 @@ class BillsMixin:
         pid = f"{bill_id}:{month}"
         with self.atomic() as db:
             bill = db.execute("SELECT * FROM bills WHERE id=?", (bill_id,)).fetchone()
-            if not bill or month < bill["start_month"] or month > today.strftime("%Y-%m"):
+            if (not bill or month < bill["start_month"] or month > today.strftime("%Y-%m")
+                    or (bill["end_month"] and month > bill["end_month"])):
                 raise ValueError("Không tìm thấy kỳ hóa đơn hợp lệ.")
             old = db.execute("SELECT p.period_id, p.expense_id, p.paid_on, e.amount_vnd AS paid_amount "
                              "FROM payments p LEFT JOIN expenses e ON e.id = p.expense_id WHERE p.period_id=?", (pid,)).fetchone()

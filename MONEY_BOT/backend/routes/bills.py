@@ -1,4 +1,4 @@
-"""Lịch hóa đơn: xem kỳ/nhắc/đối chiếu, tạo lịch, xác nhận thanh toán."""
+"""Lịch hóa đơn: xem kỳ/nhắc/đối chiếu, tạo, sửa, ngừng lịch, xác nhận thanh toán."""
 from fastapi import Depends
 from pydantic import Field, StrictInt
 
@@ -11,6 +11,11 @@ class Bill(StrictModel):
     amount_vnd: StrictInt
     due_day: StrictInt
     start_month: str
+
+
+class BillUpdate(Bill):
+    # null = lịch đang chạy (dùng để tiếp tục lịch đã ngừng); yyyy-MM = kỳ cuối cùng.
+    end_month: str | None = None
 
 
 class Payment(StrictModel):
@@ -36,6 +41,14 @@ def register(app, d):
     @app.post("/api/bills")
     def create_bill(body: Bill, k: str = Depends(d.key), s: FinanceStore = Depends(d.store)):
         return s.once(k, ["bill", body.model_dump()], lambda: s.commit(k, "create_recurring_bill", body.model_dump(), d.today()))
+
+    @app.put("/api/bills/{bill_id}")
+    def update_bill(bill_id: str, body: BillUpdate, k: str = Depends(d.key), s: FinanceStore = Depends(d.store)):
+        return s.once(k, ["update_bill", bill_id, body.model_dump()], lambda: s.update_bill(bill_id, body.model_dump(), d.today()))
+
+    @app.delete("/api/bills/{bill_id}")
+    def stop_bill(bill_id: str, end_month: str | None = None, k: str = Depends(d.key), s: FinanceStore = Depends(d.store)):
+        return s.once(k, ["stop_bill", bill_id, end_month], lambda: s.stop_bill(bill_id, d.today(), end_month))
 
     @app.post("/api/bills/{bill_id}/pay")
     def pay(bill_id: str, body: Payment, k: str = Depends(d.key), s: FinanceStore = Depends(d.store)):

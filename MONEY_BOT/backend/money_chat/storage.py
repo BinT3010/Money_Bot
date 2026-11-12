@@ -153,7 +153,9 @@ class SQLiteStore:
         items = []
         for bill in bills:
             year, month = map(int, bill["start_month"].split("-"))
-            while (year, month) <= (end.year, end.month):
+            # Lịch đã ngừng (end_month) không sinh kỳ sau tháng kết thúc.
+            last = min((end.year, end.month), tuple(map(int, bill["end_month"].split("-")))) if bill["end_month"] else (end.year, end.month)
+            while (year, month) <= last:
                 due = date(year, month, min(bill["due_day"], calendar.monthrange(year, month)[1]))
                 period_id = f"{bill['id']}:{year:04d}-{month:02d}"
                 if due <= end and period_id not in paid:
