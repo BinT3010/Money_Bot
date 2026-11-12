@@ -85,7 +85,7 @@ final class UiHelpers {
         host.status = text(host, host.root, "", 13); status(host, "");
     }
     private static String pageTitle(String tab) {
-        switch (tab) { case "Thống kê": return "Tổng quan"; case "Ngân sách": return "Ngân sách";
+            switch (tab) { case "Thêm khoản chi": return "Thêm khoản chi"; case "Thống kê": return "Tổng quan"; case "Ngân sách": return "Ngân sách";
             case "Hóa đơn": return "Hóa đơn định kỳ"; case "Tài khoản": return "Tài khoản"; default: return "Money Bot"; }
     }
     static TextView text(MainActivity host, LinearLayout parent, String value, int size) {
@@ -115,8 +115,8 @@ final class UiHelpers {
         LinearLayout bar=new LinearLayout(host); bar.setGravity(android.view.Gravity.CENTER);
         bar.setBackground(shape(host,SURFACE,Color.rgb(226,232,240),17));
         LinearLayout.LayoutParams bp=new LinearLayout.LayoutParams(-1,host.dp(58)); bp.topMargin=host.dp(5); host.root.addView(bar,bp);
-        String[] names={"Chat","Thống kê","Ngân sách","Hóa đơn","Tài khoản"};
-        String[] shortNames={"Chat","Thống kê","Ngân sách","Hóa đơn","Tài khoản"};
+        String[] names={"Thêm khoản chi","Thống kê","Ngân sách","Hóa đơn","Tài khoản"};
+        String[] shortNames={"Thêm chi","Thống kê","Ngân sách","Hóa đơn","Tài khoản"};
         for(int i=0;i<names.length;i++){
             final String target=names[i]; Button b=new Button(host); b.setText(shortNames[i]); b.setAllCaps(false);
             b.setTextSize(10); b.setMinWidth(0); b.setMinimumWidth(0); b.setMinHeight(0); b.setMinimumHeight(0);

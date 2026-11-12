@@ -16,7 +16,7 @@ public class MainActivity extends Activity {
     ApiClient api;
     LinearLayout root, content;
     TextView status;
-    String tab = "Chat", month = YearMonth.now().toString();
+    String tab = "Thêm khoản chi", month = YearMonth.now().toString();
     JSONObject chat;
     final String[] categories = {"food", "shopping", "transport", "utilities", "entertainment", "other"};
     final String[] labels = {"Ăn uống", "Tiêu dùng/Mua sắm", "Đi lại", "Hóa đơn tiện ích", "Giải trí", "Khác"};
@@ -25,7 +25,7 @@ public class MainActivity extends Activity {
     @Override public void onCreate(Bundle saved) {
         super.onCreate(saved);
         api = new ApiClient(this);
-        if (saved != null) { tab = saved.getString("tab", "Chat"); month = saved.getString("month", month); }
+        if (saved != null) { tab = saved.getString("tab", "Thêm khoản chi"); if(tab.equals("Chat"))tab="Thêm khoản chi"; month = saved.getString("month", month); }
         if (api.token().isEmpty()) login(); else shell();
     }
     @Override protected void onSaveInstanceState(Bundle out) {
@@ -54,7 +54,7 @@ public class MainActivity extends Activity {
         if(api.isBusy()) { error("Đang xử lý, vui lòng chờ."); return; }
         content.removeAllViews(); UiHelpers.warningStatus(this, api.pending() ? "Có yêu cầu đang chờ kiểm tra kết quả." : "");
         switch (tab) {
-            case "Chat": api.call("GET", "/chat/android", null, r -> renderChat((JSONObject) r), this::error); break;
+            case "Thêm khoản chi": api.call("GET", "/chat/android", null, r -> renderChat((JSONObject) r), this::error); break;
             case "Thống kê": stats(); break;
             case "Ngân sách": budget(); break;
             case "Hóa đơn": bills(); break;
@@ -83,7 +83,7 @@ public class MainActivity extends Activity {
                 byte[] b=new byte[8192]; int n;
                 while((n=in.read(b))!=-1){out.write(b,0,n);if(out.size()>10*1024*1024)throw new Exception("Tệp tối đa 10 MB.");}
                 byte[] bytes=out.toByteArray();
-                runOnUiThread(()->api.upload(bytes,r->{tab="Chat";renderChat((JSONObject)r);UiHelpers.warningStatus(this, "Kiểm tra kết quả OCR trước khi lưu.");},this::error));
+                runOnUiThread(()->api.upload(bytes,r->{tab="Thêm khoản chi";renderChat((JSONObject)r);UiHelpers.warningStatus(this, "Kiểm tra kết quả OCR trước khi lưu.");},this::error));
             }catch(Exception e){runOnUiThread(()->error(e.getMessage()));}
         }).start();
     }

@@ -120,27 +120,27 @@ final class StatsScreen {
         chart.setContentDescription(spoken.toString());
         host.content.addView(chart,new LinearLayout.LayoutParams(-1,host.dp(180)));
 
-        TableLayout table=new TableLayout(host); table.setStretchAllColumns(true);
-        TableRow head=new TableRow(host); cell(host,head,"Tháng"); cell(host,head,"Tổng chi"); cell(host,head,"Số giao dịch"); table.addView(head);
+        LinearLayout rows=host.column();
         for(int i=months.length()-1;i>=0;i--){
             JSONObject m=months.getJSONObject(i);
-            TableRow row=new TableRow(host); cell(host,row,m.getString("month")); cell(host,row,host.money(m.getLong("total"))); cell(host,row,String.valueOf(m.getInt("count")));
-            table.addView(row);
+            LinearLayout card=host.column();card.setPadding(host.dp(10),host.dp(5),host.dp(10),host.dp(5));
+            card.setBackground(UiHelpers.shape(host,Color.WHITE,Color.rgb(226,232,240),10));
+            LinearLayout.LayoutParams cardParams=new LinearLayout.LayoutParams(-1,-2);cardParams.bottomMargin=host.dp(5);rows.addView(card,cardParams);
+            LinearLayout headline=new LinearLayout(host);headline.setGravity(android.view.Gravity.CENTER_VERTICAL);
+            TextView month=host.text(headline,m.getString("month"),13);month.setTypeface(null,android.graphics.Typeface.BOLD);
+            TextView amount=new TextView(host);amount.setText(UiHelpers.moneyLabel(host,"",m.getLong("total"),"",true));amount.setTextSize(13);
+            headline.addView(amount,new LinearLayout.LayoutParams(-2,-2));
+            // Keep the month at the left and its server total at the right.
+            month.setLayoutParams(new LinearLayout.LayoutParams(0,-2,1));card.addView(headline);
             JSONObject by=m.getJSONObject("by_category"); StringBuilder parts=new StringBuilder();
             for(int c=0;c<host.categories.length;c++){
                 long spent=by.optLong(host.categories[c]);
                 if(spent!=0)parts.append(parts.length()==0?"":" · ").append(host.labels[c]).append(" ").append(host.money(spent));
             }
-            if(parts.length()>0){
-                TextView detail=new TextView(host); detail.setText(parts); detail.setTextSize(12); detail.setPadding(host.dp(12),0,0,host.dp(4)); detail.setTextColor(UiHelpers.NEUTRAL);
-                detail.setContentDescription("history:"+m.getString("month")); table.addView(detail);
-            }
+            TextView detail=host.text(card,m.getInt("count")+" giao dịch"+(parts.length()==0?"":" · "+parts),11);
+            detail.setTextColor(UiHelpers.NEUTRAL);detail.setContentDescription("history:"+m.getString("month"));
         }
-        host.content.addView(table);
-    }
-
-    private static void cell(MainActivity host, TableRow row, String value) {
-        TextView v=new TextView(host); v.setText(value); v.setTextSize(14); v.setPadding(0,host.dp(4),host.dp(8),host.dp(4)); row.addView(v);
+        host.content.addView(rows);
     }
 
     /** Dependency-free bar chart; it only draws the server totals it is given. Created in code only. */

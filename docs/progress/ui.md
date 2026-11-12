@@ -19,20 +19,24 @@ the Java Android app under `MONEY_BOT/android`.
 - Statistics shows warning states through a thicker red pulsing progress bar
   instead of repeating the server warning sentence. The pulse stops when the
   bar leaves the screen; non-warning bars use the shared chart palette.
+- The first tab is now “Thêm khoản chi”. Its content is limited to a manual
+  entry button and a chat box. Invalid assistant/error transcripts are omitted;
+  valid drafts still show their details and require explicit confirmation.
+- Statistics monthly history uses compact month cards with transaction count,
+  total, and category breakdown on fewer lines.
 - Added accessible labels for chart values and navigation actions.
 
 ## Verification
 
 - `sh gradlew assembleDebug lintDebug --console=plain` with Android SDK
   configured and JDK 17: BUILD SUCCESSFUL.
-- Installed the debug APK on `MoneyBot_API35` and visually inspected the Chat and
-  Statistics screens. Bottom navigation and existing content render; further
-  visual review is still useful for the category chart at full screen height.
+- Installed the debug APK on `MoneyBot_API35` and visually inspected the first
+  screen and Statistics chart/history layout. The first screen shows the form
+  action and chat composer; warning replies are suppressed and valid draft
+  confirmation is retained.
 - Java unit tests and the full cross-platform verifier have not been run for
   this UI change yet.
 
 ## Remaining
 
-- Inspect the category chart further on the emulator at full screen height.
-- Continue polish on the remaining screens based on visual review, then run the
-  relevant Java flow tests and full verifier before requesting review.
+- Run Java unit tests and the full verifier before requesting review.
