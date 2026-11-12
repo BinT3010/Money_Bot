@@ -31,6 +31,7 @@ final class ChatScreen {
             host.text(host.content, "Bản nháp — chưa lưu", 20);
             JSONObject fields = d.getJSONObject("fields");
             if(fields.has("description"))host.text(host.content,fields.getString("description"),18);
+            if(!fields.optString("merchant").isEmpty())host.text(host.content,"Cửa hàng: "+fields.getString("merchant"),16);
             if(fields.has("name"))host.text(host.content,fields.getString("name"),18);
             if(fields.has("amount_vnd"))host.text(host.content,"Số tiền: "+host.money(fields.getLong("amount_vnd")),18);
             if(fields.has("category_id"))host.text(host.content,"Danh mục: "+host.label(fields.getString("category_id")),16);
@@ -71,6 +72,7 @@ final class ChatScreen {
         }
         boolean bill=draft.getString("intent").equals("create_recurring_bill");
         EditText name=host.input(box,bill?"Tên hóa đơn":"Nội dung",f.optString(bill?"name":"description"),false);
+        EditText merchant=bill?null:host.input(box,"Cửa hàng (tùy chọn)",f.isNull("merchant")?"":f.optString("merchant"),false);
         EditText amount=host.input(box,"Số tiền VND",f.has("amount_vnd")?f.optString("amount_vnd"):"",true);
         EditText day=host.input(box,bill?"Ngày lặp 1–31":"Ngày yyyy-MM-dd",f.optString(bill?"due_day":"date"),bill);
         EditText start=bill?host.input(box,"Tháng bắt đầu yyyy-MM",f.optString("start_month"),false):null;
@@ -78,7 +80,7 @@ final class ChatScreen {
         host.formDialog("Sửa bản nháp",box,()->{
             JSONObject changes=new JSONObject().put(bill?"name":"description",host.value(name)).put("amount_vnd",host.amount(amount));
             if(bill) changes.put("due_day",Integer.parseInt(host.value(day))).put("start_month",host.value(start));
-            else changes.put("date",host.value(day)).put("category_id",host.selected(cat));
+            else changes.put("date",host.value(day)).put("category_id",host.selected(cat)).put("merchant",host.value(merchant));
             host.chatAction(host.draftAction("edit",draft).put("fields",changes));
         });
     }

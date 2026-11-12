@@ -1,0 +1,139 @@
+{
+  "source": "synthetic, hand-labeled fixture specifications; no private or real invoice data",
+  "split": "dev",
+  "today": "2026-11-12",
+  "cases": [
+    {
+      "id": "dev-receipt-01",
+      "kind": "receipt",
+      "file": "dev/receipt-01.txt",
+      "expected": {
+        "amount_vnd": 27000,
+        "date": "2026-11-01",
+        "merchant": "DEV SHOP A",
+        "category_id": "food"
+      }
+    },
+    {
+      "id": "dev-sentence-01",
+      "kind": "sentence",
+      "text": "cà phê 27k 01/11/2026; cửa hàng: DEV SHOP A",
+      "expected": {
+        "amount_vnd": 27000,
+        "date": "2026-11-01",
+        "merchant": "DEV SHOP A",
+        "category_id": "food"
+      }
+    },
+    {
+      "id": "dev-receipt-02",
+      "kind": "receipt",
+      "file": "dev/receipt-02.txt",
+      "expected": {
+        "amount_vnd": 40000,
+        "date": "2026-11-02",
+        "merchant": "DEV SHOP B",
+        "category_id": "shopping"
+      }
+    },
+    {
+      "id": "dev-sentence-02",
+      "kind": "sentence",
+      "text": "mua áo 40k 02/11/2026; cửa hàng: DEV SHOP B",
+      "expected": {
+        "amount_vnd": 40000,
+        "date": "2026-11-02",
+        "merchant": "DEV SHOP B",
+        "category_id": "shopping"
+      }
+    },
+    {
+      "id": "dev-receipt-03",
+      "kind": "receipt",
+      "file": "dev/receipt-03.txt",
+      "expected": {
+        "amount_vnd": 53000,
+        "date": "2026-11-03",
+        "merchant": "DEV SHOP C",
+        "category_id": "transport"
+      }
+    },
+    {
+      "id": "dev-sentence-03",
+      "kind": "sentence",
+      "text": "đổ xăng 53k 03/11/2026; cửa hàng: DEV SHOP C",
+      "expected": {
+        "amount_vnd": 53000,
+        "date": "2026-11-03",
+        "merchant": "DEV SHOP C",
+        "category_id": "transport"
+      }
+    },
+    {
+      "id": "dev-receipt-04",
+      "kind": "receipt",
+      "file": "dev/receipt-04.txt",
+      "expected": {
+        "amount_vnd": 66000,
+        "date": "2026-11-04",
+        "merchant": "DEV SHOP D",
+        "category_id": "utilities"
+      }
+    },
+    {
+      "id": "dev-sentence-04",
+      "kind": "sentence",
+      "text": "tiền điện 66k 04/11/2026; cửa hàng: DEV SHOP D",
+      "expected": {
+        "amount_vnd": 66000,
+        "date": "2026-11-04",
+        "merchant": "DEV SHOP D",
+        "category_id": "utilities"
+      }
+    },
+    {
+      "id": "dev-receipt-05",
+      "kind": "receipt",
+      "file": "dev/receipt-05.txt",
+      "expected": {
+        "amount_vnd": 79000,
+        "date": "2026-11-05",
+        "merchant": "DEV SHOP E",
+        "category_id": "entertainment"
+      }
+    },
+    {
+      "id": "dev-sentence-05",
+      "kind": "sentence",
+      "text": "xem phim 79k 05/11/2026; cửa hàng: DEV SHOP E",
+      "expected": {
+        "amount_vnd": 79000,
+        "date": "2026-11-05",
+        "merchant": "DEV SHOP E",
+        "category_id": "entertainment"
+      }
+    },
+    {
+      "id": "dev-receipt-06",
+      "kind": "receipt",
+      "file": "dev/receipt-06.txt",
+      "expected": {
+        "amount_vnd": 92000,
+        "date": "2026-11-06",
+        "merchant": "DEV SHOP F",
+        "category_id": "other"
+      }
+    },
+    {
+      "id": "dev-sentence-06",
+      "kind": "sentence",
+      "text": "mua thuốc 92k 06/11/2026; cửa hàng: DEV SHOP F",
+      "expected": {
+        "amount_vnd": 92000,
+        "date": "2026-11-06",
+        "merchant": "DEV SHOP F",
+        "category_id": "other"
+      }
+    }
+  ]
+}

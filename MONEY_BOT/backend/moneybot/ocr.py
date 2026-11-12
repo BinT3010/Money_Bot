@@ -81,16 +81,47 @@ def extract_text(content):
         raise ValueError("Không đọc được ảnh hóa đơn.") from exc
 
 
+def merchant_from_receipt(lines):
+    """Use explicit seller labels or a name before a receipt heading, never an item guess."""
+    labels = {"cua hang", "ten cua hang", "merchant", "store", "nha hang", "don vi ban hang"}
+    candidates, excluded = set(), set()
+    for index, line in enumerate(lines):
+        label, separator, value = line.partition(":")
+        if separator and fold(label).strip() in labels:
+            excluded.add(index)
+            candidates.add(value.strip())
+    if not excluded and len(lines) > 1:
+        # A lone first line may be a product, address or receipt title. Require
+        # structural evidence: seller name immediately before the receipt title.
+        title = fold(lines[1]).strip()
+        name = lines[0]
+        if (title in {"receipt", "invoice", "hoa don", "hoa don ban hang", "hoa don thanh toan", "phieu tinh tien"}
+                and 2 <= len(name) <= 120 and re.search(r"[^\W\d_]", name)
+                and not re.search(r"\d|:|@|https?://", name)
+                and fold(name).strip() not in {"receipt", "invoice", "hoa don", "thank you", "cam on"}):
+            candidates.add(name)
+            excluded.add(0)
+    if not candidates:
+        return None, {}, excluded
+    if len(candidates) != 1 or not next(iter(candidates)) or len(next(iter(candidates))) > 120:
+        return None, {"merchant": "Không đọc chắc chắn tên cửa hàng; hãy kiểm tra và nhập lại."}, excluded
+    return candidates.pop(), {}, excluded
+
+
 def receipt_fields(text, today):
     """Chỉ chọn tiền trên dòng tổng; nhiều giá trị khác nhau thì để người dùng nhập.
     Không lấy số lớn nhất vì đó có thể là tiền khách đưa hoặc số điện thoại.
     """
     lines = [line.strip() for line in text.splitlines() if line.strip()]
     amounts = set()
+    negative_total = False
     for line in lines:
         normalized = fold(line)
         if re.search(r"\b(tong cong|tong tien|thanh tien|thanh toan|total|amount due)(?=\W|\d|$)", normalized) and not re.search(r"sub\s*total|tam tinh|tien khach|tien thua", normalized):
             for match in re.finditer(r"\d[\d., ]*\d|\d", line):
+                if line[:match.start()].rstrip().endswith(("-", "−")):
+                    negative_total = True
+                    continue
                 raw = match.group().strip().replace(" ", "")
                 # VND có thể in 45,000.00 hoặc 45.000,00. Không nhân tiền lên 100 lần.
                 if re.search(r"[.,]\d{2}$", raw):
@@ -100,9 +131,11 @@ def receipt_fields(text, today):
                 number = re.sub(r"\D", "", raw)
                 if number and 0 < int(number) <= 10**12:
                     amounts.add(int(number))
-    fields = {"description": lines[0][:300] if lines else "", "date": today.isoformat(), "date_source": "default_today"}
-    issues = {}
-    if len(amounts) == 1:
+    merchant, issues, merchant_lines = merchant_from_receipt(lines)
+    fields = {"description": "Chi tiêu theo hóa đơn" if merchant_lines else (lines[0][:300] if lines else "")}
+    if merchant:
+        fields["merchant"] = merchant
+    if len(amounts) == 1 and not negative_total:
         fields["amount_vnd"] = amounts.pop()
     else:
         issues["amount_vnd"] = "Không đọc chắc chắn tổng tiền; hãy nhập số tiền trên hóa đơn."
@@ -116,12 +149,20 @@ def receipt_fields(text, today):
             unique.add(date(int(y), int(m), int(d)).isoformat())
         except ValueError:
             issues["date"] = "Ngày trên hóa đơn không hợp lệ; hãy kiểm tra."
+    for value in re.findall(r"\b\d{4}-\d{2}-\d{2}\b", text):
+        try:
+            unique.add(date.fromisoformat(value).isoformat())
+        except ValueError:
+            issues["date"] = "Ngày trên hóa đơn không hợp lệ; hãy kiểm tra."
     if len(unique) == 1:
         fields.update(date=unique.pop(), date_source="ocr")
     elif len(unique) > 1:
         issues["date"] = "Hóa đơn có nhiều ngày; hãy chọn ngày chi."
-    # Phân loại toàn văn hóa đơn bằng đúng bộ phân loại dùng trong Chat.
-    category = TeamClassifier().classify(text)
+    elif "date" not in issues:
+        issues["date"] = "Không đọc được ngày trên hóa đơn; hãy nhập ngày chi."
+    # Seller names are evidence for merchant only, not evidence for category.
+    category_text = "\n".join(line for index, line in enumerate(lines) if index not in merchant_lines)
+    category = TeamClassifier().classify(category_text)
     if category:
         fields.update(category_id=category, category_source="suggested")
     return fields, issues

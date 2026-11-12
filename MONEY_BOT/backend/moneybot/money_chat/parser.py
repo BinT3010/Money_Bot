@@ -113,14 +113,25 @@ def description_from(text, intent):
     return clean
 
 
+MERCHANT = re.compile(r"(?:^|[;\n])\s*(?:cửa hàng|cua hang|merchant|store)\s*:\s*([^;\n]*)", re.I)
+
+
 # P06: đầu vào có draft hiện tại để bổ sung trường thay vì tạo giao dịch mới.
 class RuleInterpreter:
     name = "Quy tắc (không gọi AI)"
 
     def parse(self, text, today, intent=None, current=None):
         current = current or {}
+        merchant_matches = list(MERCHANT.finditer(text))
+        text = MERCHANT.sub("", text).strip()
         kind = intent or detect_intent(text)
         out = Parsed(intent=kind)
+        if kind == "record_expense" and merchant_matches:
+            names = {match.group(1).strip() for match in merchant_matches}
+            if len(names) == 1:
+                out.fields["merchant"] = names.pop()
+            else:
+                out.issues["merchant"] = "Có nhiều cửa hàng; hãy chọn một tên trong biểu mẫu."
         amount, error, matches = parse_money(text)
         out.multiple = len(matches) > 1
         if out.multiple:
