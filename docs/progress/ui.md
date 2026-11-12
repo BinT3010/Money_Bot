@@ -26,6 +26,10 @@ the Java Android app under `MONEY_BOT/android`.
 - Statistics monthly history uses compact month cards with transaction count,
   total, and category breakdown on fewer lines. The manual-create action exists
   only on the first tab; Statistics retains editing from existing transaction rows.
+- Budget constraints include a warning-threshold slider and category allocation
+  sliders bounded by the current total budget. Edits stay local until the existing
+  save action; warning levels and usage bars continue to come from the server.
+  Tapping a category usage row focuses its limit field.
 - Added accessible labels for chart values and navigation actions.
 
 ## Verification

@@ -16,9 +16,47 @@ final class BudgetScreen {
             EditText total=host.input(host.content,"Ngân sách tổng VND",b.isNull("total")?"":b.getString("total"),true);
             total.setTextColor(UiHelpers.FUNDS_GREEN);
             EditText threshold=host.input(host.content,"Cảnh báo sớm (%)",b.getString("threshold"),true);
-            EditText[] edits=new EditText[6];
+            TextView thresholdValue=host.text(host.content,"Cảnh báo từ "+b.getInt("threshold")+"%",13);
+            SeekBar thresholdSlider=new SeekBar(host);thresholdSlider.setMax(98);thresholdSlider.setProgress(Math.max(0,Math.min(98,b.getInt("threshold")-1)));
+            thresholdSlider.setProgressTintList(android.content.res.ColorStateList.valueOf(UiHelpers.BRAND));
+            host.content.addView(thresholdSlider,new LinearLayout.LayoutParams(-1,host.dp(38)));
+            thresholdSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+                @Override public void onProgressChanged(SeekBar seekBar,int progress,boolean fromUser){if(fromUser){int value=progress+1;threshold.setText(String.valueOf(value));thresholdValue.setText("Cảnh báo từ "+value+"%");}}
+                @Override public void onStartTrackingTouch(SeekBar seekBar){}
+                @Override public void onStopTrackingTouch(SeekBar seekBar){}
+            });
+            EditText[] edits=new EditText[6];SeekBar[] limitSliders=new SeekBar[6];
             host.text(host.content,"Để trống: chưa đặt hạn mức. Nhập 0: không dành ngân sách cho danh mục.",14);
-            for(int i=0;i<6;i++)edits[i]=host.input(host.content,host.labels[i],limits.optString(host.categories[i]),true);
+            for(int i=0;i<6;i++){
+                final int index=i;edits[i]=host.input(host.content,host.labels[i],limits.optString(host.categories[i]),true);
+                SeekBar limitSlider=new SeekBar(host);limitSliders[i]=limitSlider;limitSlider.setMax(100);
+                long cap=b.isNull("total")?0:b.getLong("total");
+                boolean configured=limits.has(host.categories[i]);long saved=configured?limits.getLong(host.categories[i]):0;
+                limitSlider.setProgress(cap>0?(int)Math.max(0,Math.min(100,saved*100/cap)):0);
+                limitSlider.setEnabled(cap>0);limitSlider.setProgressTintList(android.content.res.ColorStateList.valueOf(UiHelpers.BRAND));
+                limitSlider.setContentDescription(host.labels[i]+" · kéo để chỉnh hạn mức trong tổng ngân sách");
+                host.content.addView(limitSlider,new LinearLayout.LayoutParams(-1,host.dp(34)));
+                limitSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+                    @Override public void onProgressChanged(SeekBar bar,int progress,boolean fromUser){
+                        long currentCap=amountOrZero(host.value(total));
+                        if(fromUser&&currentCap>0){long value=currentCap*progress/100;edits[index].setText(String.valueOf(value));}
+                    }
+                    @Override public void onStartTrackingTouch(SeekBar bar){}
+                    @Override public void onStopTrackingTouch(SeekBar bar){}
+                });
+            }
+            total.addTextChangedListener(new android.text.TextWatcher(){
+                @Override public void beforeTextChanged(CharSequence text,int start,int count,int after){}
+                @Override public void onTextChanged(CharSequence text,int start,int before,int count){
+                    long cap=amountOrZero(text.toString());
+                    for(int i=0;i<limitSliders.length;i++){
+                        limitSliders[i].setEnabled(cap>0);
+                        long value=amountOrZero(host.value(edits[i]));
+                        limitSliders[i].setProgress(cap>0?(int)Math.max(0,Math.min(100,value*100/cap)):0);
+                    }
+                }
+                @Override public void afterTextChanged(android.text.Editable text){}
+            });
             host.button(host.content,"Xác nhận lưu ngân sách",()->{
                 JSONObject values=new JSONObject();for(int i=0;i<6;i++)if(!host.value(edits[i]).isEmpty())values.put(host.categories[i],host.amount(edits[i]));
                 host.api.call("PUT","/budgets/"+host.month,new JSONObject().put("total",host.amount(total)).put("threshold",Integer.parseInt(host.value(threshold))).put("limits",values),v->{
@@ -37,12 +75,12 @@ final class BudgetScreen {
                 suggestion(host,basis,result);
             },host::error));
             host.content.addView(basis);
-            host.api.call("GET","/summary?month="+host.month,null,s->states(host,states,(JSONObject)s),host::error);
+            host.api.call("GET","/summary?month="+host.month,null,s->states(host,states,(JSONObject)s,edits),host::error);
         },host::error);
     }
 
     /** Ou4 states for the month: unset vs zero limits, exact 100%, custom threshold and overspending, all decided by the server. */
-    static void states(MainActivity host, LinearLayout box, JSONObject s) throws Exception {
+    static void states(MainActivity host, LinearLayout box, JSONObject s, EditText[] edits) throws Exception {
         box.removeAllViews();
         JSONObject budget=s.getJSONObject("budget");
         host.text(box,"Trạng thái hạn mức tháng "+s.getString("month")+" · cảnh báo sớm ở "+budget.getInt("threshold")+"%",16);
@@ -63,10 +101,24 @@ final class BudgetScreen {
             TextView line=host.text(box,host.alert(level)+" · "+message,14);
             line.setContentDescription("level:"+row.getString("category_id")+":"+level);
             if(warns(level))UiHelpers.warningStyle(host,line);
+            int editIndex=i;
+            line.setClickable(true);line.setOnClickListener(v->{edits[editIndex].requestFocus();host.content.requestChildFocus(edits[editIndex],edits[editIndex]);});
+            ProgressBar usage=new ProgressBar(host,null,android.R.attr.progressBarStyleHorizontal);usage.setMax(100);
+            double ratio=row.isNull("ratio")?0:row.optDouble("ratio",0);
+            if(row.isNull("ratio")&&level.equals("OVER")&&row.getLong("spent")>0)ratio=1;
+            usage.setProgress((int)Math.max(0,Math.min(100,Math.round(ratio*100))));
+            int color=warns(level)?UiHelpers.EXPENSE_RED:UiHelpers.FUNDS_GREEN;
+            usage.setProgressTintList(android.content.res.ColorStateList.valueOf(color));
+            usage.setProgressBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.rgb(226,232,240)));
+            usage.setContentDescription(row.getString("label")+" · "+level+" · chạm để sửa hạn mức");
+            usage.setClickable(true);usage.setOnClickListener(v->{edits[editIndex].requestFocus();host.content.requestChildFocus(edits[editIndex],edits[editIndex]);});
+            LinearLayout.LayoutParams progressParams=new LinearLayout.LayoutParams(-1,host.dp(12));progressParams.bottomMargin=host.dp(8);box.addView(usage,progressParams);
         }
     }
 
     static boolean warns(String level) { return level.equals("WARNING")||level.equals("REACHED")||level.equals("OVER"); }
+
+    private static long amountOrZero(String value){try{return Long.parseLong(value);}catch(NumberFormatException ignored){return 0;}}
 
     private static TextView row(MainActivity host, CharSequence value) {
         TextView v=new TextView(host); v.setText(value); v.setTextSize(14); return v;
