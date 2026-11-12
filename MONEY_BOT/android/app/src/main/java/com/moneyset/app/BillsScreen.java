@@ -46,14 +46,43 @@ final class BillsScreen {
     }
 
     static void render(MainActivity host, JSONObject response) throws Exception {
-        reminders(host,response.getJSONArray("reminders"));
-        obligations(host,response.getJSONObject("obligations"));
-        schedules(host,response.getJSONArray("schedules"));
-        host.text(host.content,"Các kỳ hóa đơn",20);
-        host.text(host.content,history.equals("all")?"Đang xem toàn bộ lịch sử kỳ đã trả.":"Kỳ chưa trả luôn hiển thị; kỳ đã trả chỉ hiển thị 12 tháng gần nhất.",14);
-        host.button(host.content,history.equals("all")?"Chỉ xem 12 tháng gần nhất":"Xem toàn bộ lịch sử đã trả",()->{history=history.equals("all")?"recent":"all";host.load();});
-        LinearLayout list=host.column();host.content.addView(list);
-        appendPeriods(host,list,response);
+        JSONArray reminders=response.getJSONArray("reminders");
+        JSONObject obligations=response.getJSONObject("obligations");
+        JSONArray schedules=response.getJSONArray("schedules");
+        JSONArray periods=response.getJSONArray("periods");
+        section(host,"Nhắc hạn",reminders.length()==0?"Không có nhắc hạn":""+reminders.length()+" kỳ cần chú ý",false,()->reminders(host,reminders));
+        String obligationSummary=reconciliation(obligations.getString("status"))+" · "+host.money(obligations.getLong("obligations"))+" chưa trả";
+        if(!obligations.isNull("remaining_budget"))obligationSummary+=" · còn "+host.money(obligations.getLong("remaining_budget"));
+        section(host,"Đối chiếu nghĩa vụ",obligationSummary,false,()->obligations(host,obligations));
+        section(host,"Lịch định kỳ",schedules.length()+" lịch",false,()->schedules(host,schedules));
+        section(host,"Các kỳ hóa đơn",periods.length()+"/"+response.getInt("periods_total")+" kỳ · "+(history.equals("all")?"toàn bộ lịch sử":"12 tháng đã trả"),false,()->{
+            host.button(host.content,history.equals("all")?"Chỉ xem 12 tháng gần nhất":"Xem toàn bộ lịch sử đã trả",()->{history=history.equals("all")?"recent":"all";host.load();});
+            LinearLayout list=host.column();host.content.addView(list);appendPeriods(host,list,response);
+        });
+    }
+
+    private interface SectionBody { void render() throws Exception; }
+
+    /** Keep the overview short while leaving every existing detail and action one tap away. */
+    private static void section(MainActivity host,String title,String summary,boolean expanded,SectionBody content) throws Exception {
+        LinearLayout card=host.column();card.setPadding(host.dp(8),host.dp(2),host.dp(8),host.dp(2));
+        card.setBackground(UiHelpers.shape(host,android.graphics.Color.WHITE,android.graphics.Color.rgb(226,232,240),13));
+        LinearLayout.LayoutParams cardParams=new LinearLayout.LayoutParams(-1,-2);cardParams.bottomMargin=host.dp(7);host.content.addView(card,cardParams);
+        String label=(expanded?"Thu gọn · ":"Mở · ")+title+(summary.isEmpty()?"":"  ·  "+summary);
+        Button toggle=host.button(card,label,()->{});toggle.setTextSize(13);toggle.setTextColor(UiHelpers.INK);
+        toggle.setGravity(android.view.Gravity.CENTER_VERTICAL|android.view.Gravity.START);toggle.setPadding(0,0,0,0);
+        toggle.setMinHeight(host.dp(40));toggle.setBackgroundColor(android.graphics.Color.TRANSPARENT);toggle.setElevation(0);
+        LinearLayout body=host.column();body.setVisibility(expanded?android.view.View.VISIBLE:android.view.View.GONE);card.addView(body);
+        toggle.setOnClickListener(v->{boolean show=body.getVisibility()!=android.view.View.VISIBLE;body.setVisibility(show?android.view.View.VISIBLE:android.view.View.GONE);
+            toggle.setText((show?"Thu gọn · ":"Mở · ")+title+(summary.isEmpty()?"":"  ·  "+summary));});
+        if(expanded){LinearLayout previous=host.content;host.content=body;try{content.render();}finally{host.content=previous;}}
+        else {
+            // Defer rendering until expanded so large histories do not inflate every view at once.
+            toggle.setOnClickListener(v->{boolean show=body.getVisibility()!=android.view.View.VISIBLE;body.setVisibility(show?android.view.View.VISIBLE:android.view.View.GONE);
+                toggle.setText((show?"Thu gọn · ":"Mở · ")+title+(summary.isEmpty()?"":"  ·  "+summary));
+                if(show&&body.getChildCount()==0){LinearLayout previous=host.content;host.content=body;try{content.render();}catch(Exception e){host.error(e.getMessage());}finally{host.content=previous;}}
+            });
+        }
     }
 
     static void reminders(MainActivity host, JSONArray reminders) throws Exception {

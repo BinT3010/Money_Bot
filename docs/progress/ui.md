@@ -30,6 +30,9 @@ the Java Android app under `MONEY_BOT/android`.
   sliders bounded by the current total budget. Edits stay local until the existing
   save action; warning levels and usage bars continue to come from the server.
   Tapping a category usage row focuses its limit field.
+- The Bills tab now opens with four compact expandable sections for reminders,
+  reconciliation, recurring schedules, and bill periods. Each header summarizes
+  the section; all previous detail and actions remain available after expansion.
 - Added accessible labels for chart values and navigation actions.
 
 ## Verification
