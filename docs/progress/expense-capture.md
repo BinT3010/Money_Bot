@@ -110,3 +110,10 @@ switch, and retyping the same expense with an updated merchant. Focused capture
 and draft-switch checks:34 passed. Full verification and independent review are
 required on this reconciled head before integration. This operation updates the
 feature PR only; remote staging and main are not merged by the worker.
+
+Reconciled source13f1fb3 passed full local verification on a clean checkout:
+198 Python tests,81 existing evaluation cases,14 Java integration tests (including
+all four new bills-screen flows), debug build and lint. Independent reviewer
+approved that exact source against staging6eaf8c3, confirming the full staged bills
+workflow and queued-draft changes were retained. Current PR checks verify the
+published head; no staging/main push or emulator reinstall is part of reconciliation.
