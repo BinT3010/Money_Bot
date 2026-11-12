@@ -31,5 +31,5 @@ Agent đọc [hướng dẫn công việc theo nhánh](docs/BRANCH_TASKS.md) sau
 Ba luồng chính: expense-capture, budget, bills; evaluation đo và báo cáo độc lập.
 Xem [quy trình staging](docs/AUTONOMOUS_WORKFLOW.md). Nhánh merchant/OCR cũ đã xóa sau khi giữ toàn bộ commit; công việc mới hợp nhất
 vào expense-capture. Agent bắt đầu theo checklist trong BRANCH_TASKS.md.
-Code nền tảng hiện ở staging (PR #3); cập nhật tài liệu trên main không phải
-phê duyệt merge code của PR đó.
+Main chỉ nhận thay đổi code sau khi người dùng duyệt; cập nhật tài liệu không
+tự cấp quyền merge code. Công việc mới bắt đầu từ nhánh được phân công trên staging.

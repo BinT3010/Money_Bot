@@ -9,8 +9,8 @@ import org.json.JSONObject;
 /** Extracted rendering/controller logic; financial decisions remain on the server. */
 final class ChatScreen {
     static void chatAction(MainActivity host, JSONObject action) {
-        host.status.setText("Đang xử lý…");
-        host.api.call("POST", "/chat/android", action, r -> { host.status.setText(""); host.renderChat((JSONObject) r); }, host::error);
+        UiHelpers.status(host, "Đang xử lý…");
+        host.api.call("POST", "/chat/android", action, r -> { UiHelpers.status(host, ""); host.renderChat((JSONObject) r); }, host::error);
     }
     static JSONObject draftAction(MainActivity host, String kind, JSONObject draft) throws Exception {
         return new JSONObject().put("action", kind).put("draft_id", draft.getString("id")).put("version", draft.getInt("version"));
@@ -26,20 +26,22 @@ final class ChatScreen {
             if (item.getString("role").equals("user")) line.setTextColor(Color.rgb(78,55,160));
         }
         if (state.has("ocr_text")) host.text(host.content, "Nội dung OCR (cần kiểm tra):\n" + state.getString("ocr_text"), 14);
+        if (state.has("ocr_note")) UiHelpers.warning(host,host.content,state.getString("ocr_note"),14);
         JSONObject d = state.optJSONObject("draft");
         if (d != null) {
             host.text(host.content, "Bản nháp — chưa lưu", 20);
             JSONObject fields = d.getJSONObject("fields");
             if(fields.has("description"))host.text(host.content,fields.getString("description"),18);
+            if(!fields.isNull("merchant")&&!fields.optString("merchant").isEmpty())host.text(host.content,"Cửa hàng: "+fields.getString("merchant"),16);
             if(fields.has("name"))host.text(host.content,fields.getString("name"),18);
-            if(fields.has("amount_vnd"))host.text(host.content,"Số tiền: "+host.money(fields.getLong("amount_vnd")),18);
+            if(fields.has("amount_vnd"))UiHelpers.moneyText(host,host.content,"Số tiền: ",fields.getLong("amount_vnd"),18,true);
             if(fields.has("category_id"))host.text(host.content,"Danh mục: "+host.label(fields.getString("category_id")),16);
             if(fields.has("date"))host.text(host.content,"Ngày chi: "+fields.getString("date"),16);
             if(fields.has("due_day"))host.text(host.content,"Ngày lặp: "+fields.getInt("due_day"),16);
             if(fields.has("start_month"))host.text(host.content,"Bắt đầu: "+fields.getString("start_month"),16);
             if(fields.has("month"))host.text(host.content,"Tháng: "+fields.getString("month"),16);
             JSONObject errors = state.getJSONObject("errors");
-            for (java.util.Iterator<String> it=errors.keys(); it.hasNext();) host.text(host.content, errors.getString(it.next()), 15);
+            for (java.util.Iterator<String> it=errors.keys(); it.hasNext();) UiHelpers.warning(host,host.content, errors.getString(it.next()), 15);
             host.button(host.content, "Sửa bản nháp", () -> host.draftForm(d));
             Button confirm = host.button(host.content, "Xác nhận lưu", () -> host.chatAction(host.draftAction("confirm", d)));
             confirm.setEnabled(state.optBoolean("can_confirm"));
@@ -71,6 +73,7 @@ final class ChatScreen {
         }
         boolean bill=draft.getString("intent").equals("create_recurring_bill");
         EditText name=host.input(box,bill?"Tên hóa đơn":"Nội dung",f.optString(bill?"name":"description"),false);
+        EditText merchant=bill?null:host.input(box,"Cửa hàng (tùy chọn)",f.isNull("merchant")?"":f.optString("merchant"),false);
         EditText amount=host.input(box,"Số tiền VND",f.has("amount_vnd")?f.optString("amount_vnd"):"",true);
         EditText day=host.input(box,bill?"Ngày lặp 1–31":"Ngày yyyy-MM-dd",f.optString(bill?"due_day":"date"),bill);
         EditText start=bill?host.input(box,"Tháng bắt đầu yyyy-MM",f.optString("start_month"),false):null;
@@ -78,7 +81,7 @@ final class ChatScreen {
         host.formDialog("Sửa bản nháp",box,()->{
             JSONObject changes=new JSONObject().put(bill?"name":"description",host.value(name)).put("amount_vnd",host.amount(amount));
             if(bill) changes.put("due_day",Integer.parseInt(host.value(day))).put("start_month",host.value(start));
-            else changes.put("date",host.value(day)).put("category_id",host.selected(cat));
+            else changes.put("date",host.value(day)).put("category_id",host.selected(cat)).put("merchant",host.value(merchant));
             host.chatAction(host.draftAction("edit",draft).put("fields",changes));
         });
     }

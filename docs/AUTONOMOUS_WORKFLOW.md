@@ -8,7 +8,7 @@ coding agents. A session/controller must remain active to dispatch workers.
 ## Execution order
 
 1. The foundation is integrated and verified on staging. Start feature workers
-   using docs/BRANCH_TASKS.md. Main approval remains separate (PR #3).
+   using docs/BRANCH_TASKS.md. Each main release needs explicit user approval.
 2. Start expense-capture, budget and bills from staging in separate worktrees.
    Evaluation harness/protocol work can run concurrently. Use existing named
    branches if they have work; merge staging normally, never reset or force-push.

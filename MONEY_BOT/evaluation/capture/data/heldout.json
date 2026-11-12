@@ -1,0 +1,271 @@
+{
+  "source": "synthetic, hand-labeled fixture specifications; no private or real invoice data",
+  "split": "heldout",
+  "today": "2026-11-12",
+  "cases": [
+    {
+      "id": "heldout-receipt-01",
+      "kind": "receipt",
+      "file": "heldout/receipt-01.png",
+      "expected": {
+        "amount_vnd": 27000,
+        "date": "2026-11-01",
+        "merchant": "TEST SHOP A",
+        "category_id": "food"
+      }
+    },
+    {
+      "id": "heldout-sentence-01",
+      "kind": "sentence",
+      "text": "bún bò 27k 01/11/2026; cửa hàng: TEST SHOP A",
+      "expected": {
+        "amount_vnd": 27000,
+        "date": "2026-11-01",
+        "merchant": "TEST SHOP A",
+        "category_id": "food"
+      }
+    },
+    {
+      "id": "heldout-receipt-02",
+      "kind": "receipt",
+      "file": "heldout/receipt-02.png",
+      "expected": {
+        "amount_vnd": 40000,
+        "date": "2026-11-02",
+        "merchant": "TEST SHOP B",
+        "category_id": "food"
+      }
+    },
+    {
+      "id": "heldout-sentence-02",
+      "kind": "sentence",
+      "text": "trà sữa 40k 02/11/2026; cửa hàng: TEST SHOP B",
+      "expected": {
+        "amount_vnd": 40000,
+        "date": "2026-11-02",
+        "merchant": "TEST SHOP B",
+        "category_id": "food"
+      }
+    },
+    {
+      "id": "heldout-receipt-03",
+      "kind": "receipt",
+      "file": "heldout/receipt-03.png",
+      "expected": {
+        "amount_vnd": 53000,
+        "date": "2026-11-03",
+        "merchant": "TEST SHOP C",
+        "category_id": "shopping"
+      }
+    },
+    {
+      "id": "heldout-sentence-03",
+      "kind": "sentence",
+      "text": "mua giày 53k 03/11/2026; cửa hàng: TEST SHOP C",
+      "expected": {
+        "amount_vnd": 53000,
+        "date": "2026-11-03",
+        "merchant": "TEST SHOP C",
+        "category_id": "shopping"
+      }
+    },
+    {
+      "id": "heldout-receipt-04",
+      "kind": "receipt",
+      "file": "heldout/receipt-04.png",
+      "expected": {
+        "amount_vnd": 66000,
+        "date": "2026-11-04",
+        "merchant": "TEST SHOP D",
+        "category_id": "shopping"
+      }
+    },
+    {
+      "id": "heldout-sentence-04",
+      "kind": "sentence",
+      "text": "mua dầu gội 66k 04/11/2026; cửa hàng: TEST SHOP D",
+      "expected": {
+        "amount_vnd": 66000,
+        "date": "2026-11-04",
+        "merchant": "TEST SHOP D",
+        "category_id": "shopping"
+      }
+    },
+    {
+      "id": "heldout-receipt-05",
+      "kind": "receipt",
+      "file": "heldout/receipt-05.png",
+      "expected": {
+        "amount_vnd": 79000,
+        "date": "2026-11-05",
+        "merchant": "TEST SHOP E",
+        "category_id": "transport"
+      }
+    },
+    {
+      "id": "heldout-sentence-05",
+      "kind": "sentence",
+      "text": "gửi xe 79k 05/11/2026; cửa hàng: TEST SHOP E",
+      "expected": {
+        "amount_vnd": 79000,
+        "date": "2026-11-05",
+        "merchant": "TEST SHOP E",
+        "category_id": "transport"
+      }
+    },
+    {
+      "id": "heldout-receipt-06",
+      "kind": "receipt",
+      "file": "heldout/receipt-06.png",
+      "expected": {
+        "amount_vnd": 92000,
+        "date": "2026-11-06",
+        "merchant": "TEST SHOP F",
+        "category_id": "transport"
+      }
+    },
+    {
+      "id": "heldout-sentence-06",
+      "kind": "sentence",
+      "text": "vé xe buýt 92k 06/11/2026; cửa hàng: TEST SHOP F",
+      "expected": {
+        "amount_vnd": 92000,
+        "date": "2026-11-06",
+        "merchant": "TEST SHOP F",
+        "category_id": "transport"
+      }
+    },
+    {
+      "id": "heldout-receipt-07",
+      "kind": "receipt",
+      "file": "heldout/receipt-07.png",
+      "expected": {
+        "amount_vnd": 105000,
+        "date": "2026-11-07",
+        "merchant": "TEST SHOP G",
+        "category_id": "utilities"
+      }
+    },
+    {
+      "id": "heldout-sentence-07",
+      "kind": "sentence",
+      "text": "tiền nước 105k 07/11/2026; cửa hàng: TEST SHOP G",
+      "expected": {
+        "amount_vnd": 105000,
+        "date": "2026-11-07",
+        "merchant": "TEST SHOP G",
+        "category_id": "utilities"
+      }
+    },
+    {
+      "id": "heldout-receipt-08",
+      "kind": "receipt",
+      "file": "heldout/receipt-08.png",
+      "expected": {
+        "amount_vnd": 118000,
+        "date": "2026-11-08",
+        "merchant": "TEST SHOP H",
+        "category_id": "utilities"
+      }
+    },
+    {
+      "id": "heldout-sentence-08",
+      "kind": "sentence",
+      "text": "tiền internet 118k 08/11/2026; cửa hàng: TEST SHOP H",
+      "expected": {
+        "amount_vnd": 118000,
+        "date": "2026-11-08",
+        "merchant": "TEST SHOP H",
+        "category_id": "utilities"
+      }
+    },
+    {
+      "id": "heldout-receipt-09",
+      "kind": "receipt",
+      "file": "heldout/receipt-09.png",
+      "expected": {
+        "amount_vnd": 131000,
+        "date": "2026-11-09",
+        "merchant": "TEST SHOP I",
+        "category_id": "entertainment"
+      }
+    },
+    {
+      "id": "heldout-sentence-09",
+      "kind": "sentence",
+      "text": "karaoke 131k 09/11/2026; cửa hàng: TEST SHOP I",
+      "expected": {
+        "amount_vnd": 131000,
+        "date": "2026-11-09",
+        "merchant": "TEST SHOP I",
+        "category_id": "entertainment"
+      }
+    },
+    {
+      "id": "heldout-receipt-10",
+      "kind": "receipt",
+      "file": "heldout/receipt-10.png",
+      "expected": {
+        "amount_vnd": 144000,
+        "date": "2026-11-10",
+        "merchant": "TEST SHOP J",
+        "category_id": "entertainment"
+      }
+    },
+    {
+      "id": "heldout-sentence-10",
+      "kind": "sentence",
+      "text": "vé xem phim 144k 10/11/2026; cửa hàng: TEST SHOP J",
+      "expected": {
+        "amount_vnd": 144000,
+        "date": "2026-11-10",
+        "merchant": "TEST SHOP J",
+        "category_id": "entertainment"
+      }
+    },
+    {
+      "id": "heldout-receipt-11",
+      "kind": "receipt",
+      "file": "heldout/receipt-11.png",
+      "expected": {
+        "amount_vnd": 157000,
+        "date": "2026-11-01",
+        "merchant": "TEST SHOP K",
+        "category_id": "other"
+      }
+    },
+    {
+      "id": "heldout-sentence-11",
+      "kind": "sentence",
+      "text": "mua vở bút 157k 01/11/2026; cửa hàng: TEST SHOP K",
+      "expected": {
+        "amount_vnd": 157000,
+        "date": "2026-11-01",
+        "merchant": "TEST SHOP K",
+        "category_id": "other"
+      }
+    },
+    {
+      "id": "heldout-receipt-12",
+      "kind": "receipt",
+      "file": "heldout/receipt-12.png",
+      "expected": {
+        "amount_vnd": 170000,
+        "date": "2026-11-02",
+        "merchant": "TEST SHOP L",
+        "category_id": "other"
+      }
+    },
+    {
+      "id": "heldout-sentence-12",
+      "kind": "sentence",
+      "text": "khám bệnh 170k 02/11/2026; cửa hàng: TEST SHOP L",
+      "expected": {
+        "amount_vnd": 170000,
+        "date": "2026-11-02",
+        "merchant": "TEST SHOP L",
+        "category_id": "other"
+      }
+    }
+  ]
+}

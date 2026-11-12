@@ -3,8 +3,8 @@
 ## Read before editing
 Read this file, README.md, CONTRIBUTING.md, docs/BRANCH_TASKS.md, docs/AUTONOMOUS_WORKFLOW.md, and relevant component documentation.
 Inspect git status and the assigned branch. On main, do not start feature work:
-use the matching existing branch from staging. PR #3 carries the staging code
-foundation and still needs final approval; documentation on main is not that approval.
+use the matching existing branch from staging. Each code integration into main
+needs explicit user approval; documentation updates alone do not grant it.
 Preserve unrelated edits. If unexpected
 changes or shared-file conflicts appear, stop the affected work and report them.
 

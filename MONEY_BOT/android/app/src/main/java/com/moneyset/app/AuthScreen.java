@@ -17,7 +17,7 @@ final class AuthScreen {
         for (String operation : new String[]{"login", "register"}) {
             host.button(host.content, operation.equals("login") ? "Đăng nhập" : "Tạo tài khoản", () -> {
                 if (!host.value(server).equals(host.api.base())) host.api.base(host.value(server));
-                host.status.setText("Đang kết nối…");
+                UiHelpers.status(host, "Đang kết nối…");
                 host.api.call("POST", "/auth/" + operation, new JSONObject().put("email", host.value(email)).put("password", host.value(password)),
                     result -> { host.api.login((JSONObject) result); host.tab = "Chat"; host.shell(); }, host::error);
             });

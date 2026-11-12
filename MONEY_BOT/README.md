@@ -36,7 +36,7 @@ Lần đầu trên máy khác:
 | Nhập giọng nói | Dùng dịch vụ nhận giọng nói có trên thiết bị Android; nếu máy không hỗ trợ, nhập bàn phím. Dịch vụ của thiết bị có thể cần mạng. |
 | Thống kê | Xem theo tháng, tổng tiền và phân bố sáu danh mục; thêm/sửa/xóa khoản chi. Khoản đã liên kết hóa đơn được khóa sửa/xóa để giữ nhất quán. |
 | Ngân sách | Lưu ngân sách tổng, hạn mức từng danh mục, mốc cảnh báo 1–99%. Để trống hạn mức khác với đặt 0. Đề xuất lấy ba tháng trước và cần xác nhận lưu. |
-| Hóa đơn | Tạo lịch hằng tháng, xem các kỳ nợ cũ/hiện tại, xác nhận trả hoặc liên kết khoản chi đã ghi. Ngày 31 được kẹp cuối tháng ngắn. |
+| Hóa đơn | Tạo, sửa, ngừng và tiếp tục lịch hằng tháng; xem các kỳ nợ cũ/hiện tại (50 kỳ mỗi trang, mặc định 12 tháng kỳ đã trả, có nút xem toàn bộ lịch sử); xác nhận trả với số tiền thực trả hoặc liên kết khoản chi Hóa đơn tiện ích đã ghi (không ghi chi lần hai). Đối chiếu hiển thị cửa sổ, từng kỳ đang xét, ngân sách tổng/đã chi/còn lại, thiếu thông tin, và các kỳ tháng trước/tháng sau không cộng vào. Ngày 31 được kẹp cuối tháng ngắn. |
 | Tài khoản | Đổi mật khẩu và đăng xuất. Đổi mật khẩu làm hết hạn các phiên hiện có. |
 
 Ví dụ Chat: `ăn trưa 45k`, `tổng chi tháng 11/2026`, `tạo hóa đơn tiền mạng 200k ngày 15 hàng tháng từ tháng 11/2026`, `xem hóa đơn đến hạn`. Chat hỗ trợ bốn ý định cụ thể, không phải chatbot hỏi đáp mọi chủ đề.
