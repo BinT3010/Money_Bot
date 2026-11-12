@@ -75,7 +75,10 @@ verification job write credentials. CI success alone is not review approval.
 
 main: approved product; feature work starts on the assigned staging-based branch.
 staging: integrator-owned, tested combined work; final PR to main needs approval.
-feature/expense-capture, feature/budget, feature/bills: three end-to-end workers.
-experiment/evaluation: independent measurement tooling and reporting worker.
+feature/expense-capture, feature/budget, feature/bills: existing end-to-end flows.
+feature/ui: current Android polish. feature/budget-range-feedback: backend-owned
+necessary-expense allocation ranges and Android feedback. experiment/evaluation:
+independent measurement tooling and reporting worker. See BRANCH_TASKS.md for
+ownership and acceptance criteria.
 The retired merchant/OCR/foundation branch names must not be recreated. Workers
 can start independently; evaluation final measurements wait for integrated code.

@@ -10,7 +10,20 @@ All feature PRs target staging. Each worker uses its own worktree.
 | feature/expense-capture | Text/manual/image/PDF -> editable transaction draft including merchant -> explicit confirmation -> durable record | Java ChatScreen, TransactionEditor; backend routes/chat.py, routes/transactions.py, ocr.py, classification.py, classifier.py, money_chat/parser.py; capture tests/cases/data |
 | feature/budget | History -> totals/charts -> suggestions with basis -> editable limits -> warnings | Java BudgetScreen, StatsScreen; backend budget.py, routes/budget.py; budget/statistics tests/cases |
 | feature/bills | Schedule -> reminders -> payment/linking -> period history and budget reconciliation | Java BillsScreen; backend bills.py, routes/bills.py; bill tests/cases |
+| feature/ui | General Android visual polish across completed flows | Android presentation, shared presentation helpers/navigation, focused UI tests/docs |
+| feature/budget-range-feedback | Backend-defined acceptable allocation ranges for necessary expenses, with Android feedback | Java BudgetScreen; backend budget.py, routes/budget.py; isolated backend and Java tests |
 | experiment/evaluation | Reproducible independent acceptance evidence and cross-feature checks | evaluation harness, summary tooling, cross-feature test modules, human-trial protocol |
+
+## General UI polish acceptance
+
+Basic feature flows are implemented; this branch owns Android presentation and
+usability: spacing, hierarchy, readability, consistent states, accessibility,
+charts, and clear screen separation. Preserve existing flows, API contracts,
+financial calculations, confirmation steps, and user data. Do not add
+dependencies or edit backend/domain code. Shared `UiHelpers`, navigation, themes,
+or common components are in scope for this branch. Keep API clients, data models,
+backend behavior, and persistence contracts unchanged. Add focused UI regression
+coverage for assigned behavior, then run full verification.
 
 ## Shared contracts (foundation/integrator ownership)
 
@@ -20,6 +33,9 @@ shared draft models, app dependencies, and CI stable. A feature needing one of
 these changes sends a small prerequisite patch to the integrator first, rather
 than each worker editing shared foundations independently. Do not create duplicate
 financial databases or client-side sources of financial truth.
+The assigned feature/ui branch may update only the visual presentation and
+navigation layout in MainActivity and UiHelpers; it must preserve navigation
+destinations, API behavior, state, and storage contracts.
 TransactionEditor owns manual creation/edit/delete; StatsScreen only opens it.
 ChatScreen owns expense draft editing and receipt/text entry. Keep existing API
 URLs, fields and error semantics. One store transaction owns each confirmed write.
@@ -48,6 +64,23 @@ no new dependency or independent Android financial totals. Test refresh after
 transaction edits/deletes via the shared transaction contract; do not edit
 TransactionEditor for chart work. Cover 1.4 and 2.1–2.4 with independent expected
 values, plus Java flow tests.
+When no category limits are saved, show an unsaved base case of 20% each for
+food, shopping, transport, utilities and entertainment, with Other at 0%. Do not
+persist it until the user confirms the budget.
+
+## Budget range feedback acceptance
+
+The backend owns the acceptable allocation interval `[a, b]` for each necessary
+category; Android must consume, not derive, these bounds. The UI branch uses the
+temporary `a = 0`, `b = 50%` of total budget so the interaction can be reviewed;
+the budget-range branch replaces this with explicit server-provided bounds and
+basis metadata. Show blue for `a <= x <= b`, red for values below `a` or above
+`b`. Categories without enough history or without a necessary range must be
+unclassified, not assigned a fabricated zero-width band. The backend
+already rejects saved limits whose sum exceeds the total budget; retain that
+invariant. Add independent tests for interval boundaries, missing history and
+multiple categories, and verify Android uses returned bounds without rebuilding
+the rule. This branch owns the additive API contract and both sides of the flow.
 
 ## Bills acceptance
 
@@ -71,17 +104,20 @@ run on the integrated staging commit.
 
 ## Retired branches
 
-feature/merchant, feature/ocr-receipt and refactor/feature-workstreams have been
-deleted after confirming their commits are retained in staging. Do not recreate
-them. Merchant and OCR form one expense-capture flow. The active branches are
-feature/expense-capture, feature/budget, feature/bills and experiment/evaluation.
+feature/merchant, feature/ocr-receipt and refactor/feature-workstreams were
+deleted earlier. The completed feature/expense-capture, feature/budget and
+feature/bills branches were deleted after integration into main. Current work
+branches are feature/ui, feature/budget-range-feedback and experiment/evaluation.
+The UI branch owns general Android polish while preserving existing feature flows.
+The budget-range branch owns backend-defined necessary-expense bounds and the
+Android feedback that consumes them.
 
 ## Start now: worker checklist
 
 1. Fetch origin. Use the existing assigned branch and a dedicated worktree. If
    already checked out elsewhere, use that worktree; don't force-check it out twice.
-   Example from the repository: `git worktree add ../Money_Bot-capture feature/expense-capture`.
-   Use Money_Bot-budget, Money_Bot-bills or Money_Bot-evaluation for the other roles.
+   Example from the repository: `git worktree add ../Money_Bot-ui feature/ui`.
+   Use Money_Bot-evaluation for the evaluation role.
 2. Confirm current branch and a clean working tree. Verify it includes current
    origin/staging (`git merge-base --is-ancestor origin/staging HEAD`). If it does
    not, ask the integrator to merge staging; never reset/rebase shared work.

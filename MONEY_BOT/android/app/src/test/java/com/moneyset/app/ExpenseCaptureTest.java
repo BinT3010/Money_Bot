@@ -85,9 +85,9 @@ public class ExpenseCaptureTest {
         try {
             idle(a);
             View root = a.getWindow().getDecorView();
-            ((EditText) find(root, "Nhập câu tiếng Việt", true)).setText("ăn trưa 45k; cửa hàng: Quán Minh");
+            ((EditText) find(root, "Nhập khoản chi", true)).setText("ăn trưa 45k; cửa hàng: Quán Minh");
             find(root, "Gửi", false).performClick(); idle(a);
-            assertNotNull(find(root, "Cửa hàng: Quán Minh", false));
+            assertTrue(a.chat.getJSONObject("draft").getJSONObject("fields").getString("merchant").equals("Quán Minh"));
             assertEquals(0, rows().length());
             JSONObject current = a.chat.getJSONObject("draft");
             a.chatAction(new JSONObject().put("action", "edit").put("draft_id", current.getString("id"))
@@ -98,7 +98,7 @@ public class ExpenseCaptureTest {
             AlertDialog dialog = ShadowAlertDialog.getLatestAlertDialog();
             fill(dialog, "Cửa hàng (tùy chọn)", "Quán An");
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick(); idle(a);
-            assertNotNull(find(root, "Cửa hàng: Quán An", false));
+            assertEquals("Quán An", a.chat.getJSONObject("draft").getJSONObject("fields").getString("merchant"));
             assertEquals(0, rows().length());
             find(root, "Xác nhận lưu", false).performClick(); idle(a);
             assertEquals("Quán An", rows().getJSONObject(0).getString("merchant"));
@@ -148,7 +148,7 @@ public class ExpenseCaptureTest {
         MainActivity a = Robolectric.buildActivity(MainActivity.class).setup().get();
         try {
             idle(a); View root = a.getWindow().getDecorView();
-            assertNotNull(find(root, "Cửa hàng: CAFE AN", false));
+            assertEquals("CAFE AN", a.chat.getJSONObject("draft").getJSONObject("fields").getString("merchant"));
             find(root, "Hủy bản nháp", false).performClick(); idle(a);
             assertEquals(0, rows().length());
             assertTrue(((JSONObject) request("GET", "/chat/android", null)).isNull("draft"));

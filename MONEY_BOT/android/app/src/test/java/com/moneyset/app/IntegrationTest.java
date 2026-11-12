@@ -92,9 +92,9 @@ public class IntegrationTest {
         login.finish();register();
         MainActivity activity=Robolectric.buildActivity(MainActivity.class).setup().get();
         long deadline=System.currentTimeMillis()+15000;
-        while(!contains(activity.getWindow().getDecorView(),"Trợ lý chi tiêu")&&System.currentTimeMillis()<deadline){Shadows.shadowOf(Looper.getMainLooper()).idle();Thread.sleep(20);}
-        assertTrue(contains(activity.getWindow().getDecorView(),"Trợ lý chi tiêu"));
-        assertTrue(contains(activity.getWindow().getDecorView(),"Chọn ảnh / PDF hóa đơn"));
+        while(!contains(activity.getWindow().getDecorView(),"Chat chi tiêu")&&System.currentTimeMillis()<deadline){Shadows.shadowOf(Looper.getMainLooper()).idle();Thread.sleep(20);}
+        assertTrue(contains(activity.getWindow().getDecorView(),"Chat chi tiêu"));
+        assertNotNull(find(activity.getWindow().getDecorView(),"Ảnh",false));
         activity.finish();
     }
     private boolean contains(View view,String text){
@@ -109,6 +109,12 @@ public class IntegrationTest {
         if(view instanceof ViewGroup){ViewGroup g=(ViewGroup)view;for(int i=0;i<g.getChildCount();i++){View r=find(g.getChildAt(i),text,description);if(r!=null)return r;}}
         return null;
     }
+    private View findBillHeader(View view,String name){
+        CharSequence description=view.getContentDescription();
+        if(view.isClickable()&&description!=null&&description.toString().startsWith(name+" · "))return view;
+        if(view instanceof ViewGroup){ViewGroup group=(ViewGroup)view;for(int i=0;i<group.getChildCount();i++){View found=findBillHeader(group.getChildAt(i),name);if(found!=null)return found;}}
+        return null;
+    }
     private void idleActivity(MainActivity activity) throws Exception {
         java.lang.reflect.Field field=MainActivity.class.getDeclaredField("api");field.setAccessible(true);
         ApiClient client=(ApiClient)field.get(activity);
@@ -119,7 +125,7 @@ public class IntegrationTest {
     @Test public void actualScreenChatConfirmationBudgetAndBills() throws Exception {
         register();MainActivity a=Robolectric.buildActivity(MainActivity.class).setup().get();idleActivity(a);
         View root=a.getWindow().getDecorView();
-        ((android.widget.EditText)find(root,"Nhập câu tiếng Việt",true)).setText("ăn trưa 45k");
+        ((android.widget.EditText)find(root,"Nhập khoản chi",true)).setText("ăn trưa 45k");
         find(root,"Gửi",false).performClick();idleActivity(a);
         assertTrue(find(root,"Xác nhận lưu",false).isEnabled());
         find(root,"Xác nhận lưu",false).performClick();idleActivity(a);
@@ -131,9 +137,9 @@ public class IntegrationTest {
         ((android.widget.EditText)find(root,"Ngân sách tổng VND",true)).setText("100000");
         ((android.widget.EditText)find(root,"Ăn uống",true)).setText("50000");
         find(root,"Xác nhận lưu ngân sách",false).performClick();idleActivity(a);
-        assertEquals("100000",((TextView)find(root,"Ngân sách tổng VND",true)).getText().toString());
+        assertEquals("100,000",((TextView)find(root,"Ngân sách tổng VND",true)).getText().toString());
         find(root,"Hóa đơn",false).performClick();idleActivity(a);
-        assertTrue(contains(root,"Các kỳ hóa đơn"));
+        assertTrue(contains(root,"Tạo lịch hóa đơn"));
         find(root,"Tạo lịch hóa đơn",false).performClick();
         AlertDialogCheck.assertShown();
         android.app.AlertDialog dialog=org.robolectric.shadows.ShadowAlertDialog.getLatestAlertDialog();
@@ -143,10 +149,11 @@ public class IntegrationTest {
         ((android.widget.EditText)find(form,"Ngày lặp 1–31",true)).setText("12");
         dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE).performClick();idleActivity(a);
         assertTrue(contains(root,"Internet test"));
+        findBillHeader(root,"Internet test").performClick();
         find(root,"Đánh dấu đã trả / Liên kết khoản chi",false).performClick();idleActivity(a);
         dialog=org.robolectric.shadows.ShadowAlertDialog.getLatestAlertDialog();
         dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE).performClick();idleActivity(a);
-        assertTrue(contains(root,"Đã trả"));
+        assertTrue(a.status.getText().toString().contains("Đã ghi nhận kỳ"));
         a.finish();
     }
     @Test public void javaMultipartImageReachesRealOcr() throws Exception {

@@ -28,8 +28,10 @@ Không đồng bộ hoặc xóa các nhánh feature/* và experiment/* chỉ vì
 ## Phân công theo nhánh
 
 Agent đọc [hướng dẫn công việc theo nhánh](docs/BRANCH_TASKS.md) sau AGENTS.md.
-Ba luồng chính: expense-capture, budget, bills; evaluation đo và báo cáo độc lập.
-Xem [quy trình staging](docs/AUTONOMOUS_WORKFLOW.md). Nhánh merchant/OCR cũ đã xóa sau khi giữ toàn bộ commit; công việc mới hợp nhất
+Ba luồng chính hiện có: expense-capture, budget, bills; evaluation đo và báo cáo độc lập.
+Luồng kế tiếp bổ sung dải hạn mức hợp lý do backend tính cho danh mục thiết yếu.
+Xem [ranh giới frontend/backend](docs/FRONTEND_BACKEND_BOUNDARY.md) và
+[quy trình staging](docs/AUTONOMOUS_WORKFLOW.md). Nhánh merchant/OCR cũ đã xóa sau khi giữ toàn bộ commit; công việc mới hợp nhất
 vào expense-capture. Agent bắt đầu theo checklist trong BRANCH_TASKS.md.
 Main chỉ nhận thay đổi code sau khi người dùng duyệt; cập nhật tài liệu không
 tự cấp quyền merge code. Công việc mới bắt đầu từ nhánh được phân công trên staging.

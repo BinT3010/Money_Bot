@@ -41,24 +41,21 @@ final class BillsScreen {
     static String page(int offset) { return "/bills?limit="+PAGE+"&offset="+offset+"&history="+history; }
 
     static void bills(MainActivity host) {
-        host.button(host.content,"Tạo lịch hóa đơn",()->host.billForm());
         host.api.call("GET",page(0),null,r->render(host,(JSONObject)r),host::error);
     }
 
     static void render(MainActivity host, JSONObject response) throws Exception {
-        reminders(host,response.getJSONArray("reminders"));
-        obligations(host,response.getJSONObject("obligations"));
-        schedules(host,response.getJSONArray("schedules"));
-        host.text(host.content,"Các kỳ hóa đơn",20);
-        host.text(host.content,history.equals("all")?"Đang xem toàn bộ lịch sử kỳ đã trả.":"Kỳ chưa trả luôn hiển thị; kỳ đã trả chỉ hiển thị 12 tháng gần nhất.",14);
-        host.button(host.content,history.equals("all")?"Chỉ xem 12 tháng gần nhất":"Xem toàn bộ lịch sử đã trả",()->{history=history.equals("all")?"recent":"all";host.load();});
-        LinearLayout list=host.column();host.content.addView(list);
-        appendPeriods(host,list,response);
+        host.button(host.content,"Tạo lịch hóa đơn",()->host.billForm());
+        LinearLayout tools=new LinearLayout(host);tools.setGravity(android.view.Gravity.RIGHT);host.content.addView(tools);
+        Button historyButton=host.button(tools,history.equals("all")?"12m":"∞",()->{history=history.equals("all")?"recent":"all";host.load();});
+        historyButton.setTextSize(13);historyButton.setContentDescription(history.equals("all")?"Chỉ xem 12 tháng gần nhất":"Xem toàn bộ lịch sử đã trả");
+        historyButton.setMinWidth(0);historyButton.setMinimumWidth(0);historyButton.setLayoutParams(new LinearLayout.LayoutParams(host.dp(52),host.dp(40)));
+        LinearLayout list=host.column();host.content.addView(list);appendPeriods(host,list,response);
     }
 
     static void reminders(MainActivity host, JSONArray reminders) throws Exception {
         host.text(host.content,"Nhắc hạn",20);
-        host.text(host.content,"Lời nhắc được tính khi mở hoặc làm mới tab này; ứng dụng không gửi thông báo nền.",13);
+        host.text(host.content,"Cập nhật khi vào tab hoặc làm mới · không có thông báo nền.",12);
         if(reminders.length()==0)host.text(host.content,"Không có hóa đơn chưa trả đến mốc nhắc (còn 3 ngày, 1 ngày hoặc đến hạn hôm nay).",15);
         for(int i=0;i<reminders.length();i++){
             JSONObject n=reminders.getJSONObject(i);int days=n.getInt("days");
@@ -127,17 +124,27 @@ final class BillsScreen {
         if(response.getInt("periods_total")==0)host.text(list,"Chưa có kỳ hóa đơn nào.",15);
         for(int i=0;i<rows.length();i++){
             JSONObject row=rows.getJSONObject(i);String state=row.getString("status");
-            String line=row.getString("name")+" · kỳ "+row.getString("month")+"\n"+host.money(row.getLong("amount_vnd"))+" dự kiến · hạn "+row.getString("due_date")+" · "+status(state);
-            if(state.equals("PAID"))line+="\nĐã trả ngày "+row.getString("paid_on")+": "
-                +(row.isNull("paid_amount")?"không còn khoản chi liên kết":host.money(row.getLong("paid_amount"))
-                  +(row.getLong("paid_amount")!=row.getLong("amount_vnd")?" (khác số dự kiến)":""));
-            TextView period=expenseLine(host,list,line,17,row.getLong("amount_vnd"));
-            if(state.equals("PAID")&&!row.isNull("paid_amount"))period.setText(expenseLabel(host,line,row.getLong("amount_vnd"),row.getLong("paid_amount")));
-            if(state.equals("OVERDUE")||state.equals("DUE_TODAY")||state.equals("DUE_SOON"))UiHelpers.warningStyle(host,period);
-            if(!state.equals("PAID"))host.button(list,"Đánh dấu đã trả / Liên kết khoản chi",()->host.payForm(row));
+            boolean paid=state.equals("PAID");int statusColor=paid?UiHelpers.FUNDS_GREEN:UiHelpers.EXPENSE_RED;
+            LinearLayout card=host.column();card.setPadding(host.dp(10),host.dp(3),host.dp(10),host.dp(5));
+            int fill=paid?android.graphics.Color.rgb(240,253,244):android.graphics.Color.rgb(254,242,242);
+            card.setBackground(UiHelpers.shape(host,fill,paid?android.graphics.Color.rgb(134,239,172):android.graphics.Color.rgb(252,165,165),12));
+            LinearLayout.LayoutParams cardParams=new LinearLayout.LayoutParams(-1,-2);cardParams.bottomMargin=host.dp(6);list.addView(card,cardParams);
+            LinearLayout header=new LinearLayout(host);header.setOrientation(LinearLayout.HORIZONTAL);header.setGravity(android.view.Gravity.CENTER_VERTICAL);
+            TextView name=host.text(header,row.getString("name"),14);name.setTypeface(null,android.graphics.Typeface.BOLD);name.setTextColor(statusColor);
+            name.setLayoutParams(new LinearLayout.LayoutParams(0,-2,1));
+            TextView amount=new TextView(host);amount.setText(host.money(row.getLong("amount_vnd")));amount.setTextSize(14);amount.setTextColor(statusColor);
+            header.addView(amount);TextView cue=host.text(header,"+",18);cue.setGravity(android.view.Gravity.CENTER);cue.setTextColor(statusColor);
+            cue.setLayoutParams(new LinearLayout.LayoutParams(host.dp(28),-1));card.addView(header);
+            LinearLayout detail=host.column();detail.setVisibility(android.view.View.GONE);card.addView(detail);
+            header.setContentDescription(row.getString("name")+" · "+host.money(row.getLong("amount_vnd"))+" · "+status(state));
+            header.setClickable(true);header.setOnClickListener(v->{boolean show=detail.getVisibility()!=android.view.View.VISIBLE;detail.setVisibility(show?android.view.View.VISIBLE:android.view.View.GONE);cue.setText(show?"−":"+");});
+            host.text(detail,"Kỳ "+row.getString("month")+" · hạn "+row.getString("due_date")+" · "+status(state),12);
+            if(paid){
+                host.text(detail,row.isNull("paid_amount")?"Đã trả ngày "+row.getString("paid_on"):
+                    "Đã trả "+host.money(row.getLong("paid_amount"))+" ngày "+row.getString("paid_on"),12);
+            }else host.button(detail,"Đánh dấu đã trả / Liên kết khoản chi",()->host.payForm(row));
         }
-        int shown=response.getInt("offset")+rows.length(),total=response.getInt("periods_total");
-        if(total>0)host.text(list,"Đang hiển thị "+shown+"/"+total+" kỳ",13);
+        int shown=response.getInt("offset")+rows.length();
         if(response.getBoolean("has_more")){
             Button[] more=new Button[1];
             more[0]=host.button(list,"Tải thêm kỳ hóa đơn",()->host.api.call("GET",page(shown),null,r->{
@@ -150,7 +157,7 @@ final class BillsScreen {
         try { return Integer.parseInt(e.getText().toString().trim()); } catch(NumberFormatException x) { throw new Exception("Ngày lặp phải là số từ 1 đến 31."); }
     }
     static long vnd(EditText e) throws Exception {
-        try { return Long.parseLong(e.getText().toString().trim().replaceAll("[.,\\s]","")); } catch(NumberFormatException x) { throw new Exception("Số tiền phải là số nguyên VND."); }
+        try { return Long.parseLong(e.getText().toString().trim().replace(",","")); } catch(NumberFormatException x) { throw new Exception("Số tiền phải là số nguyên VND."); }
     }
 
     static void billForm(MainActivity host) {
