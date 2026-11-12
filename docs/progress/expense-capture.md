@@ -80,3 +80,16 @@ and verifying signed-total, merchant-intent and benchmark-claim fixes. This is a
 agent review, not an independent real-world accuracy study. Re-review affected
 changes if staging advances. The integrator must verify the exact merge candidate;
 the worker opens a staging PR and does not self-merge or delete branches.
+
+## Requested warning and amount styling — 2026-11-13
+
+Explicit user request expands presentation changes across the shared UI helpers
+and budget/bills/statistics screens on this branch. Warning/error/pending cards
+use a pale-red fill, red border and red text. Structured expense amounts are red;
+positive available/remaining budget is green, negative balances red, zero neutral.
+The total budget input is green. Loading/informational status resets old error
+styles, and empty status cards are hidden. No income model, arithmetic, storage
+or backend contract was added. These are presentation changes only. Existing
+Python/evaluation/Java checks and APK build/lint passed during development; use
+latest PR CI for the committed head. Updated build is installed with -r to retain
+the existing emulator account and app data.

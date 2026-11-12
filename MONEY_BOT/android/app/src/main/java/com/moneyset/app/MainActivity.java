@@ -59,7 +59,7 @@ public class MainActivity extends Activity {
     }
     void load() {
         if(api.isBusy()) { error("Đang xử lý, vui lòng chờ."); return; }
-        content.removeAllViews(); status.setText(api.pending() ? "Có yêu cầu đang chờ kiểm tra kết quả." : "");
+        content.removeAllViews(); UiHelpers.warningStatus(this, api.pending() ? "Có yêu cầu đang chờ kiểm tra kết quả." : "");
         switch (tab) {
             case "Chat": api.call("GET", "/chat/android", null, r -> renderChat((JSONObject) r), this::error); break;
             case "Thống kê": stats(); break;
@@ -84,13 +84,13 @@ public class MainActivity extends Activity {
             return;
         }
         if(request!=101||result!=RESULT_OK||data==null||data.getData()==null)return;
-        status.setText("Đang đọc hóa đơn…");
+        UiHelpers.status(this, "Đang đọc hóa đơn…");
         new Thread(()->{
             try(InputStream in=getContentResolver().openInputStream(data.getData()); ByteArrayOutputStream out=new ByteArrayOutputStream()){
                 byte[] b=new byte[8192]; int n;
                 while((n=in.read(b))!=-1){out.write(b,0,n);if(out.size()>10*1024*1024)throw new Exception("Tệp tối đa 10 MB.");}
                 byte[] bytes=out.toByteArray();
-                runOnUiThread(()->api.upload(bytes,r->{tab="Chat";renderChat((JSONObject)r);status.setText("Kiểm tra kết quả OCR trước khi lưu.");},this::error));
+                runOnUiThread(()->api.upload(bytes,r->{tab="Chat";renderChat((JSONObject)r);UiHelpers.warningStatus(this, "Kiểm tra kết quả OCR trước khi lưu.");},this::error));
             }catch(Exception e){runOnUiThread(()->error(e.getMessage()));}
         }).start();
     }

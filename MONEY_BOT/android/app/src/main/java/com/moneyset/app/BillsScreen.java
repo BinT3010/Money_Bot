@@ -12,12 +12,13 @@ final class BillsScreen {
         host.button(host.content,"Tạo lịch hóa đơn",()->host.billForm());
         host.api.call("GET","/bills",null,r->{
             JSONObject response=(JSONObject)r, obligations=response.getJSONObject("obligations");
-            host.text(host.content,"Nghĩa vụ từ "+obligations.getString("start")+" đến "+obligations.getString("end")+": "+host.money(obligations.getLong("obligations")),20);
-            if(obligations.isNull("difference"))host.text(host.content,"Chưa đặt ngân sách để đối chiếu.",16);
-            else host.text(host.content,"Ngân sách còn trừ nghĩa vụ: "+host.money(obligations.getLong("difference")),16);
-            host.text(host.content,obligations.getString("note"),14);
+            UiHelpers.moneyText(host,host.content,"Nghĩa vụ từ "+obligations.getString("start")+" đến "+obligations.getString("end")+": ",obligations.getLong("obligations"),20,true);
+            if(obligations.isNull("difference"))UiHelpers.warning(host,host.content,"Chưa đặt ngân sách để đối chiếu.",16);
+            else UiHelpers.moneyText(host,host.content,"Ngân sách còn trừ nghĩa vụ: ",obligations.getLong("difference"),16,false);
+            if(!obligations.isNull("difference")&&obligations.getLong("difference")<0)UiHelpers.warning(host,host.content,obligations.getString("note"),14);
+            else host.text(host.content,obligations.getString("note"),14);
             JSONArray reminders=response.getJSONArray("reminders");
-            for(int i=0;i<reminders.length();i++){JSONObject n=reminders.getJSONObject(i);host.text(host.content,"Nhắc hạn: "+n.getString("name")+" · "+n.getInt("days")+" ngày nữa",18);}
+            for(int i=0;i<reminders.length();i++){JSONObject n=reminders.getJSONObject(i);UiHelpers.warning(host,host.content,"Nhắc hạn: "+n.getString("name")+" · "+n.getInt("days")+" ngày nữa",18);}
             JSONArray schedules=response.getJSONArray("schedules");
             host.text(host.content,"Lịch định kỳ (tạo lịch chưa ghi chi)",20);
             for(int i=0;i<schedules.length();i++){JSONObject s=schedules.getJSONObject(i);host.text(host.content,s.getString("name")+" · ngày "+s.getInt("due_day")+" · từ "+s.getString("start_month"),16);}
@@ -26,7 +27,9 @@ final class BillsScreen {
             for(int i=0;i<rows.length();i++){
                 JSONObject row=rows.getJSONObject(i);String state=row.getString("status");
                 String translated=state.equals("PAID")?"Đã trả":state.equals("OVERDUE")?"Quá hạn":state.equals("DUE_TODAY")?"Đến hạn hôm nay":state.equals("DUE_SOON")?"Sắp đến hạn":"Chưa đến hạn";
-                host.text(host.content,row.getString("name")+" · kỳ "+row.getString("month")+"\n"+host.money(row.getLong("amount_vnd"))+" · hạn "+row.getString("due_date")+" · "+translated,17);
+                TextView period=host.text(host.content,"",17);
+                period.setText(UiHelpers.moneyLabel(host,row.getString("name")+" · kỳ "+row.getString("month")+"\n",row.getLong("amount_vnd")," · hạn "+row.getString("due_date")+" · "+translated,true));
+                if(state.equals("OVERDUE")||state.equals("DUE_TODAY")||state.equals("DUE_SOON"))UiHelpers.warningStyle(host,period);
                 if(!state.equals("PAID"))host.button(host.content,"Đánh dấu đã trả / Liên kết khoản chi",()->host.payForm(row));
             }
         },host::error);
