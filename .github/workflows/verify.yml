@@ -23,6 +23,9 @@ jobs:
           distribution: temurin
           java-version: '17'
       - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+          log-accepted-android-sdk-licenses: false
       - run: sdkmanager 'platforms;android-35' 'build-tools;34.0.0'
       - run: python -m pip install -r MONEY_BOT/backend/requirements.txt
       - run: python MONEY_BOT/scripts/verify.py --out "$RUNNER_TEMP/verification"
