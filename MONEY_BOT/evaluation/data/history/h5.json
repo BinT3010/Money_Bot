@@ -1,0 +1,33 @@
+{
+  "id": "h5",
+  "desc": "Số lẻ không chia hết, khoản 1đ, ngày đầu/cuối tháng; hệ số 300.000/500.001",
+  "today": "2026-11-12",
+  "transactions": [
+    {"ref": "t1", "date": "2026-08-01", "amount_vnd": 100001, "category_id": "food", "description": "Bánh mì"},
+    {"ref": "t2", "date": "2026-08-31", "amount_vnd": 33333, "category_id": "other", "description": "Photo tài liệu"},
+    {"ref": "t3", "date": "2026-09-30", "amount_vnd": 99999, "category_id": "food", "description": "Cơm tấm"},
+    {"ref": "t4", "date": "2026-09-01", "amount_vnd": 1, "category_id": "transport", "description": "Phí thử thẻ xe"},
+    {"ref": "t5", "date": "2026-10-31", "amount_vnd": 250000, "category_id": "food", "description": "Ăn tối"},
+    {"ref": "t6", "date": "2026-10-01", "amount_vnd": 16667, "category_id": "shopping", "description": "Bút bi"}
+  ],
+  "expected": {
+    "2026-08": {"total": 133334, "count": 2, "by_category": {"food": 100001, "shopping": 0, "transport": 0, "utilities": 0, "entertainment": 0, "other": 33333}},
+    "2026-09": {"total": 100000, "count": 2, "by_category": {"food": 99999, "shopping": 0, "transport": 1, "utilities": 0, "entertainment": 0, "other": 0}},
+    "2026-10": {"total": 266667, "count": 2, "by_category": {"food": 250000, "shopping": 16667, "transport": 0, "utilities": 0, "entertainment": 0, "other": 0}}
+  },
+  "edits": [
+    {"ref": "t2", "set": {"amount_vnd": 33334}},
+    {"ref": "t4", "delete": true},
+    {"ref": "t6", "set": {"category_id": "food"}}
+  ],
+  "expected_after_edits": {
+    "2026-08": {"total": 133335, "count": 2, "by_category": {"food": 100001, "shopping": 0, "transport": 0, "utilities": 0, "entertainment": 0, "other": 33334}},
+    "2026-09": {"total": 99999, "count": 1, "by_category": {"food": 99999, "shopping": 0, "transport": 0, "utilities": 0, "entertainment": 0, "other": 0}},
+    "2026-10": {"total": 266667, "count": 2, "by_category": {"food": 266667, "shopping": 0, "transport": 0, "utilities": 0, "entertainment": 0, "other": 0}}
+  },
+  "budget": {"month": "2026-11", "total": 100000},
+  "expected_suggestion": {
+    "limits": {"food": 89999, "shopping": 3333, "transport": 0, "utilities": 0, "entertainment": 0, "other": 6666},
+    "factor": 0.599999, "allocated": 99998, "unallocated": 2
+  }
+}

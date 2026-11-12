@@ -1,0 +1,1698 @@
+{
+  "suite": "1.4",
+  "title": "Tổng chi theo danh mục/tháng và lịch sử giao dịch, kể cả sau sửa/xóa",
+  "threshold": {
+    "min_cases": 10,
+    "pass_rate": 1.0
+  },
+  "cases": 10,
+  "passed": 10,
+  "pass_rate": 1.0,
+  "met": true,
+  "datasets": 5,
+  "min_months": 3,
+  "results": [
+    {
+      "id": "1.4-h1-a",
+      "desc": "3 tháng đủ 6 danh mục, ngân sách lớn hơn trung bình (hệ số 1) — sau khi nhập",
+      "input": {
+        "dataset": "h1.json",
+        "transactions": 17
+      },
+      "expected": {
+        "2026-08": {
+          "total": 3200000,
+          "count": 6,
+          "by_category": {
+            "food": 1200000,
+            "shopping": 600000,
+            "transport": 300000,
+            "utilities": 900000,
+            "entertainment": 150000,
+            "other": 50000
+          }
+        },
+        "2026-09": {
+          "total": 3300000,
+          "count": 5,
+          "by_category": {
+            "food": 1500000,
+            "shopping": 300000,
+            "transport": 450000,
+            "utilities": 900000,
+            "entertainment": 0,
+            "other": 150000
+          }
+        },
+        "2026-10": {
+          "total": 4150000,
+          "count": 6,
+          "by_category": {
+            "food": 1800000,
+            "shopping": 900000,
+            "transport": 150000,
+            "utilities": 900000,
+            "entertainment": 300000,
+            "other": 100000
+          }
+        }
+      },
+      "actual": {
+        "2026-08": {
+          "total": 3200000,
+          "count": 6,
+          "by_category": {
+            "food": 1200000,
+            "shopping": 600000,
+            "transport": 300000,
+            "utilities": 900000,
+            "entertainment": 150000,
+            "other": 50000
+          }
+        },
+        "2026-09": {
+          "total": 3300000,
+          "count": 5,
+          "by_category": {
+            "food": 1500000,
+            "shopping": 300000,
+            "transport": 450000,
+            "utilities": 900000,
+            "entertainment": 0,
+            "other": 150000
+          }
+        },
+        "2026-10": {
+          "total": 4150000,
+          "count": 6,
+          "by_category": {
+            "food": 1800000,
+            "shopping": 900000,
+            "transport": 150000,
+            "utilities": 900000,
+            "entertainment": 300000,
+            "other": 100000
+          }
+        }
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "req": "POST /transactions (t1)",
+          "status": 200,
+          "ms": 109.0
+        },
+        {
+          "req": "POST /transactions (t2)",
+          "status": 200,
+          "ms": 13.5
+        },
+        {
+          "req": "POST /transactions (t3)",
+          "status": 200,
+          "ms": 14.0
+        },
+        {
+          "req": "POST /transactions (t4)",
+          "status": 200,
+          "ms": 14.8
+        },
+        {
+          "req": "POST /transactions (t5)",
+          "status": 200,
+          "ms": 13.4
+        },
+        {
+          "req": "POST /transactions (t6)",
+          "status": 200,
+          "ms": 13.1
+        },
+        {
+          "req": "POST /transactions (t7)",
+          "status": 200,
+          "ms": 14.8
+        },
+        {
+          "req": "POST /transactions (t8)",
+          "status": 200,
+          "ms": 15.4
+        },
+        {
+          "req": "POST /transactions (t9)",
+          "status": 200,
+          "ms": 17.9
+        },
+        {
+          "req": "POST /transactions (t10)",
+          "status": 200,
+          "ms": 19.4
+        },
+        {
+          "req": "POST /transactions (t11)",
+          "status": 200,
+          "ms": 14.4
+        },
+        {
+          "req": "POST /transactions (t12)",
+          "status": 200,
+          "ms": 14.2
+        },
+        {
+          "req": "POST /transactions (t13)",
+          "status": 200,
+          "ms": 13.9
+        },
+        {
+          "req": "POST /transactions (t14)",
+          "status": 200,
+          "ms": 15.6
+        },
+        {
+          "req": "POST /transactions (t15)",
+          "status": 200,
+          "ms": 13.9
+        },
+        {
+          "req": "POST /transactions (t16)",
+          "status": 200,
+          "ms": 14.5
+        },
+        {
+          "req": "POST /transactions (t17)",
+          "status": 200,
+          "ms": 13.8
+        },
+        {
+          "req": "GET /summary?month=2026-08",
+          "status": 200,
+          "ms": 10.1
+        },
+        {
+          "req": "GET /transactions?month=2026-08",
+          "status": 200,
+          "ms": 6.2
+        },
+        {
+          "req": "GET /summary?month=2026-09",
+          "status": 200,
+          "ms": 7.2
+        },
+        {
+          "req": "GET /transactions?month=2026-09",
+          "status": 200,
+          "ms": 5.6
+        },
+        {
+          "req": "GET /summary?month=2026-10",
+          "status": 200,
+          "ms": 5.2
+        },
+        {
+          "req": "GET /transactions?month=2026-10",
+          "status": 200,
+          "ms": 5.4
+        },
+        {
+          "req": "GET /summary/history",
+          "status": 200,
+          "ms": 5.3
+        }
+      ]
+    },
+    {
+      "id": "1.4-h1-b",
+      "desc": "3 tháng đủ 6 danh mục, ngân sách lớn hơn trung bình (hệ số 1) — sau khi sửa/xóa",
+      "input": {
+        "dataset": "h1.json",
+        "edits": [
+          {
+            "ref": "t8",
+            "set": {
+              "amount_vnd": 350000
+            }
+          },
+          {
+            "ref": "t16",
+            "delete": true
+          },
+          {
+            "ref": "t3",
+            "set": {
+              "category_id": "other"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "2026-08": {
+          "total": 3200000,
+          "count": 6,
+          "by_category": {
+            "food": 1200000,
+            "shopping": 600000,
+            "transport": 0,
+            "utilities": 900000,
+            "entertainment": 150000,
+            "other": 350000
+          }
+        },
+        "2026-09": {
+          "total": 3350000,
+          "count": 5,
+          "by_category": {
+            "food": 1500000,
+            "shopping": 350000,
+            "transport": 450000,
+            "utilities": 900000,
+            "entertainment": 0,
+            "other": 150000
+          }
+        },
+        "2026-10": {
+          "total": 3850000,
+          "count": 5,
+          "by_category": {
+            "food": 1800000,
+            "shopping": 900000,
+            "transport": 150000,
+            "utilities": 900000,
+            "entertainment": 0,
+            "other": 100000
+          }
+        }
+      },
+      "actual": {
+        "2026-08": {
+          "total": 3200000,
+          "count": 6,
+          "by_category": {
+            "food": 1200000,
+            "shopping": 600000,
+            "transport": 0,
+            "utilities": 900000,
+            "entertainment": 150000,
+            "other": 350000
+          }
+        },
+        "2026-09": {
+          "total": 3350000,
+          "count": 5,
+          "by_category": {
+            "food": 1500000,
+            "shopping": 350000,
+            "transport": 450000,
+            "utilities": 900000,
+            "entertainment": 0,
+            "other": 150000
+          }
+        },
+        "2026-10": {
+          "total": 3850000,
+          "count": 5,
+          "by_category": {
+            "food": 1800000,
+            "shopping": 900000,
+            "transport": 150000,
+            "utilities": 900000,
+            "entertainment": 0,
+            "other": 100000
+          }
+        }
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "req": "PUT t8",
+          "status": 200,
+          "ms": 13.4
+        },
+        {
+          "req": "DELETE t16",
+          "status": 200,
+          "ms": 13.4
+        },
+        {
+          "req": "PUT t3",
+          "status": 200,
+          "ms": 17.1
+        },
+        {
+          "req": "GET /summary?month=2026-08",
+          "status": 200,
+          "ms": 6.9
+        },
+        {
+          "req": "GET /transactions?month=2026-08",
+          "status": 200,
+          "ms": 6.2
+        },
+        {
+          "req": "GET /summary?month=2026-09",
+          "status": 200,
+          "ms": 5.4
+        },
+        {
+          "req": "GET /transactions?month=2026-09",
+          "status": 200,
+          "ms": 5.1
+        },
+        {
+          "req": "GET /summary?month=2026-10",
+          "status": 200,
+          "ms": 5.0
+        },
+        {
+          "req": "GET /transactions?month=2026-10",
+          "status": 200,
+          "ms": 5.6
+        },
+        {
+          "req": "GET /summary/history",
+          "status": 200,
+          "ms": 5.4
+        }
+      ]
+    },
+    {
+      "id": "1.4-h2-a",
+      "desc": "4 tháng, nhiều khoản cùng danh mục, danh mục trống; ngân sách nhỏ hơn trung bình (hệ số 0,75) — sau khi nhập",
+      "input": {
+        "dataset": "h2.json",
+        "transactions": 10
+      },
+      "expected": {
+        "2026-07": {
+          "total": 800000,
+          "count": 2,
+          "by_category": {
+            "food": 600000,
+            "shopping": 0,
+            "transport": 200000,
+            "utilities": 0,
+            "entertainment": 0,
+            "other": 0
+          }
+        },
+        "2026-08": {
+          "total": 1600000,
+          "count": 3,
+          "by_category": {
+            "food": 1200000,
+            "shopping": 0,
+            "transport": 0,
+            "utilities": 400000,
+            "entertainment": 0,
+            "other": 0
+          }
+        },
+        "2026-09": {
+          "total": 2100000,
+          "count": 2,
+          "by_category": {
+            "food": 600000,
+            "shopping": 1500000,
+            "transport": 0,
+            "utilities": 0,
+            "entertainment": 0,
+            "other": 0
+          }
+        },
+        "2026-10": {
+          "total": 1900000,
+          "count": 3,
+          "by_category": {
+            "food": 900000,
+            "shopping": 0,
+            "transport": 0,
+            "utilities": 400000,
+            "entertainment": 600000,
+            "other": 0
+          }
+        }
+      },
+      "actual": {
+        "2026-07": {
+          "total": 800000,
+          "count": 2,
+          "by_category": {
+            "food": 600000,
+            "shopping": 0,
+            "transport": 200000,
+            "utilities": 0,
+            "entertainment": 0,
+            "other": 0
+          }
+        },
+        "2026-08": {
+          "total": 1600000,
+          "count": 3,
+          "by_category": {
+            "food": 1200000,
+            "shopping": 0,
+            "transport": 0,
+            "utilities": 400000,
+            "entertainment": 0,
+            "other": 0
+          }
+        },
+        "2026-09": {
+          "total": 2100000,
+          "count": 2,
+          "by_category": {
+            "food": 600000,
+            "shopping": 1500000,
+            "transport": 0,
+            "utilities": 0,
+            "entertainment": 0,
+            "other": 0
+          }
+        },
+        "2026-10": {
+          "total": 1900000,
+          "count": 3,
+          "by_category": {
+            "food": 900000,
+            "shopping": 0,
+            "transport": 0,
+            "utilities": 400000,
+            "entertainment": 600000,
+            "other": 0
+          }
+        }
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "req": "POST /transactions (t1)",
+          "status": 200,
+          "ms": 108.6
+        },
+        {
+          "req": "POST /transactions (t2)",
+          "status": 200,
+          "ms": 26.6
+        },
+        {
+          "req": "POST /transactions (t3)",
+          "status": 200,
+          "ms": 22.3
+        },
+        {
+          "req": "POST /transactions (t4)",
+          "status": 200,
+          "ms": 23.8
+        },
+        {
+          "req": "POST /transactions (t5)",
+          "status": 200,
+          "ms": 39.8
+        },
+        {
+          "req": "POST /transactions (t6)",
+          "status": 200,
+          "ms": 25.9
+        },
+        {
+          "req": "POST /transactions (t7)",
+          "status": 200,
+          "ms": 22.7
+        },
+        {
+          "req": "POST /transactions (t8)",
+          "status": 200,
+          "ms": 22.6
+        },
+        {
+          "req": "POST /transactions (t9)",
+          "status": 200,
+          "ms": 23.3
+        },
+        {
+          "req": "POST /transactions (t10)",
+          "status": 200,
+          "ms": 27.1
+        },
+        {
+          "req": "GET /summary?month=2026-07",
+          "status": 200,
+          "ms": 12.8
+        },
+        {
+          "req": "GET /transactions?month=2026-07",
+          "status": 200,
+          "ms": 9.7
+        },
+        {
+          "req": "GET /summary?month=2026-08",
+          "status": 200,
+          "ms": 7.6
+        },
+        {
+          "req": "GET /transactions?month=2026-08",
+          "status": 200,
+          "ms": 6.4
+        },
+        {
+          "req": "GET /summary?month=2026-09",
+          "status": 200,
+          "ms": 5.6
+        },
+        {
+          "req": "GET /transactions?month=2026-09",
+          "status": 200,
+          "ms": 4.7
+        },
+        {
+          "req": "GET /summary?month=2026-10",
+          "status": 200,
+          "ms": 4.3
+        },
+        {
+          "req": "GET /transactions?month=2026-10",
+          "status": 200,
+          "ms": 4.7
+        },
+        {
+          "req": "GET /summary/history",
+          "status": 200,
+          "ms": 4.5
+        }
+      ]
+    },
+    {
+      "id": "1.4-h2-b",
+      "desc": "4 tháng, nhiều khoản cùng danh mục, danh mục trống; ngân sách nhỏ hơn trung bình (hệ số 0,75) — sau khi sửa/xóa",
+      "input": {
+        "dataset": "h2.json",
+        "edits": [
+          {
+            "ref": "t4",
+            "delete": true
+          },
+          {
+            "ref": "t9",
+            "set": {
+              "category_id": "shopping"
+            }
+          },
+          {
+            "ref": "t2",
+            "set": {
+              "amount_vnd": 250000
+            }
+          }
+        ]
+      },
+      "expected": {
+        "2026-07": {
+          "total": 850000,
+          "count": 2,
+          "by_category": {
+            "food": 600000,
+            "shopping": 0,
+            "transport": 250000,
+            "utilities": 0,
+            "entertainment": 0,
+            "other": 0
+          }
+        },
+        "2026-08": {
+          "total": 1300000,
+          "count": 2,
+          "by_category": {
+            "food": 900000,
+            "shopping": 0,
+            "transport": 0,
+            "utilities": 400000,
+            "entertainment": 0,
+            "other": 0
+          }
+        },
+        "2026-09": {
+          "total": 2100000,
+          "count": 2,
+          "by_category": {
+            "food": 600000,
+            "shopping": 1500000,
+            "transport": 0,
+            "utilities": 0,
+            "entertainment": 0,
+            "other": 0
+          }
+        },
+        "2026-10": {
+          "total": 1900000,
+          "count": 3,
+          "by_category": {
+            "food": 900000,
+            "shopping": 600000,
+            "transport": 0,
+            "utilities": 400000,
+            "entertainment": 0,
+            "other": 0
+          }
+        }
+      },
+      "actual": {
+        "2026-07": {
+          "total": 850000,
+          "count": 2,
+          "by_category": {
+            "food": 600000,
+            "shopping": 0,
+            "transport": 250000,
+            "utilities": 0,
+            "entertainment": 0,
+            "other": 0
+          }
+        },
+        "2026-08": {
+          "total": 1300000,
+          "count": 2,
+          "by_category": {
+            "food": 900000,
+            "shopping": 0,
+            "transport": 0,
+            "utilities": 400000,
+            "entertainment": 0,
+            "other": 0
+          }
+        },
+        "2026-09": {
+          "total": 2100000,
+          "count": 2,
+          "by_category": {
+            "food": 600000,
+            "shopping": 1500000,
+            "transport": 0,
+            "utilities": 0,
+            "entertainment": 0,
+            "other": 0
+          }
+        },
+        "2026-10": {
+          "total": 1900000,
+          "count": 3,
+          "by_category": {
+            "food": 900000,
+            "shopping": 600000,
+            "transport": 0,
+            "utilities": 400000,
+            "entertainment": 0,
+            "other": 0
+          }
+        }
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "req": "DELETE t4",
+          "status": 200,
+          "ms": 12.8
+        },
+        {
+          "req": "PUT t9",
+          "status": 200,
+          "ms": 14.5
+        },
+        {
+          "req": "PUT t2",
+          "status": 200,
+          "ms": 16.4
+        },
+        {
+          "req": "GET /summary?month=2026-07",
+          "status": 200,
+          "ms": 10.1
+        },
+        {
+          "req": "GET /transactions?month=2026-07",
+          "status": 200,
+          "ms": 7.3
+        },
+        {
+          "req": "GET /summary?month=2026-08",
+          "status": 200,
+          "ms": 24.4
+        },
+        {
+          "req": "GET /transactions?month=2026-08",
+          "status": 200,
+          "ms": 10.3
+        },
+        {
+          "req": "GET /summary?month=2026-09",
+          "status": 200,
+          "ms": 9.6
+        },
+        {
+          "req": "GET /transactions?month=2026-09",
+          "status": 200,
+          "ms": 8.7
+        },
+        {
+          "req": "GET /summary?month=2026-10",
+          "status": 200,
+          "ms": 9.0
+        },
+        {
+          "req": "GET /transactions?month=2026-10",
+          "status": 200,
+          "ms": 6.9
+        },
+        {
+          "req": "GET /summary/history",
+          "status": 200,
+          "ms": 5.8
+        }
+      ]
+    },
+    {
+      "id": "1.4-h3-a",
+      "desc": "Tháng giữa không chi (tính 0); sửa ngày chuyển khoản chi sang tháng khác — sau khi nhập",
+      "input": {
+        "dataset": "h3.json",
+        "transactions": 5
+      },
+      "expected": {
+        "2026-08": {
+          "total": 900000,
+          "count": 3,
+          "by_category": {
+            "food": 450000,
+            "shopping": 0,
+            "transport": 150000,
+            "utilities": 0,
+            "entertainment": 0,
+            "other": 300000
+          }
+        },
+        "2026-09": {
+          "total": 0,
+          "count": 0,
+          "by_category": {
+            "food": 0,
+            "shopping": 0,
+            "transport": 0,
+            "utilities": 0,
+            "entertainment": 0,
+            "other": 0
+          }
+        },
+        "2026-10": {
+          "total": 1050000,
+          "count": 2,
+          "by_category": {
+            "food": 300000,
+            "shopping": 750000,
+            "transport": 0,
+            "utilities": 0,
+            "entertainment": 0,
+            "other": 0
+          }
+        }
+      },
+      "actual": {
+        "2026-08": {
+          "total": 900000,
+          "count": 3,
+          "by_category": {
+            "food": 450000,
+            "shopping": 0,
+            "transport": 150000,
+            "utilities": 0,
+            "entertainment": 0,
+            "other": 300000
+          }
+        },
+        "2026-09": {
+          "total": 0,
+          "count": 0,
+          "by_category": {
+            "food": 0,
+            "shopping": 0,
+            "transport": 0,
+            "utilities": 0,
+            "entertainment": 0,
+            "other": 0
+          }
+        },
+        "2026-10": {
+          "total": 1050000,
+          "count": 2,
+          "by_category": {
+            "food": 300000,
+            "shopping": 750000,
+            "transport": 0,
+            "utilities": 0,
+            "entertainment": 0,
+            "other": 0
+          }
+        }
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "req": "POST /transactions (t1)",
+          "status": 200,
+          "ms": 107.5
+        },
+        {
+          "req": "POST /transactions (t2)",
+          "status": 200,
+          "ms": 22.0
+        },
+        {
+          "req": "POST /transactions (t3)",
+          "status": 200,
+          "ms": 24.6
+        },
+        {
+          "req": "POST /transactions (t4)",
+          "status": 200,
+          "ms": 17.7
+        },
+        {
+          "req": "POST /transactions (t5)",
+          "status": 200,
+          "ms": 16.4
+        },
+        {
+          "req": "GET /summary?month=2026-08",
+          "status": 200,
+          "ms": 10.6
+        },
+        {
+          "req": "GET /transactions?month=2026-08",
+          "status": 200,
+          "ms": 8.0
+        },
+        {
+          "req": "GET /summary?month=2026-09",
+          "status": 200,
+          "ms": 7.5
+        },
+        {
+          "req": "GET /transactions?month=2026-09",
+          "status": 200,
+          "ms": 6.3
+        },
+        {
+          "req": "GET /summary?month=2026-10",
+          "status": 200,
+          "ms": 6.0
+        },
+        {
+          "req": "GET /transactions?month=2026-10",
+          "status": 200,
+          "ms": 6.1
+        },
+        {
+          "req": "GET /summary/history",
+          "status": 200,
+          "ms": 5.4
+        }
+      ]
+    },
+    {
+      "id": "1.4-h3-b",
+      "desc": "Tháng giữa không chi (tính 0); sửa ngày chuyển khoản chi sang tháng khác — sau khi sửa/xóa",
+      "input": {
+        "dataset": "h3.json",
+        "edits": [
+          {
+            "ref": "t5",
+            "set": {
+              "date": "2026-09-20"
+            }
+          },
+          {
+            "ref": "t3",
+            "delete": true
+          }
+        ]
+      },
+      "expected": {
+        "2026-08": {
+          "total": 600000,
+          "count": 2,
+          "by_category": {
+            "food": 450000,
+            "shopping": 0,
+            "transport": 150000,
+            "utilities": 0,
+            "entertainment": 0,
+            "other": 0
+          }
+        },
+        "2026-09": {
+          "total": 750000,
+          "count": 1,
+          "by_category": {
+            "food": 0,
+            "shopping": 750000,
+            "transport": 0,
+            "utilities": 0,
+            "entertainment": 0,
+            "other": 0
+          }
+        },
+        "2026-10": {
+          "total": 300000,
+          "count": 1,
+          "by_category": {
+            "food": 300000,
+            "shopping": 0,
+            "transport": 0,
+            "utilities": 0,
+            "entertainment": 0,
+            "other": 0
+          }
+        }
+      },
+      "actual": {
+        "2026-08": {
+          "total": 600000,
+          "count": 2,
+          "by_category": {
+            "food": 450000,
+            "shopping": 0,
+            "transport": 150000,
+            "utilities": 0,
+            "entertainment": 0,
+            "other": 0
+          }
+        },
+        "2026-09": {
+          "total": 750000,
+          "count": 1,
+          "by_category": {
+            "food": 0,
+            "shopping": 750000,
+            "transport": 0,
+            "utilities": 0,
+            "entertainment": 0,
+            "other": 0
+          }
+        },
+        "2026-10": {
+          "total": 300000,
+          "count": 1,
+          "by_category": {
+            "food": 300000,
+            "shopping": 0,
+            "transport": 0,
+            "utilities": 0,
+            "entertainment": 0,
+            "other": 0
+          }
+        }
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "req": "PUT t5",
+          "status": 200,
+          "ms": 11.8
+        },
+        {
+          "req": "DELETE t3",
+          "status": 200,
+          "ms": 14.7
+        },
+        {
+          "req": "GET /summary?month=2026-08",
+          "status": 200,
+          "ms": 7.7
+        },
+        {
+          "req": "GET /transactions?month=2026-08",
+          "status": 200,
+          "ms": 6.5
+        },
+        {
+          "req": "GET /summary?month=2026-09",
+          "status": 200,
+          "ms": 6.1
+        },
+        {
+          "req": "GET /transactions?month=2026-09",
+          "status": 200,
+          "ms": 4.7
+        },
+        {
+          "req": "GET /summary?month=2026-10",
+          "status": 200,
+          "ms": 6.0
+        },
+        {
+          "req": "GET /transactions?month=2026-10",
+          "status": 200,
+          "ms": 7.9
+        },
+        {
+          "req": "GET /summary/history",
+          "status": 200,
+          "ms": 7.4
+        }
+      ]
+    },
+    {
+      "id": "1.4-h4-a",
+      "desc": "Qua năm (11/2025–01/2026), ngày 1 và 31; hệ số lẻ 2.400.000/2.966.666,67 — sau khi nhập",
+      "input": {
+        "dataset": "h4.json",
+        "transactions": 9
+      },
+      "expected": {
+        "2025-11": {
+          "total": 2400000,
+          "count": 3,
+          "by_category": {
+            "food": 1000000,
+            "shopping": 0,
+            "transport": 0,
+            "utilities": 1200000,
+            "entertainment": 200000,
+            "other": 0
+          }
+        },
+        "2025-12": {
+          "total": 3800000,
+          "count": 3,
+          "by_category": {
+            "food": 1400000,
+            "shopping": 2000000,
+            "transport": 0,
+            "utilities": 0,
+            "entertainment": 400000,
+            "other": 0
+          }
+        },
+        "2026-01": {
+          "total": 2700000,
+          "count": 3,
+          "by_category": {
+            "food": 1200000,
+            "shopping": 0,
+            "transport": 300000,
+            "utilities": 1200000,
+            "entertainment": 0,
+            "other": 0
+          }
+        }
+      },
+      "actual": {
+        "2025-11": {
+          "total": 2400000,
+          "count": 3,
+          "by_category": {
+            "food": 1000000,
+            "shopping": 0,
+            "transport": 0,
+            "utilities": 1200000,
+            "entertainment": 200000,
+            "other": 0
+          }
+        },
+        "2025-12": {
+          "total": 3800000,
+          "count": 3,
+          "by_category": {
+            "food": 1400000,
+            "shopping": 2000000,
+            "transport": 0,
+            "utilities": 0,
+            "entertainment": 400000,
+            "other": 0
+          }
+        },
+        "2026-01": {
+          "total": 2700000,
+          "count": 3,
+          "by_category": {
+            "food": 1200000,
+            "shopping": 0,
+            "transport": 300000,
+            "utilities": 1200000,
+            "entertainment": 0,
+            "other": 0
+          }
+        }
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "req": "POST /transactions (t1)",
+          "status": 200,
+          "ms": 159.6
+        },
+        {
+          "req": "POST /transactions (t2)",
+          "status": 200,
+          "ms": 35.1
+        },
+        {
+          "req": "POST /transactions (t3)",
+          "status": 200,
+          "ms": 42.5
+        },
+        {
+          "req": "POST /transactions (t4)",
+          "status": 200,
+          "ms": 44.6
+        },
+        {
+          "req": "POST /transactions (t5)",
+          "status": 200,
+          "ms": 48.9
+        },
+        {
+          "req": "POST /transactions (t6)",
+          "status": 200,
+          "ms": 38.1
+        },
+        {
+          "req": "POST /transactions (t7)",
+          "status": 200,
+          "ms": 50.8
+        },
+        {
+          "req": "POST /transactions (t8)",
+          "status": 200,
+          "ms": 31.7
+        },
+        {
+          "req": "POST /transactions (t9)",
+          "status": 200,
+          "ms": 38.4
+        },
+        {
+          "req": "GET /summary?month=2025-11",
+          "status": 200,
+          "ms": 30.9
+        },
+        {
+          "req": "GET /transactions?month=2025-11",
+          "status": 200,
+          "ms": 38.0
+        },
+        {
+          "req": "GET /summary?month=2025-12",
+          "status": 200,
+          "ms": 30.0
+        },
+        {
+          "req": "GET /transactions?month=2025-12",
+          "status": 200,
+          "ms": 27.8
+        },
+        {
+          "req": "GET /summary?month=2026-01",
+          "status": 200,
+          "ms": 28.5
+        },
+        {
+          "req": "GET /transactions?month=2026-01",
+          "status": 200,
+          "ms": 30.8
+        },
+        {
+          "req": "GET /summary/history",
+          "status": 200,
+          "ms": 29.0
+        }
+      ]
+    },
+    {
+      "id": "1.4-h4-b",
+      "desc": "Qua năm (11/2025–01/2026), ngày 1 và 31; hệ số lẻ 2.400.000/2.966.666,67 — sau khi sửa/xóa",
+      "input": {
+        "dataset": "h4.json",
+        "edits": [
+          {
+            "ref": "t5",
+            "set": {
+              "amount_vnd": 1800000
+            }
+          },
+          {
+            "ref": "t9",
+            "delete": true
+          },
+          {
+            "ref": "t1",
+            "set": {
+              "date": "2025-12-05"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "2025-11": {
+          "total": 1400000,
+          "count": 2,
+          "by_category": {
+            "food": 0,
+            "shopping": 0,
+            "transport": 0,
+            "utilities": 1200000,
+            "entertainment": 200000,
+            "other": 0
+          }
+        },
+        "2025-12": {
+          "total": 4600000,
+          "count": 4,
+          "by_category": {
+            "food": 2400000,
+            "shopping": 1800000,
+            "transport": 0,
+            "utilities": 0,
+            "entertainment": 400000,
+            "other": 0
+          }
+        },
+        "2026-01": {
+          "total": 2400000,
+          "count": 2,
+          "by_category": {
+            "food": 1200000,
+            "shopping": 0,
+            "transport": 0,
+            "utilities": 1200000,
+            "entertainment": 0,
+            "other": 0
+          }
+        }
+      },
+      "actual": {
+        "2025-11": {
+          "total": 1400000,
+          "count": 2,
+          "by_category": {
+            "food": 0,
+            "shopping": 0,
+            "transport": 0,
+            "utilities": 1200000,
+            "entertainment": 200000,
+            "other": 0
+          }
+        },
+        "2025-12": {
+          "total": 4600000,
+          "count": 4,
+          "by_category": {
+            "food": 2400000,
+            "shopping": 1800000,
+            "transport": 0,
+            "utilities": 0,
+            "entertainment": 400000,
+            "other": 0
+          }
+        },
+        "2026-01": {
+          "total": 2400000,
+          "count": 2,
+          "by_category": {
+            "food": 1200000,
+            "shopping": 0,
+            "transport": 0,
+            "utilities": 1200000,
+            "entertainment": 0,
+            "other": 0
+          }
+        }
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "req": "PUT t5",
+          "status": 200,
+          "ms": 56.6
+        },
+        {
+          "req": "DELETE t9",
+          "status": 200,
+          "ms": 51.1
+        },
+        {
+          "req": "PUT t1",
+          "status": 200,
+          "ms": 31.7
+        },
+        {
+          "req": "GET /summary?month=2025-11",
+          "status": 200,
+          "ms": 23.0
+        },
+        {
+          "req": "GET /transactions?month=2025-11",
+          "status": 200,
+          "ms": 32.6
+        },
+        {
+          "req": "GET /summary?month=2025-12",
+          "status": 200,
+          "ms": 32.5
+        },
+        {
+          "req": "GET /transactions?month=2025-12",
+          "status": 200,
+          "ms": 28.0
+        },
+        {
+          "req": "GET /summary?month=2026-01",
+          "status": 200,
+          "ms": 31.6
+        },
+        {
+          "req": "GET /transactions?month=2026-01",
+          "status": 200,
+          "ms": 28.2
+        },
+        {
+          "req": "GET /summary/history",
+          "status": 200,
+          "ms": 24.7
+        }
+      ]
+    },
+    {
+      "id": "1.4-h5-a",
+      "desc": "Số lẻ không chia hết, khoản 1đ, ngày đầu/cuối tháng; hệ số 300.000/500.001 — sau khi nhập",
+      "input": {
+        "dataset": "h5.json",
+        "transactions": 6
+      },
+      "expected": {
+        "2026-08": {
+          "total": 133334,
+          "count": 2,
+          "by_category": {
+            "food": 100001,
+            "shopping": 0,
+            "transport": 0,
+            "utilities": 0,
+            "entertainment": 0,
+            "other": 33333
+          }
+        },
+        "2026-09": {
+          "total": 100000,
+          "count": 2,
+          "by_category": {
+            "food": 99999,
+            "shopping": 0,
+            "transport": 1,
+            "utilities": 0,
+            "entertainment": 0,
+            "other": 0
+          }
+        },
+        "2026-10": {
+          "total": 266667,
+          "count": 2,
+          "by_category": {
+            "food": 250000,
+            "shopping": 16667,
+            "transport": 0,
+            "utilities": 0,
+            "entertainment": 0,
+            "other": 0
+          }
+        }
+      },
+      "actual": {
+        "2026-08": {
+          "total": 133334,
+          "count": 2,
+          "by_category": {
+            "food": 100001,
+            "shopping": 0,
+            "transport": 0,
+            "utilities": 0,
+            "entertainment": 0,
+            "other": 33333
+          }
+        },
+        "2026-09": {
+          "total": 100000,
+          "count": 2,
+          "by_category": {
+            "food": 99999,
+            "shopping": 0,
+            "transport": 1,
+            "utilities": 0,
+            "entertainment": 0,
+            "other": 0
+          }
+        },
+        "2026-10": {
+          "total": 266667,
+          "count": 2,
+          "by_category": {
+            "food": 250000,
+            "shopping": 16667,
+            "transport": 0,
+            "utilities": 0,
+            "entertainment": 0,
+            "other": 0
+          }
+        }
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "req": "POST /transactions (t1)",
+          "status": 200,
+          "ms": 161.3
+        },
+        {
+          "req": "POST /transactions (t2)",
+          "status": 200,
+          "ms": 48.1
+        },
+        {
+          "req": "POST /transactions (t3)",
+          "status": 200,
+          "ms": 50.5
+        },
+        {
+          "req": "POST /transactions (t4)",
+          "status": 200,
+          "ms": 48.0
+        },
+        {
+          "req": "POST /transactions (t5)",
+          "status": 200,
+          "ms": 38.1
+        },
+        {
+          "req": "POST /transactions (t6)",
+          "status": 200,
+          "ms": 48.2
+        },
+        {
+          "req": "GET /summary?month=2026-08",
+          "status": 200,
+          "ms": 26.9
+        },
+        {
+          "req": "GET /transactions?month=2026-08",
+          "status": 200,
+          "ms": 27.0
+        },
+        {
+          "req": "GET /summary?month=2026-09",
+          "status": 200,
+          "ms": 29.5
+        },
+        {
+          "req": "GET /transactions?month=2026-09",
+          "status": 200,
+          "ms": 31.2
+        },
+        {
+          "req": "GET /summary?month=2026-10",
+          "status": 200,
+          "ms": 25.8
+        },
+        {
+          "req": "GET /transactions?month=2026-10",
+          "status": 200,
+          "ms": 28.8
+        },
+        {
+          "req": "GET /summary/history",
+          "status": 200,
+          "ms": 33.9
+        }
+      ]
+    },
+    {
+      "id": "1.4-h5-b",
+      "desc": "Số lẻ không chia hết, khoản 1đ, ngày đầu/cuối tháng; hệ số 300.000/500.001 — sau khi sửa/xóa",
+      "input": {
+        "dataset": "h5.json",
+        "edits": [
+          {
+            "ref": "t2",
+            "set": {
+              "amount_vnd": 33334
+            }
+          },
+          {
+            "ref": "t4",
+            "delete": true
+          },
+          {
+            "ref": "t6",
+            "set": {
+              "category_id": "food"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "2026-08": {
+          "total": 133335,
+          "count": 2,
+          "by_category": {
+            "food": 100001,
+            "shopping": 0,
+            "transport": 0,
+            "utilities": 0,
+            "entertainment": 0,
+            "other": 33334
+          }
+        },
+        "2026-09": {
+          "total": 99999,
+          "count": 1,
+          "by_category": {
+            "food": 99999,
+            "shopping": 0,
+            "transport": 0,
+            "utilities": 0,
+            "entertainment": 0,
+            "other": 0
+          }
+        },
+        "2026-10": {
+          "total": 266667,
+          "count": 2,
+          "by_category": {
+            "food": 266667,
+            "shopping": 0,
+            "transport": 0,
+            "utilities": 0,
+            "entertainment": 0,
+            "other": 0
+          }
+        }
+      },
+      "actual": {
+        "2026-08": {
+          "total": 133335,
+          "count": 2,
+          "by_category": {
+            "food": 100001,
+            "shopping": 0,
+            "transport": 0,
+            "utilities": 0,
+            "entertainment": 0,
+            "other": 33334
+          }
+        },
+        "2026-09": {
+          "total": 99999,
+          "count": 1,
+          "by_category": {
+            "food": 99999,
+            "shopping": 0,
+            "transport": 0,
+            "utilities": 0,
+            "entertainment": 0,
+            "other": 0
+          }
+        },
+        "2026-10": {
+          "total": 266667,
+          "count": 2,
+          "by_category": {
+            "food": 266667,
+            "shopping": 0,
+            "transport": 0,
+            "utilities": 0,
+            "entertainment": 0,
+            "other": 0
+          }
+        }
+      },
+      "passed": true,
+      "problems": [],
+      "evidence": [
+        {
+          "req": "PUT t2",
+          "status": 200,
+          "ms": 59.3
+        },
+        {
+          "req": "DELETE t4",
+          "status": 200,
+          "ms": 45.9
+        },
+        {
+          "req": "PUT t6",
+          "status": 200,
+          "ms": 48.6
+        },
+        {
+          "req": "GET /summary?month=2026-08",
+          "status": 200,
+          "ms": 37.5
+        },
+        {
+          "req": "GET /transactions?month=2026-08",
+          "status": 200,
+          "ms": 43.9
+        },
+        {
+          "req": "GET /summary?month=2026-09",
+          "status": 200,
+          "ms": 42.6
+        },
+        {
+          "req": "GET /transactions?month=2026-09",
+          "status": 200,
+          "ms": 37.1
+        },
+        {
+          "req": "GET /summary?month=2026-10",
+          "status": 200,
+          "ms": 33.4
+        },
+        {
+          "req": "GET /transactions?month=2026-10",
+          "status": 200,
+          "ms": 27.5
+        },
+        {
+          "req": "GET /summary/history",
+          "status": 200,
+          "ms": 30.1
+        }
+      ]
+    }
+  ]
+}

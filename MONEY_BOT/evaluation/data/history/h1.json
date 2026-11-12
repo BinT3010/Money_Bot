@@ -1,0 +1,44 @@
+{
+  "id": "h1",
+  "desc": "3 tháng đủ 6 danh mục, ngân sách lớn hơn trung bình (hệ số 1)",
+  "today": "2026-11-12",
+  "transactions": [
+    {"ref": "t1", "date": "2026-08-05", "amount_vnd": 1200000, "category_id": "food", "description": "Ăn trưa văn phòng"},
+    {"ref": "t2", "date": "2026-08-12", "amount_vnd": 600000, "category_id": "shopping", "description": "Quần áo"},
+    {"ref": "t3", "date": "2026-08-20", "amount_vnd": 300000, "category_id": "transport", "description": "Xăng xe"},
+    {"ref": "t4", "date": "2026-08-25", "amount_vnd": 900000, "category_id": "utilities", "description": "Tiền điện nước"},
+    {"ref": "t5", "date": "2026-08-28", "amount_vnd": 150000, "category_id": "entertainment", "description": "Xem phim"},
+    {"ref": "t6", "date": "2026-08-30", "amount_vnd": 50000, "category_id": "other", "description": "Thuốc cảm"},
+    {"ref": "t7", "date": "2026-09-03", "amount_vnd": 1500000, "category_id": "food", "description": "Ăn uống"},
+    {"ref": "t8", "date": "2026-09-10", "amount_vnd": 300000, "category_id": "shopping", "description": "Mỹ phẩm"},
+    {"ref": "t9", "date": "2026-09-15", "amount_vnd": 450000, "category_id": "transport", "description": "Đặt xe"},
+    {"ref": "t10", "date": "2026-09-25", "amount_vnd": 900000, "category_id": "utilities", "description": "Tiền điện nước"},
+    {"ref": "t11", "date": "2026-09-29", "amount_vnd": 150000, "category_id": "other", "description": "Đồ dùng học tập"},
+    {"ref": "t12", "date": "2026-10-02", "amount_vnd": 1800000, "category_id": "food", "description": "Ăn uống"},
+    {"ref": "t13", "date": "2026-10-11", "amount_vnd": 900000, "category_id": "shopping", "description": "Nồi cơm điện"},
+    {"ref": "t14", "date": "2026-10-18", "amount_vnd": 150000, "category_id": "transport", "description": "Gửi xe tháng"},
+    {"ref": "t15", "date": "2026-10-25", "amount_vnd": 900000, "category_id": "utilities", "description": "Tiền điện nước"},
+    {"ref": "t16", "date": "2026-10-27", "amount_vnd": 300000, "category_id": "entertainment", "description": "Vé hòa nhạc"},
+    {"ref": "t17", "date": "2026-10-31", "amount_vnd": 100000, "category_id": "other", "description": "Khám bệnh"}
+  ],
+  "expected": {
+    "2026-08": {"total": 3200000, "count": 6, "by_category": {"food": 1200000, "shopping": 600000, "transport": 300000, "utilities": 900000, "entertainment": 150000, "other": 50000}},
+    "2026-09": {"total": 3300000, "count": 5, "by_category": {"food": 1500000, "shopping": 300000, "transport": 450000, "utilities": 900000, "entertainment": 0, "other": 150000}},
+    "2026-10": {"total": 4150000, "count": 6, "by_category": {"food": 1800000, "shopping": 900000, "transport": 150000, "utilities": 900000, "entertainment": 300000, "other": 100000}}
+  },
+  "edits": [
+    {"ref": "t8", "set": {"amount_vnd": 350000}},
+    {"ref": "t16", "delete": true},
+    {"ref": "t3", "set": {"category_id": "other"}}
+  ],
+  "expected_after_edits": {
+    "2026-08": {"total": 3200000, "count": 6, "by_category": {"food": 1200000, "shopping": 600000, "transport": 0, "utilities": 900000, "entertainment": 150000, "other": 350000}},
+    "2026-09": {"total": 3350000, "count": 5, "by_category": {"food": 1500000, "shopping": 350000, "transport": 450000, "utilities": 900000, "entertainment": 0, "other": 150000}},
+    "2026-10": {"total": 3850000, "count": 5, "by_category": {"food": 1800000, "shopping": 900000, "transport": 150000, "utilities": 900000, "entertainment": 0, "other": 100000}}
+  },
+  "budget": {"month": "2026-11", "total": 6000000},
+  "expected_suggestion": {
+    "limits": {"food": 1500000, "shopping": 600000, "transport": 300000, "utilities": 900000, "entertainment": 150000, "other": 100000},
+    "factor": 1.0, "allocated": 3550000, "unallocated": 2450000
+  }
+}

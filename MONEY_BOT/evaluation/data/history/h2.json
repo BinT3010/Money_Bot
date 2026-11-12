@@ -1,0 +1,39 @@
+{
+  "id": "h2",
+  "desc": "4 tháng, nhiều khoản cùng danh mục, danh mục trống; ngân sách nhỏ hơn trung bình (hệ số 0,75)",
+  "today": "2026-11-12",
+  "transactions": [
+    {"ref": "t1", "date": "2026-07-04", "amount_vnd": 600000, "category_id": "food", "description": "Đi chợ"},
+    {"ref": "t2", "date": "2026-07-19", "amount_vnd": 200000, "category_id": "transport", "description": "Vé xe khách"},
+    {"ref": "t3", "date": "2026-08-02", "amount_vnd": 900000, "category_id": "food", "description": "Ăn uống"},
+    {"ref": "t4", "date": "2026-08-16", "amount_vnd": 300000, "category_id": "food", "description": "Liên hoan"},
+    {"ref": "t5", "date": "2026-08-20", "amount_vnd": 400000, "category_id": "utilities", "description": "Internet"},
+    {"ref": "t6", "date": "2026-09-09", "amount_vnd": 1500000, "category_id": "shopping", "description": "Tai nghe"},
+    {"ref": "t7", "date": "2026-09-21", "amount_vnd": 600000, "category_id": "food", "description": "Ăn uống"},
+    {"ref": "t8", "date": "2026-10-05", "amount_vnd": 900000, "category_id": "food", "description": "Ăn uống"},
+    {"ref": "t9", "date": "2026-10-14", "amount_vnd": 600000, "category_id": "entertainment", "description": "Vé xem bóng đá"},
+    {"ref": "t10", "date": "2026-10-20", "amount_vnd": 400000, "category_id": "utilities", "description": "Internet"}
+  ],
+  "expected": {
+    "2026-07": {"total": 800000, "count": 2, "by_category": {"food": 600000, "shopping": 0, "transport": 200000, "utilities": 0, "entertainment": 0, "other": 0}},
+    "2026-08": {"total": 1600000, "count": 3, "by_category": {"food": 1200000, "shopping": 0, "transport": 0, "utilities": 400000, "entertainment": 0, "other": 0}},
+    "2026-09": {"total": 2100000, "count": 2, "by_category": {"food": 600000, "shopping": 1500000, "transport": 0, "utilities": 0, "entertainment": 0, "other": 0}},
+    "2026-10": {"total": 1900000, "count": 3, "by_category": {"food": 900000, "shopping": 0, "transport": 0, "utilities": 400000, "entertainment": 600000, "other": 0}}
+  },
+  "edits": [
+    {"ref": "t4", "delete": true},
+    {"ref": "t9", "set": {"category_id": "shopping"}},
+    {"ref": "t2", "set": {"amount_vnd": 250000}}
+  ],
+  "expected_after_edits": {
+    "2026-07": {"total": 850000, "count": 2, "by_category": {"food": 600000, "shopping": 0, "transport": 250000, "utilities": 0, "entertainment": 0, "other": 0}},
+    "2026-08": {"total": 1300000, "count": 2, "by_category": {"food": 900000, "shopping": 0, "transport": 0, "utilities": 400000, "entertainment": 0, "other": 0}},
+    "2026-09": {"total": 2100000, "count": 2, "by_category": {"food": 600000, "shopping": 1500000, "transport": 0, "utilities": 0, "entertainment": 0, "other": 0}},
+    "2026-10": {"total": 1900000, "count": 3, "by_category": {"food": 900000, "shopping": 600000, "transport": 0, "utilities": 400000, "entertainment": 0, "other": 0}}
+  },
+  "budget": {"month": "2026-11", "total": 1400000},
+  "expected_suggestion": {
+    "limits": {"food": 675000, "shopping": 375000, "transport": 0, "utilities": 200000, "entertainment": 150000, "other": 0},
+    "factor": 0.75, "allocated": 1400000, "unallocated": 0
+  }
+}

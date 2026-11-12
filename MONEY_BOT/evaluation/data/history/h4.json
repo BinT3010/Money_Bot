@@ -1,0 +1,36 @@
+{
+  "id": "h4",
+  "desc": "Qua năm (11/2025–01/2026), ngày 1 và 31; hệ số lẻ 2.400.000/2.966.666,67",
+  "today": "2026-02-10",
+  "transactions": [
+    {"ref": "t1", "date": "2025-11-10", "amount_vnd": 1000000, "category_id": "food", "description": "Ăn uống"},
+    {"ref": "t2", "date": "2025-11-30", "amount_vnd": 1200000, "category_id": "utilities", "description": "Tiền phòng"},
+    {"ref": "t3", "date": "2025-11-15", "amount_vnd": 200000, "category_id": "entertainment", "description": "Netflix"},
+    {"ref": "t4", "date": "2025-12-01", "amount_vnd": 1400000, "category_id": "food", "description": "Ăn uống"},
+    {"ref": "t5", "date": "2025-12-24", "amount_vnd": 2000000, "category_id": "shopping", "description": "Quà Giáng sinh"},
+    {"ref": "t6", "date": "2025-12-31", "amount_vnd": 400000, "category_id": "entertainment", "description": "Tiệc cuối năm"},
+    {"ref": "t7", "date": "2026-01-01", "amount_vnd": 1200000, "category_id": "food", "description": "Ăn uống"},
+    {"ref": "t8", "date": "2026-01-31", "amount_vnd": 1200000, "category_id": "utilities", "description": "Tiền phòng"},
+    {"ref": "t9", "date": "2026-01-15", "amount_vnd": 300000, "category_id": "transport", "description": "Vé tàu"}
+  ],
+  "expected": {
+    "2025-11": {"total": 2400000, "count": 3, "by_category": {"food": 1000000, "shopping": 0, "transport": 0, "utilities": 1200000, "entertainment": 200000, "other": 0}},
+    "2025-12": {"total": 3800000, "count": 3, "by_category": {"food": 1400000, "shopping": 2000000, "transport": 0, "utilities": 0, "entertainment": 400000, "other": 0}},
+    "2026-01": {"total": 2700000, "count": 3, "by_category": {"food": 1200000, "shopping": 0, "transport": 300000, "utilities": 1200000, "entertainment": 0, "other": 0}}
+  },
+  "edits": [
+    {"ref": "t5", "set": {"amount_vnd": 1800000}},
+    {"ref": "t9", "delete": true},
+    {"ref": "t1", "set": {"date": "2025-12-05"}}
+  ],
+  "expected_after_edits": {
+    "2025-11": {"total": 1400000, "count": 2, "by_category": {"food": 0, "shopping": 0, "transport": 0, "utilities": 1200000, "entertainment": 200000, "other": 0}},
+    "2025-12": {"total": 4600000, "count": 4, "by_category": {"food": 2400000, "shopping": 1800000, "transport": 0, "utilities": 0, "entertainment": 400000, "other": 0}},
+    "2026-01": {"total": 2400000, "count": 2, "by_category": {"food": 1200000, "shopping": 0, "transport": 0, "utilities": 1200000, "entertainment": 0, "other": 0}}
+  },
+  "budget": {"month": "2026-02", "total": 2400000},
+  "expected_suggestion": {
+    "limits": {"food": 970786, "shopping": 539325, "transport": 80898, "utilities": 647191, "entertainment": 161797, "other": 0},
+    "factor": 0.808989, "allocated": 2399997, "unallocated": 3
+  }
+}

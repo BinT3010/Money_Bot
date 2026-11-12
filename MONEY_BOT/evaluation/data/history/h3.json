@@ -1,0 +1,31 @@
+{
+  "id": "h3",
+  "desc": "Tháng giữa không chi (tính 0); sửa ngày chuyển khoản chi sang tháng khác",
+  "today": "2026-11-12",
+  "transactions": [
+    {"ref": "t1", "date": "2026-08-08", "amount_vnd": 450000, "category_id": "food", "description": "Ăn uống"},
+    {"ref": "t2", "date": "2026-08-09", "amount_vnd": 150000, "category_id": "transport", "description": "Bảo dưỡng xe"},
+    {"ref": "t3", "date": "2026-08-30", "amount_vnd": 300000, "category_id": "other", "description": "Thuốc"},
+    {"ref": "t4", "date": "2026-10-01", "amount_vnd": 300000, "category_id": "food", "description": "Ăn uống"},
+    {"ref": "t5", "date": "2026-10-15", "amount_vnd": 750000, "category_id": "shopping", "description": "Giày"}
+  ],
+  "expected": {
+    "2026-08": {"total": 900000, "count": 3, "by_category": {"food": 450000, "shopping": 0, "transport": 150000, "utilities": 0, "entertainment": 0, "other": 300000}},
+    "2026-09": {"total": 0, "count": 0, "by_category": {"food": 0, "shopping": 0, "transport": 0, "utilities": 0, "entertainment": 0, "other": 0}},
+    "2026-10": {"total": 1050000, "count": 2, "by_category": {"food": 300000, "shopping": 750000, "transport": 0, "utilities": 0, "entertainment": 0, "other": 0}}
+  },
+  "edits": [
+    {"ref": "t5", "set": {"date": "2026-09-20"}},
+    {"ref": "t3", "delete": true}
+  ],
+  "expected_after_edits": {
+    "2026-08": {"total": 600000, "count": 2, "by_category": {"food": 450000, "shopping": 0, "transport": 150000, "utilities": 0, "entertainment": 0, "other": 0}},
+    "2026-09": {"total": 750000, "count": 1, "by_category": {"food": 0, "shopping": 750000, "transport": 0, "utilities": 0, "entertainment": 0, "other": 0}},
+    "2026-10": {"total": 300000, "count": 1, "by_category": {"food": 300000, "shopping": 0, "transport": 0, "utilities": 0, "entertainment": 0, "other": 0}}
+  },
+  "budget": {"month": "2026-11", "total": 1000000},
+  "expected_suggestion": {
+    "limits": {"food": 250000, "shopping": 250000, "transport": 50000, "utilities": 0, "entertainment": 0, "other": 100000},
+    "factor": 1.0, "allocated": 650000, "unallocated": 350000
+  }
+}
