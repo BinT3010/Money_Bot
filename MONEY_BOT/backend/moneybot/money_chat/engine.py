@@ -1,4 +1,6 @@
 """E01–E09: máy trạng thái hội thoại — phần chính của Đức Duy."""
+import re
+
 from .models import Draft, CATEGORIES, WRITE_INTENTS, INTENTS, validate, money, local_today
 from .parser import RuleInterpreter, detect_intent, fold
 from .services import KeywordClassifier
@@ -87,6 +89,14 @@ class ChatEngine:
             return self.reply(body, "Mỗi lần chỉ ghi một khoản. Hãy gửi lại riêng từng khoản, ví dụ: Ăn trưa 45k.")
         if not draft and parsed.intent not in INTENTS:
             return self.reply(body, HELP)
+        # Câu có cả nội dung và số tiền khi đã có nháp khoản chi là khoản chi mới, không phải câu bổ sung:
+        # giữ nháp cũ để người dùng còn sửa/xác nhận được. Câu "sửa/đổi ..." và câu chỉ có tiền/ngày vẫn sửa nháp.
+        if (draft and draft["intent"] == "record_expense" and parsed.intent == "record_expense"
+                and draft["fields"].get("description") and parsed.fields.get("description")
+                and parsed.fields.get("amount_vnd") is not None and not re.match(r"(sua|doi)\b", t)):
+            body["switch_text"] = text
+            return self.reply(body, f"Bạn đang có bản nháp \"{draft['fields']['description']}\" chưa lưu. "
+                                    "Gõ 'hủy và chuyển' để bỏ nháp đó và tạo khoản mới, hoặc 'giữ bản nháp' để tiếp tục sửa/xác nhận.")
         if not draft:
             draft = Draft(intent=parsed.intent).to_dict()
             if parsed.intent == "record_expense":
@@ -122,6 +132,7 @@ class ChatEngine:
         draft = body["draft"]
         if body["pending"] or not draft or (draft["id"], draft["version"]) != (draft_id, version):
             return self.reply(body, "Bản nháp đã thay đổi hoặc đang lưu. Hãy xem phiên bản mới nhất.")
+        body["switch_text"] = None  # sửa bằng biểu mẫu nghĩa là giữ bản nháp hiện tại
         allowed = {"description", "name", "date", "amount_vnd", "category_id", "due_day", "start_month", "month"}
         changes = {k: v for k, v in changes.items() if k in allowed}
         if "category_id" in changes:
@@ -207,6 +218,6 @@ class ChatEngine:
 
     # E09: chỉ biên nhận thành công mới được nói 'đã lưu'.
     def complete(self, body, receipt):
-        body.update(draft=None, pending=None, state="idle", last_receipt=receipt)
+        body.update(draft=None, pending=None, state="idle", last_receipt=receipt, switch_text=None)
         noun = "khoản chi" if receipt["intent"] == "record_expense" else "lịch hóa đơn (chưa ghi chi)"
         return self.reply(body, f"Đã lưu {noun}: {money(receipt['data']['amount_vnd'])}. Mã: {receipt['id']}.")

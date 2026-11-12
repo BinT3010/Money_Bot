@@ -56,3 +56,13 @@ BillsScreenTest (real screen, real server, expected values derived from the test
 - Java tests use the real clock (the server has no injectable date over HTTP). Month-boundary and day-31
   behaviour stays covered by the backend tests and the 3.2 evaluation suite with fixed dates.
 - Needs independent review. Not yet integrated into staging.
+
+## Out-of-scope fix made at the user's explicit request (2026-11-13)
+
+The user asked for this chat fix to be made on feature/bills, not on another branch. Chat belongs to
+feature/expense-capture, so the integrator should check it against that branch when merging.
+- `money_chat/engine.py`: when an expense draft exists, a new message that has both a description and an
+  amount (and does not start with "sửa"/"đổi") no longer overwrites the draft. The bot asks 'hủy và chuyển'
+  or 'giữ bản nháp'. Amount-only and date-only messages and "sửa thành ..." still edit the draft. Form edits
+  and a successful save clear the pending switch.
+- `tests/test_chat_draft_switch.py`: 5 tests. Full backend run: 167 passed. Strict evaluation passes.
