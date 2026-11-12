@@ -27,7 +27,7 @@ class BudgetMixin:
         if sum(limits.values()) > total:
             raise ValueError("Tổng hạn mức danh mục vượt ngân sách tổng.")
         with self.connection() as db:
-            db.execute("INSERT INTO budgets VALUES (?,?,?,?) ON CONFLICT(month) DO UPDATE SET total=excluded.total, limits=excluded.limits, threshold=excluded.threshold",
+            db.execute("INSERT INTO budgets (month, total, limits, threshold) VALUES (?,?,?,?) ON CONFLICT(month) DO UPDATE SET total=excluded.total, limits=excluded.limits, threshold=excluded.threshold",
                        (month, total, encode(limits), threshold))
         return self.budget(month)
 

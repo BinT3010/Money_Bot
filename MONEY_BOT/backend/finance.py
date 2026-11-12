@@ -10,7 +10,7 @@ from uuid import uuid4
 from bills import BillsMixin
 from budget import BudgetMixin
 from common import month_check, shift_month, integer  # noqa: F401 — giữ tên cũ cho nơi import từ finance
-from money_chat.storage import SQLiteStore, encode
+from money_chat.storage import SQLiteStore, encode, insert_record, write_fields
 from money_chat.models import validate
 
 
@@ -59,8 +59,7 @@ class FinanceStore(BillsMixin, BudgetMixin, SQLiteStore):
             return super().commit(key, intent, fields, today)
         if intent not in {"record_expense", "create_recurring_bill"}:
             raise ValueError("Thao tác không hợp lệ.")
-        names = ("date", "amount_vnd", "description", "category_id") if intent == "record_expense" else ("name", "amount_vnd", "due_day", "start_month")
-        data = {k: fields.get(k) for k in names}
+        data = write_fields(intent, fields)
         fingerprint = hashlib.sha256(encode([intent, data]).encode()).hexdigest()
         db = self.active
         old = db.execute("SELECT * FROM operations WHERE key=?", (key,)).fetchone()
@@ -72,12 +71,9 @@ class FinanceStore(BillsMixin, BudgetMixin, SQLiteStore):
         if errors:
             raise ValueError(" ".join(errors.values()))
         rid = uuid4().hex
-        if intent == "record_expense":
-            db.execute("INSERT INTO expenses VALUES (?,?,?,?,?)", (rid, data["date"], data["amount_vnd"], data["description"], data["category_id"]))
-        else:
-            db.execute("INSERT INTO bills VALUES (?,?,?,?,?)", (rid, data["name"], data["amount_vnd"], data["due_day"], data["start_month"]))
+        insert_record(db, rid, intent, data)
         receipt = {"id": rid, "intent": intent, "data": data}
-        db.execute("INSERT INTO operations VALUES (?,?,?)", (key, fingerprint, encode(receipt)))
+        db.execute("INSERT INTO operations (key, fingerprint, receipt) VALUES (?,?,?)", (key, fingerprint, encode(receipt)))
         return receipt
 
     def once(self, key, payload, action):
@@ -92,7 +88,7 @@ class FinanceStore(BillsMixin, BudgetMixin, SQLiteStore):
                     raise ValueError("Khóa yêu cầu đã dùng cho nội dung khác.")
                 return json.loads(old["response"])
             result = action()
-            db.execute("INSERT INTO requests VALUES (?,?,?)", (key, fingerprint, encode(result)))
+            db.execute("INSERT INTO requests (key, fingerprint, response) VALUES (?,?,?)", (key, fingerprint, encode(result)))
             return result
 
     def cached(self, key, payload):
@@ -115,9 +111,13 @@ class FinanceStore(BillsMixin, BudgetMixin, SQLiteStore):
             if delete:
                 db.execute("DELETE FROM expenses WHERE id=?", (rid,))
                 return {"deleted": rid}
-            errors = validate("record_expense", fields, today)
+            data = write_fields("record_expense", fields)
+            errors = validate("record_expense", data, today)
             if errors:
                 raise ValueError(" ".join(errors.values()))
-            db.execute("UPDATE expenses SET date=?,amount_vnd=?,description=?,category_id=? WHERE id=?",
-                       (fields["date"], fields["amount_vnd"], fields["description"], fields["category_id"], rid))
-            return {"id": rid, **fields}
+            # Không gửi merchant = giữ cửa hàng đã lưu (client cũ không biết trường này);
+            # gửi chuỗi rỗng hoặc null tường minh = xóa cửa hàng.
+            merchant = data.get("merchant") if "merchant" in fields else old["merchant"]
+            db.execute("UPDATE expenses SET date=?,amount_vnd=?,description=?,category_id=?,merchant=? WHERE id=?",
+                       (data["date"], data["amount_vnd"], data["description"], data["category_id"], merchant, rid))
+            return {"id": rid, **{k: data[k] for k in ("date", "amount_vnd", "description", "category_id")}, "merchant": merchant}

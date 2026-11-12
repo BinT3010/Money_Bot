@@ -4,6 +4,7 @@ from datetime import date, timedelta
 from uuid import uuid4
 
 from common import month_check, shift_month
+from money_chat.storage import insert_record
 
 
 class BillsMixin:
@@ -56,9 +57,10 @@ class BillsMixin:
                     raise ValueError("Giao dịch đã liên kết một kỳ khác.")
             else:
                 expense_id = uuid4().hex
-                db.execute("INSERT INTO expenses VALUES (?,?,?,?,?)", (expense_id, paid_on, bill["amount_vnd"], f"{bill['name']} · kỳ {month}", "utilities"))
-            db.execute("INSERT INTO payments VALUES (?,?,?)", (pid, expense_id, paid_on))
-            db.execute("INSERT OR IGNORE INTO paid_periods VALUES (?)", (pid,))
+                insert_record(db, expense_id, "record_expense", {"date": paid_on, "amount_vnd": bill["amount_vnd"],
+                                                                 "description": f"{bill['name']} · kỳ {month}", "category_id": "utilities"})
+            db.execute("INSERT INTO payments (period_id, expense_id, paid_on) VALUES (?,?,?)", (pid, expense_id, paid_on))
+            db.execute("INSERT OR IGNORE INTO paid_periods (period_id) VALUES (?)", (pid,))
         return {"period_id": pid, "expense_id": expense_id, "paid_on": paid_on, "already_paid": False}
 
     def obligations(self, today):

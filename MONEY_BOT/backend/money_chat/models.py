@@ -66,6 +66,10 @@ def validate(intent, fields, today):
             errors["date"] = "Nhập ngày hợp lệ từ năm 2000, không ở tương lai (dd/mm/yyyy)."
         if fields.get("category_id") not in CATEGORIES:
             errors["category_id"] = "Hãy chọn một danh mục cho khoản chi."
+        # Cửa hàng tùy chọn: chỉ hiển thị, không dùng để suy ra danh mục.
+        merchant = fields.get("merchant")
+        if merchant is not None and (not isinstance(merchant, str) or len(merchant) > 120):
+            errors["merchant"] = "Tên cửa hàng tối đa 120 ký tự."
     if intent == "create_recurring_bill":
         if type(fields.get("due_day")) is not int or not 1 <= fields["due_day"] <= 31:
             errors["due_day"] = "Ngày lặp phải từ 1 đến 31."

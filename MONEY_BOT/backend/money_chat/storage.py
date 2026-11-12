@@ -14,6 +14,44 @@ def encode(value):
     return json.dumps(value, ensure_ascii=False, sort_keys=True)
 
 
+# Cột thêm sau bản đầu. DB cũ được bổ sung khi mở; dữ liệu cũ giữ nguyên, cột mới là NULL.
+MIGRATIONS = (("expenses", "merchant", "TEXT"), ("bills", "end_month", "TEXT"))
+
+
+def migrate(db):
+    for table, column, declaration in MIGRATIONS:
+        if column not in {row[1] for row in db.execute(f"PRAGMA table_info({table})")}:
+            try:
+                db.execute(f"ALTER TABLE {table} ADD COLUMN {column} {declaration}")
+            except sqlite3.OperationalError as exc:
+                if "duplicate column" not in str(exc).lower():  # tiến trình khác vừa thêm cùng cột
+                    raise
+
+
+def write_fields(intent, fields):
+    """Trường được ghi cho một thao tác. merchant chỉ có mặt khi có giá trị, để khóa chống lặp của
+    yêu cầu không có cửa hàng giữ nguyên dấu vân tay như trước khi có cột này."""
+    names = ("date", "amount_vnd", "description", "category_id") if intent == "record_expense" else ("name", "amount_vnd", "due_day", "start_month")
+    data = {name: fields.get(name) for name in names}
+    if intent == "record_expense":
+        merchant = fields.get("merchant")
+        if isinstance(merchant, str):
+            merchant = merchant.strip() or None
+        if merchant is not None:
+            data["merchant"] = merchant
+    return data
+
+
+def insert_record(db, record_id, intent, data):
+    # INSERT luôn ghi rõ tên cột: thứ tự cột của DB cũ/mới có thể khác nhau sau migration.
+    if intent == "record_expense":
+        db.execute("INSERT INTO expenses (id, date, amount_vnd, description, category_id, merchant) VALUES (?,?,?,?,?,?)",
+                   (record_id, data["date"], data["amount_vnd"], data["description"], data["category_id"], data.get("merchant")))
+    else:
+        db.execute("INSERT INTO bills (id, name, amount_vnd, due_day, start_month) VALUES (?,?,?,?,?)",
+                   (record_id, data["name"], data["amount_vnd"], data["due_day"], data["start_month"]))
+
+
 class SQLiteStore:
     # S01: tạo bảng nếu chưa có; không xóa dữ liệu cũ khi khởi động.
     def __init__(self, path):
@@ -34,6 +72,7 @@ class SQLiteStore:
                 CREATE TABLE IF NOT EXISTS paid_periods (
                     period_id TEXT PRIMARY KEY);
             """)
+            migrate(db)
 
     @contextmanager
     def connection(self):
@@ -56,15 +95,14 @@ class SQLiteStore:
 
     def save_session(self, session_id, body):
         with self.connection() as db:
-            db.execute("INSERT INTO sessions VALUES (?,?) ON CONFLICT(id) DO UPDATE SET body=excluded.body",
+            db.execute("INSERT INTO sessions (id, body) VALUES (?,?) ON CONFLICT(id) DO UPDATE SET body=excluded.body",
                        (session_id, encode(body)))
 
     # S03: bản ghi nghiệp vụ và biên nhận được commit cùng một transaction.
     def commit(self, key, intent, fields, today):
         if intent not in {"record_expense", "create_recurring_bill"}:
             raise ValueError("Không phải thao tác ghi được hỗ trợ.")
-        allowed = ("date", "amount_vnd", "description", "category_id") if intent == "record_expense" else ("name", "amount_vnd", "due_day", "start_month")
-        data = {name: fields.get(name) for name in allowed}
+        data = write_fields(intent, fields)
         fingerprint = hashlib.sha256(encode([intent, data]).encode()).hexdigest()
         with self.connection() as db:
             db.execute("BEGIN IMMEDIATE")
@@ -77,14 +115,9 @@ class SQLiteStore:
             if errors:
                 raise ValueError(" ".join(errors.values()))
             record_id = uuid4().hex
-            if intent == "record_expense":
-                db.execute("INSERT INTO expenses VALUES (?,?,?,?,?)",
-                           (record_id, data["date"], data["amount_vnd"], data["description"], data["category_id"]))
-            else:
-                db.execute("INSERT INTO bills VALUES (?,?,?,?,?)",
-                           (record_id, data["name"], data["amount_vnd"], data["due_day"], data["start_month"]))
+            insert_record(db, record_id, intent, data)
             receipt = {"id": record_id, "intent": intent, "data": data}
-            db.execute("INSERT INTO operations VALUES (?,?,?)", (key, fingerprint, encode(receipt)))
+            db.execute("INSERT INTO operations (key, fingerprint, receipt) VALUES (?,?,?)", (key, fingerprint, encode(receipt)))
         return receipt
 
     def operation_status(self, key):
@@ -136,4 +169,4 @@ class SQLiteStore:
     # S06: chỉ dùng cho seed/test; màn hình demo không tự đánh dấu đã trả.
     def seed_paid_period(self, period_id):
         with self.connection() as db:
-            db.execute("INSERT OR IGNORE INTO paid_periods VALUES (?)", (period_id,))
+            db.execute("INSERT OR IGNORE INTO paid_periods (period_id) VALUES (?)", (period_id,))
