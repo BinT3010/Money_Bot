@@ -88,7 +88,7 @@ final class BudgetScreen {
                         long currentCap=amountOrZero(host.value(total));
                         long value=amountOrZero(text.toString());
                         long available=availableAllocation(host,edits,index,currentCap);
-                        if(value>lastAllocation[index]&&value>available){
+                        if(!applyingBaseCase[0]&&value>lastAllocation[index]&&value>available){
                             edits[index].setText(String.valueOf(available));
                             return;
                         }
@@ -159,14 +159,18 @@ final class BudgetScreen {
                 if(available){
                     JSONObject suggested=result.getJSONObject("limits");
                     long currentCap=amountOrZero(host.value(total));
-                    for(int i=0;i<6;i++){
-                        recommended[i]=suggested.getLong(host.categories[i]);hasRecommendation[i]=true;
-                        recommendationLabels[i].setText("Mức gợi ý · "+host.money(recommended[i]));
-                        recommendationLabels[i].setVisibility(android.view.View.VISIBLE);
-                        recommendationBars[i].setProgress(currentCap>0?(int)Math.max(0,Math.min(100,recommended[i]*100/currentCap)):0);
-                        recommendationBars[i].setVisibility(android.view.View.VISIBLE);
-                        edits[i].setText(suggested.getString(host.categories[i]));
-                    }
+                    applyingBaseCase[0]=true;
+                    baseCaseActive[0]=false;
+                    try{
+                        for(int i=0;i<6;i++){
+                            recommended[i]=suggested.getLong(host.categories[i]);hasRecommendation[i]=true;
+                            recommendationLabels[i].setText("Mức gợi ý · "+host.money(recommended[i]));
+                            recommendationLabels[i].setVisibility(android.view.View.VISIBLE);
+                            recommendationBars[i].setProgress(currentCap>0?(int)Math.max(0,Math.min(100,recommended[i]*100/currentCap)):0);
+                            recommendationBars[i].setVisibility(android.view.View.VISIBLE);
+                            edits[i].setText(suggested.getString(host.categories[i]));
+                        }
+                    }finally{applyingBaseCase[0]=false;}
                     UiHelpers.status(host,"Đã điền hạn mức gợi ý. Chưa lưu; kiểm tra rồi bấm Xác nhận lưu ngân sách.");
                 } else {
                     for(int i=0;i<6;i++){

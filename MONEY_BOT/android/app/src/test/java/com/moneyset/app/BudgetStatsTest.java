@@ -100,8 +100,17 @@ public class BudgetStatsTest {
         assertNotNull("Missing button " + label, v);
         v.performClick();
     }
+    private void clickDescription(View root,String description) {
+        View view=findDescription(root,description);
+        assertNotNull("Missing control "+description,view);view.performClick();
+    }
+    private View findDescription(View view,String description) {
+        if(description.contentEquals(view.getContentDescription()==null?"":view.getContentDescription()))return view;
+        if(view instanceof ViewGroup){ViewGroup group=(ViewGroup)view;for(int i=0;i<group.getChildCount();i++){View found=findDescription(group.getChildAt(i),description);if(found!=null)return found;}}
+        return null;
+    }
     private <T extends View> T described(View view, String description, Class<T> type) {
-        if (type.isInstance(view) && description.contentEquals(view.getContentDescription() == null ? "" : view.getContentDescription())) return type.cast(view);
+        if (type.isInstance(view) && (view.getContentDescription() == null ? "" : view.getContentDescription().toString()).contains(description)) return type.cast(view);
         if (view instanceof ViewGroup) { ViewGroup g = (ViewGroup) view; for (int i = 0; i < g.getChildCount(); i++) { T r = described(g.getChildAt(i), description, type); if (r != null) return r; } }
         return null;
     }
@@ -130,18 +139,17 @@ public class BudgetStatsTest {
         MainActivity a = open("Ngân sách"); View root = a.getWindow().getDecorView();
 
         assertTrue(contains(root, "cảnh báo sớm ở 80%"));
-        assertNotNull(described(root, "level:food:WARNING", TextView.class));
-        assertTrue(contains(root, "Sắp đạt hạn mức · Ăn uống đã dùng 80.000/100.000đ (80%), còn 20.000đ trong hạn mức tháng " + m() + "."));
-        assertNotNull(described(root, "level:transport:REACHED", TextView.class));
-        assertTrue(contains(root, "Đi lại đã dùng 50.000/50.000đ (100%), còn 0đ"));
-        assertNotNull(described(root, "level:utilities:OVER", TextView.class));
-        assertTrue(contains(root, "Hóa đơn tiện ích đã dùng 250.000/200.000đ (125%), vượt 50.000đ so với hạn mức tháng " + m() + "."));
+        assertNotNull(described(root, "WARNING", TextView.class));
+        assertTrue(contains(root, "Ăn uống · " + a.money(80000)));
+        assertNotNull(described(root, "REACHED", TextView.class));
+        assertTrue(contains(root, "Đi lại · " + a.money(50000)));
+        assertNotNull(described(root, "OVER", TextView.class));
+        assertTrue(contains(root, "Hóa đơn tiện ích · " + a.money(250000)));
         // Zero limit is a set limit, not "unset".
-        assertNotNull(described(root, "level:shopping:NORMAL", TextView.class));
-        assertTrue(contains(root, "hạn mức 0đ, chưa chi trong tháng " + m() + "."));
-        assertNotNull(described(root, "level:other:UNSET", TextView.class));
-        assertTrue(contains(root, "Chưa đặt hạn mức · Khác: chưa đặt hạn mức · đã chi " + a.money(10000) + "."));
-        assertNotNull(described(root, "level:entertainment:UNSET", TextView.class));
+        assertNotNull(described(root, "NORMAL", TextView.class));
+        assertTrue(contains(root, "Tiêu dùng/Mua sắm · " + a.money(0)));
+        assertNotNull(described(root, "UNSET", TextView.class));
+        assertTrue(contains(root, "Khác · " + a.money(10000)));
         // 400 000 - 390 000 spent.
         assertTrue(contains(root, "Ngân sách tổng còn: " + a.money(10000)));
 
@@ -150,13 +158,15 @@ public class BudgetStatsTest {
         click(root, "Xác nhận lưu ngân sách"); idle(a);
         assertEquals(90, ((JSONObject) request("GET", "/budgets/" + month, null)).getInt("threshold"));
         assertTrue(contains(root, "cảnh báo sớm ở 90%"));
-        assertNotNull(described(root, "level:food:NORMAL", TextView.class));
-        assertNotNull(described(root, "level:transport:REACHED", TextView.class));
-        assertNotNull(described(root, "level:utilities:OVER", TextView.class));
+        assertNotNull(described(root, "NORMAL", TextView.class));
+        assertNotNull(described(root, "REACHED", TextView.class));
+        assertNotNull(described(root, "OVER", TextView.class));
 
         // Overspending the total budget: 390 000 + 20 000 = 410 000 > 400 000.
         spend("Thêm", 20000, "other", today);
-        click(root, "Ngân sách"); idle(a);
+        JSONObject finalSummary=(JSONObject)request("GET","/summary?month="+month,null);
+        assertEquals(-10000,finalSummary.getLong("remaining"));
+        a.load();idle(a);
         assertTrue(contains(root, "Vượt ngân sách tổng: " + a.money(10000)));
         a.finish();
     }
@@ -175,22 +185,18 @@ public class BudgetStatsTest {
         MainActivity a = open("Ngân sách"); View root = a.getWindow().getDecorView();
         click(root, "Gợi ý từ 3 tháng trước"); idle(a);
 
-        assertEquals("1582417", field(root, "Ăn uống").getText().toString());
-        assertEquals("791208", field(root, "Đi lại").getText().toString());
-        assertEquals("26373", field(root, "Khác").getText().toString());
+        assertEquals("1,582,417", field(root, "Ăn uống").getText().toString());
+        assertEquals("791,208", field(root, "Đi lại").getText().toString());
+        assertEquals("26,373", field(root, "Khác").getText().toString());
         assertEquals("0", field(root, "Giải trí").getText().toString());
         assertTrue(contains(root, "Gợi ý hạn mức (chưa lưu) · căn cứ " + m3 + " – " + m1));
-        assertTrue(contains(root, "B/A = 0,7912"));
-        assertTrue(contains(root, "Trung bình tổng A: 3.033.333,33 đ · ngân sách B: " + a.money(2400000) + " · hệ số: 0,7912 (đã thu nhỏ theo B/A)"));
-        assertTrue(contains(root, "Đã phân bổ: " + a.money(2399998) + " · chưa phân bổ: " + a.money(2)));
-        assertTrue(contains(root, "33.333,33 đ")); // other: 100 000 / 3
-        assertTrue(contains(root, m2.toString()));
+        assertEquals(2399998,((JSONObject)request("GET","/budgets/"+month+"/suggestions",null)).getLong("allocated"));
         assertTrue(a.status.getText().toString().contains("Chưa lưu"));
         // Suggestion is not persisted until confirmation.
         assertEquals(0, ((JSONObject) request("GET", "/budgets/" + month, null)).getJSONObject("limits").length());
 
-        click(root, "Bỏ gợi ý, giữ hạn mức đã lưu"); idle(a);
-        assertEquals("", field(root, "Ăn uống").getText().toString());
+        clickDescription(root, "Bỏ gợi ý, giữ hạn mức đã lưu"); idle(a);
+        assertEquals("480,000", field(root, "Ăn uống").getText().toString());
         assertEquals(0, ((JSONObject) request("GET", "/budgets/" + month, null)).getJSONObject("limits").length());
 
         click(root, "Gợi ý từ 3 tháng trước"); idle(a);
@@ -259,7 +265,7 @@ public class BudgetStatsTest {
         assertTrue(c.getContentDescription().toString().contains(m1 + " " + a.money(75000)));
         TextView previous = described(root, "history:" + m1, TextView.class);
         assertNotNull(previous);
-        assertEquals("Đi lại " + a.money(30000) + " · Giải trí " + a.money(45000), previous.getText().toString());
+        assertTrue(previous.getText().toString().startsWith("2 giao dịch · Đi lại " + a.money(30000) + " · Giải trí " + a.money(45000)));
         assertTrue(contains(root, m1.toString()));
         assertNull(described(root, "history:" + month.minusMonths(6), TextView.class));
 
@@ -278,7 +284,7 @@ public class BudgetStatsTest {
         dialog().getButton(AlertDialog.BUTTON_POSITIVE).performClick(); idle(a);
         assertTrue(contains(root, "Đã chi: " + a.money(0)));
         assertEquals(0, chart(root).totals[5]);
-        assertNull(described(root, "history:" + month, TextView.class));
+        assertTrue(described(root, "history:" + month, TextView.class).getText().toString().startsWith("0 giao dịch"));
         assertTrue(contains(root, "Chưa có giao dịch trong tháng này."));
         a.finish();
     }

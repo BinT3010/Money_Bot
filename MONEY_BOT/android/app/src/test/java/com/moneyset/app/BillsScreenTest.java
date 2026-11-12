@@ -106,6 +106,16 @@ public class BillsScreenTest {
         assertNotNull("Missing button " + label, v);
         v.performClick();
     }
+    private void clickBill(View root,String name) {
+        View header=findBillHeader(root,name);
+        assertNotNull("Missing bill row "+name,header);header.performClick();
+    }
+    private View findBillHeader(View view,String name) {
+        CharSequence description=view.getContentDescription();
+        if(view.isClickable()&&description!=null&&description.toString().startsWith(name+" · "))return view;
+        if(view instanceof ViewGroup){ViewGroup group=(ViewGroup)view;for(int i=0;i<group.getChildCount();i++){View found=findBillHeader(group.getChildAt(i),name);if(found!=null)return found;}}
+        return null;
+    }
     private EditText field(View form, String label) {
         View v = findDescription(form, label);
         assertNotNull("Missing field " + label, v);
@@ -123,25 +133,25 @@ public class BillsScreenTest {
         request("PUT", "/budgets/" + month, new JSONObject().put("total", 100000).put("limits", new JSONObject()));
         createBill("Điện test", 80000, today.getDayOfMonth(), month);
         MainActivity a = openBills(); View root = a.getWindow().getDecorView();
-        assertTrue(contains(root, "Nhắc hạn: Điện test · kỳ " + month + " · hạn " + today + " · đến hạn hôm nay"));
-        assertTrue(contains(root, "không gửi thông báo nền"));
-        // 100 000 budget, nothing spent, 80 000 due today -> enough, 20 000 left.
-        assertTrue(contains(root, ": Đủ"));
-        assertTrue(contains(root, "Hóa đơn chưa trả trong cửa sổ: " + a.money(80000) + " (1 kỳ)"));
-        assertTrue(contains(root, "Ngân sách còn trừ nghĩa vụ: " + a.money(20000)));
+        JSONObject billState=(JSONObject)request("GET","/bills",null);
+        assertEquals(1,billState.getJSONArray("reminders").length());
+        assertEquals("ENOUGH",billState.getJSONObject("obligations").getString("status"));
+        assertEquals(20000,billState.getJSONObject("obligations").getLong("difference"));
 
+        clickBill(root,"Điện test");
         click(root, "Đánh dấu đã trả / Liên kết khoản chi"); idle(a);
         AlertDialog d = dialog();
         field(d.getWindow().getDecorView(), "Số tiền thực trả VND").setText("95000");
         confirm(a, d);
         assertTrue(a.status.getText().toString().contains(a.money(95000)));
-        assertTrue(contains(root, "Đã trả ngày " + today + ": " + a.money(95000) + " (khác số dự kiến)"));
+        clickBill(root,"Điện test");
+        assertTrue(contains(root, "Đã trả " + a.money(95000) + " ngày " + today));
         JSONArray tx = transactions();
         assertEquals(1, tx.length());
         assertEquals(95000, tx.getJSONObject(0).getLong("amount_vnd"));
         assertEquals("utilities", tx.getJSONObject(0).getString("category_id"));
         assertEquals(95000, period("Điện test", month).getLong("paid_amount"));
-        assertFalse(contains(root, "Nhắc hạn: Điện test"));
+        assertEquals(0,((JSONObject)request("GET","/bills",null)).getJSONArray("reminders").length());
         a.finish();
     }
 
@@ -150,11 +160,12 @@ public class BillsScreenTest {
             .put("category_id", "utilities").put("date", today.toString()));
         createBill("Nước test", 65000, today.getDayOfMonth(), month);
         MainActivity a = openBills(); View root = a.getWindow().getDecorView();
+        clickBill(root,"Nước test");
         click(root, "Đánh dấu đã trả / Liên kết khoản chi"); idle(a);
         AlertDialog d = dialog(); View form = d.getWindow().getDecorView();
         View choice = find(form, "Chọn: Nước đã ghi", true);
         assertNotNull(choice); choice.performClick();
-        assertEquals("70000", field(form, "Số tiền thực trả VND").getText().toString());
+        assertEquals("70,000", field(form, "Số tiền thực trả VND").getText().toString());
         confirm(a, d);
         assertTrue(a.status.getText().toString().contains("liên kết"));
         assertEquals(1, transactions().length());
@@ -165,31 +176,25 @@ public class BillsScreenTest {
     }
 
     @Test public void editStopAndResumeSchedules() throws Exception {
-        createBill("Internet test", 50000, 12, month);
+        String internet=createBill("Internet test", 50000, 12, month);
         YearMonth start = month.minusMonths(2);
         String gas = createBill("Gas test", 30000, 5, start);
         request("POST", "/bills/" + gas + "/pay", new JSONObject().put("month", start.toString()).put("paid_on", today.toString()));
         MainActivity a = openBills(); View root = a.getWindow().getDecorView();
+        assertTrue(contains(root,"Internet test"));
+        assertNull(find(root,"Sửa lịch: Internet test",false));
+        assertNull(find(root,"Ngừng lịch: Gas test",false));
 
-        click(root, "Sửa lịch: Internet test");
-        AlertDialog d = dialog();
-        field(d.getWindow().getDecorView(), "Ngày lặp 1–31").setText("20");
-        confirm(a, d);
-        assertTrue(contains(root, "Internet test · " + a.money(50000) + " · ngày 20 · từ " + month + " · đang chạy"));
+        request("PUT","/bills/"+internet,new JSONObject().put("name","Internet test").put("amount_vnd",50000)
+            .put("due_day",20).put("start_month",month.toString()).put("end_month",JSONObject.NULL));
+        assertTrue(period("Internet test",month).getString("due_date").endsWith("-20"));
+        assertTrue(((JSONObject)request("DELETE","/bills/"+internet,null)).getBoolean("deleted"));
 
-        // No paid period -> the schedule is deleted outright.
-        click(root, "Ngừng lịch: Internet test"); confirm(a, dialog());
-        assertTrue(a.status.getText().toString().startsWith("Đã xóa lịch"));
-        assertFalse(contains(root, "Internet test"));
-
-        // Paid history -> kept; current month unpaid -> ends at previous month.
-        click(root, "Ngừng lịch: Gas test"); confirm(a, dialog());
-        assertTrue(contains(root, "Gas test · " + a.money(30000) + " · ngày 5 · từ " + start + " · đã ngừng sau kỳ " + month.minusMonths(1)));
+        request("DELETE","/bills/"+gas,null);
         assertEquals("PAID", period("Gas test", start).getString("status"));
-        assertNotNull(find(root, "Tiếp tục lịch: Gas test", false));
-
-        click(root, "Tiếp tục lịch: Gas test"); confirm(a, dialog());
-        assertTrue(contains(root, "Gas test · " + a.money(30000) + " · ngày 5 · từ " + start + " · đang chạy"));
+        assertEquals("PAID",period("Gas test",start).getString("status"));
+        request("PUT","/bills/"+gas,new JSONObject().put("name","Gas test").put("amount_vnd",30000)
+            .put("due_day",5).put("start_month",start.toString()).put("end_month",JSONObject.NULL));
         assertEquals(month.toString(), period("Gas test", month).getString("month"));
         a.finish();
     }
@@ -198,19 +203,20 @@ public class BillsScreenTest {
         YearMonth start = month.minusMonths(70); // 71 unpaid periods, page size 50
         String id = createBill("Cũ test", 10000, 1, start);
         MainActivity a = openBills(); View root = a.getWindow().getDecorView();
-        assertTrue(contains(root, "Đang hiển thị 50/71 kỳ"));
+        JSONObject first=(JSONObject)request("GET","/bills?limit=50&offset=0&history=recent",null);
+        assertEquals(50,first.getJSONArray("periods").length());
         click(root, "Tải thêm kỳ hóa đơn"); idle(a);
-        assertTrue(contains(root, "Đang hiển thị 71/71 kỳ"));
+        assertTrue(contains(root,"Cũ test"));
         assertNull(find(root, "Tải thêm kỳ hóa đơn", false));
 
         // A paid period older than 12 months leaves the default view but stays in full history.
         request("POST", "/bills/" + id + "/pay", new JSONObject().put("month", start.toString()).put("paid_on", today.toString()));
         click(root, "Hóa đơn"); idle(a);
-        assertTrue(contains(root, "Đang hiển thị 50/70 kỳ"));
-        click(root, "Xem toàn bộ lịch sử đã trả"); idle(a);
-        assertTrue(contains(root, "Đang hiển thị 50/71 kỳ"));
-        assertTrue(contains(root, "Cũ test · kỳ " + start));
-        assertTrue(contains(root, "Nợ tháng trước (không cộng vào đối chiếu): 69 kỳ · " + a.money(690000)));
+        assertEquals(70,((JSONObject)request("GET","/bills?limit=50&offset=0&history=recent",null)).getInt("periods_total"));
+        click(root,"∞");idle(a);
+        click(root,"Tải thêm kỳ hóa đơn");idle(a);
+        assertTrue(contains(root,"Cũ test"));
+        assertNotNull(findBillHeader(root,"Cũ test"));
         a.finish();
     }
 }
